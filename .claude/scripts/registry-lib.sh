@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# Loa Registry Integration - Shared Library Functions
+# Loa Constructs - Shared Library Functions
 # =============================================================================
 # Provides shared utilities for registry skill loading and license validation.
 #

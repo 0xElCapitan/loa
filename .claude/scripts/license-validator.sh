@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# license-validator.sh - JWT license validation for Loa Registry Integration
+# license-validator.sh - JWT license validation for Loa Constructs
 #
 # Usage:
 #   license-validator.sh validate <license-file>    - Full validation flow

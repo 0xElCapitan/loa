@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Integration tests for Loa Registry Integration
+# Integration tests for Loa Constructs
 # Tests full flows with mock registry server
 #
 # Prerequisites:

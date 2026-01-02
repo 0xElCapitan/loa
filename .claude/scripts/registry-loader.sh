@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# registry-loader.sh - Main registry skill loader for Loa Registry Integration
+# registry-loader.sh - Main skill loader for Loa Constructs
 #
 # Usage:
 #   registry-loader.sh list                 - Show all registry skills with status

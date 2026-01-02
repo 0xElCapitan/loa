@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Mock Registry Server for Loa Registry Integration Testing.
+Mock Server for Loa Constructs Testing.
 
-This server simulates the Loa Skills Registry API for local testing.
+This server simulates the Loa Constructs API for local testing.
 It serves test fixtures and responds to all registry endpoints.
 
 Usage:
@@ -422,13 +422,13 @@ class MockRegistryHandler(BaseHTTPRequestHandler):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Mock Loa Registry Server')
+    parser = argparse.ArgumentParser(description='Mock Loa Constructs Server')
     parser.add_argument('--port', type=int, default=8765, help='Port to listen on')
     parser.add_argument('--host', default='127.0.0.1', help='Host to bind to')
     args = parser.parse_args()
 
     server = HTTPServer((args.host, args.port), MockRegistryHandler)
-    print(f"Mock Registry Server starting on http://{args.host}:{args.port}")
+    print(f"Mock Loa Constructs Server starting on http://{args.host}:{args.port}")
     print(f"Fixtures directory: {FIXTURES_DIR}")
     print("Press Ctrl+C to stop")
 
