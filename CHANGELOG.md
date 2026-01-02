@@ -5,6 +5,83 @@ All notable changes to Loa will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-01-03
+
+### Why This Release
+
+This release introduces **Loa Constructs** - a commercial skill distribution system that enables third-party skills and skill packs to be installed, validated, and loaded alongside local skills. Skills are JWT-signed with RS256, license-validated with grace periods, and support offline operation.
+
+### Added
+
+- **Loa Constructs Registry Integration**
+  - Commercial skill distribution via `loa-constructs-api.fly.dev`
+  - JWT-signed licenses with RS256 signature verification
+  - Grace periods by tier: 24h (individual/pro), 72h (team), 168h (enterprise)
+  - Offline operation with cached public keys
+  - Skill packs for bundled skill distribution
+
+- **New Scripts** (`.claude/scripts/`)
+  | Script | Purpose |
+  |--------|---------|
+  | `constructs-loader.sh` | Main CLI for listing, validating, loading constructs |
+  | `constructs-lib.sh` | Shared library functions for construct operations |
+  | `license-validator.sh` | JWT license validation with RS256 signatures |
+
+- **New Protocol** (`.claude/protocols/constructs-integration.md`)
+  - Skill loading priority (local > override > registry > pack)
+  - License validation flow with exit codes
+  - Offline behavior and key caching
+  - Directory structure for installed constructs
+
+- **Auto-Gitignore for Constructs**
+  - `.claude/constructs/` automatically added to `.gitignore` on install
+  - Prevents accidental commit of licensed content
+  - `ensure-gitignore` CLI command for manual verification
+
+- **CI Template Protection**
+  - `.claude/constructs/` added to forbidden paths in CI
+  - Prevents licensed skills from being committed to template repository
+
+- **Comprehensive Test Suite** (2700+ lines)
+  - Unit tests for loader, lib, and license validator
+  - Integration tests with mock API server
+  - E2E tests for full workflow validation
+  - Pack support and update check tests
+
+### Changed
+
+- **Configuration**: New `.loa.config.yaml` options
+  ```yaml
+  registry:
+    enabled: true
+    default_url: "https://loa-constructs-api.fly.dev/v1"
+    validate_licenses: true
+    offline_grace_hours: 24
+    check_updates_on_setup: true
+  ```
+
+- **CLAUDE.md**: Added Registry Integration section with API endpoints, authentication, and CLI commands
+
+### Directory Structure
+
+```
+.claude/constructs/
+├── skills/{vendor}/{slug}/    # Installed skills
+│   ├── .license.json          # JWT license token
+│   ├── index.yaml             # Skill metadata
+│   └── SKILL.md               # Instructions
+├── packs/{name}/              # Skill packs
+│   ├── .license.json          # Pack license
+│   └── skills/                # Bundled skills
+└── .constructs-meta.json      # Installation state
+```
+
+### Breaking Changes
+
+**None** - This release is fully backward compatible. The constructs system is opt-in and does not affect existing local skills.
+
+---
+
 ## [0.9.2] - 2025-12-31
 
 ### Why This Release
@@ -717,6 +794,7 @@ loa-grimoire/           # Loa process artifacts
 └── deployment/         # Production infrastructure docs
 ```
 
+[0.10.0]: https://github.com/0xHoneyJar/loa/releases/tag/v0.10.0
 [0.9.2]: https://github.com/0xHoneyJar/loa/releases/tag/v0.9.2
 [0.9.1]: https://github.com/0xHoneyJar/loa/releases/tag/v0.9.1
 [0.9.0]: https://github.com/0xHoneyJar/loa/releases/tag/v0.9.0
