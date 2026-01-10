@@ -234,6 +234,86 @@ registry:
     - translating-for-executives
 
 # =============================================================================
+# Structured Outputs (Claude Platform Integration)
+# =============================================================================
+# JSON Schema validation for agent outputs
+structured_outputs:
+  # Master toggle for structured output validation
+  enabled: true
+  # Validation mode: strict (block on invalid), warn (warn only), disabled
+  validation_mode: "warn"
+  # Schema directory path (relative to .claude/)
+  schema_dir: "schemas"
+  # Schema mappings (file patterns -> schema names)
+  schemas:
+    prd: "prd.schema.json"
+    sdd: "sdd.schema.json"
+    sprint: "sprint.schema.json"
+    trajectory: "trajectory-entry.schema.json"
+  # Auto-validate outputs before writing
+  auto_validate: true
+
+# =============================================================================
+# Extended Thinking (Claude Platform Integration)
+# =============================================================================
+# Extended thinking for complex reasoning agents
+extended_thinking:
+  # Master toggle for extended thinking features
+  enabled: true
+  # Budget tokens for thinking (0 = model decides, max 32000)
+  budget_tokens: 16000
+  # Agents that use extended thinking by default
+  enabled_agents:
+    - designing-architecture
+    - reviewing-code
+    - auditing-security
+    - planning-sprints
+  # Log thinking traces to trajectory
+  log_thinking: true
+  # Include thinking summary in output
+  include_summary: true
+  # Thinking step types to capture
+  step_types:
+    - analysis
+    - hypothesis
+    - evaluation
+    - decision
+    - reflection
+
+# =============================================================================
+# Trajectory Logging (Claude Platform Integration)
+# =============================================================================
+# ADK-style trajectory evaluation with extended thinking support
+trajectory:
+  # Enable trajectory logging
+  enabled: true
+  # Output directory for trajectory files
+  output_dir: "loa-grimoire/a2a/trajectory"
+  # File naming pattern: {agent}-{date}.jsonl
+  file_pattern: "{agent}-{date}.jsonl"
+  # Include extended thinking traces
+  include_thinking: true
+  # Grounding requirements
+  grounding:
+    # Require grounding for all claims
+    required: true
+    # Types of grounding to capture
+    types:
+      - citation
+      - code_reference
+      - assumption
+      - user_input
+      - inference
+    # Minimum confidence for ungrounded claims
+    min_confidence: 0.8
+  # Retention settings
+  retention:
+    # Days to keep trajectory files (0 = forever)
+    days: 30
+    # Archive old files instead of deleting
+    archive: true
+
+# =============================================================================
 # Behavior Preferences
 # =============================================================================
 preferences:

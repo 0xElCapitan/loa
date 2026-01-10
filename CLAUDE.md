@@ -323,8 +323,88 @@ Use `.claude/scripts/context-check.sh` for assessment.
 ├── constructs-loader.sh      # Loa Constructs skill loader
 ├── constructs-lib.sh         # Loa Constructs shared utilities
 ├── license-validator.sh      # JWT license validation
-└── skills-adapter.sh         # Claude Agent Skills format generator (v0.11.0)
+├── skills-adapter.sh         # Claude Agent Skills format generator (v0.11.0)
+├── schema-validator.sh       # JSON Schema validation for outputs (v0.12.0)
+└── thinking-logger.sh        # Extended thinking trajectory logger (v0.12.0)
 ```
+
+### Schema Validator (v0.12.0)
+
+Validates agent outputs against JSON schemas:
+
+```bash
+# Validate a file (auto-detects schema based on path)
+.claude/scripts/schema-validator.sh validate loa-grimoire/prd.md
+
+# List available schemas
+.claude/scripts/schema-validator.sh list
+
+# Override schema detection
+.claude/scripts/schema-validator.sh validate output.json --schema prd
+
+# Validation modes
+.claude/scripts/schema-validator.sh validate file.md --mode strict   # Fail on errors
+.claude/scripts/schema-validator.sh validate file.md --mode warn     # Warn only (default)
+.claude/scripts/schema-validator.sh validate file.md --mode disabled # Skip validation
+
+# JSON output for automation
+.claude/scripts/schema-validator.sh validate file.md --json
+```
+
+**Auto-Detection Rules**:
+| Pattern | Schema |
+|---------|--------|
+| `**/prd.md`, `**/*-prd.md` | `prd.schema.json` |
+| `**/sdd.md`, `**/*-sdd.md` | `sdd.schema.json` |
+| `**/sprint.md`, `**/*-sprint.md` | `sprint.schema.json` |
+| `**/trajectory/*.jsonl` | `trajectory-entry.schema.json` |
+
+### Thinking Logger (v0.12.0)
+
+Logs agent reasoning with extended thinking support:
+
+```bash
+# Log a simple entry
+.claude/scripts/thinking-logger.sh log \
+  --agent implementing-tasks \
+  --action "Created user model" \
+  --phase implementation
+
+# Log with extended thinking
+.claude/scripts/thinking-logger.sh log \
+  --agent designing-architecture \
+  --action "Evaluated patterns" \
+  --thinking \
+  --think-step "1:analysis:Consider microservices vs monolith" \
+  --think-step "2:evaluation:Microservices adds complexity" \
+  --think-step "3:decision:Chose modular monolith"
+
+# Log with grounding citations
+.claude/scripts/thinking-logger.sh log \
+  --agent reviewing-code \
+  --action "Found SQL injection" \
+  --grounding code_reference \
+  --ref "src/db.ts:45-50" \
+  --confidence 0.95
+
+# Read trajectory entries
+.claude/scripts/thinking-logger.sh read loa-grimoire/a2a/trajectory/implementing-tasks-2025-01-11.jsonl --last 5
+
+# Initialize trajectory directory
+.claude/scripts/thinking-logger.sh init
+```
+
+**Thinking Step Format**: `step:type:thought`
+- step: Integer (1, 2, 3...)
+- type: analysis, hypothesis, evaluation, decision, reflection
+- thought: Free-text description
+
+**Grounding Types**:
+- `citation`: Reference to documentation
+- `code_reference`: Reference to source code
+- `assumption`: Unverified claim (flagged)
+- `user_input`: Based on user request
+- `inference`: Derived from other facts
 
 ## Integrations
 
