@@ -5,6 +5,127 @@ All notable changes to Loa will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.27.0] - 2026-02-04 — Configurable Paths & Trace-Based Routing
+
+### Why This Release
+
+This release introduces **configurable grimoire paths** for flexible workspace layouts (e.g., OpenClaw integration) and **feedback trace-based routing** for intelligent issue classification. Also includes critical stability fixes for run-mode and simstim state synchronization.
+
+*"Configure your paths, trace your feedback."*
+
+### Added
+
+#### Configurable Grimoires Location (#176, #173)
+
+Grimoire and state file locations are now configurable for integration scenarios:
+
+```yaml
+paths:
+  grimoire: grimoires/loa          # Default
+  beads: .beads
+  soul:
+    source: grimoires/loa/BEAUVOIR.md
+    output: grimoires/loa/SOUL.md
+```
+
+**OpenClaw Integration Example**:
+```yaml
+paths:
+  grimoire: .loa/grimoire
+  soul:
+    source: .loa/grimoire/BEAUVOIR.md
+    output: SOUL.md    # At workspace root
+```
+
+**New Files**:
+| File | Purpose |
+|------|---------|
+| `bootstrap.sh` | PROJECT_ROOT detection (3 fallback strategies) |
+| `path-lib.sh` | 16 getter functions for path resolution |
+| `test_path_lib.sh` | 16 unit tests |
+| `test_configurable_paths.sh` | 10 integration tests |
+
+**Rollback Safety**:
+- `LOA_USE_LEGACY_PATHS=1` bypasses config, uses hardcoded defaults
+- CI lint check (warning mode) prevents path regression
+- Environment overrides: `LOA_GRIMOIRE_DIR`, `LOA_BEADS_DIR`, `LOA_SOUL_SOURCE`, `LOA_SOUL_OUTPUT`
+
+**Requirements**: yq v4+ (mikefarah/yq). Missing yq uses defaults with warning.
+
+#### Feedback Trace-Based Routing (#174, #171)
+
+Intelligent `/feedback` routing based on execution trajectory analysis:
+
+```yaml
+feedback:
+  trace_routing:
+    enabled: true  # Disabled by default
+```
+
+**Classification Categories**:
+| Category | Description |
+|----------|-------------|
+| `skill_bug` | Bug in existing skill |
+| `skill_gap` | Missing feature in skill |
+| `missing_skill` | Need new skill |
+| `runtime_bug` | Framework/runtime issue |
+
+**Implementation**:
+- `trace_analyzer` Python package with hybrid matching (keyword + fuzzy + embeddings)
+- Privacy-first: default-deny PII redaction
+- 80 unit tests passing
+- Disabled by default pending classifier tuning
+
+#### Two-Pass Security Analysis (#163)
+
+Enhanced `/audit` with structured taint analysis methodology:
+
+**New Phases**:
+| Phase | Description |
+|-------|-------------|
+| 0.5 (Scope) | Count files by security category |
+| 1A (Recon) | Source/sink identification with taxonomy |
+| 1B (Investigate) | Taint path tracing with time budget |
+
+**Detection Patterns**: SQL Injection, Command Injection, XSS, Path Traversal, SSRF, LLM Safety
+
+### Fixed
+
+#### Run-Mode State Preservation (#165)
+
+- **Problem**: Context compaction caused `/run sprint-plan` to lose autonomous state
+- **Solution**: Added run mode state recovery to CLAUDE.loa.md and session protocols
+- Recovery checks `.run/sprint-plan-state.json` and resumes without confirmation
+
+#### Simstim Run-Mode Sync (#172)
+
+- **Problem**: Simstim state stuck in "RUNNING" after `/run sprint-plan` completed
+- **Solution**: New `--sync-run-mode` command with plan ID correlation
+- Added `--set-expected-plan-id` for pre-invocation correlation
+- Auto-recovery on resume for completed-but-not-recorded scenarios
+
+#### Constructs Skill Count (#168)
+
+- Fixed jq query to read from `manifest.skills` array
+- Packs now correctly display skill counts in `/constructs` browser
+
+#### Flatline macOS Case-Sensitivity (#167)
+
+- Fixed path comparison failure on case-insensitive filesystems
+- Applied `realpath` fix to `flatline-orchestrator.sh`
+
+### Related PRs
+
+- PR #176: Configurable grimoires location
+- PR #174: Feedback trace-based routing
+- PR #172: Simstim run-mode state sync
+- PR #168: Constructs skill count fallback
+- PR #167: Flatline macOS case-sensitivity
+- PR #165: Run-mode state preservation
+- PR #163: Two-Pass Security Analysis
+
+---
+
 ## [1.26.0] - 2026-02-04 — Workspace Cleanup & Post-PR Validation
 
 ### Why This Release
