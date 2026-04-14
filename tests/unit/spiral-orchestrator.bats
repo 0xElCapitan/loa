@@ -63,7 +63,7 @@ teardown() {
 # T2: --start initializes state with all required fields
 # =============================================================================
 @test "start: initializes state with spiral_id, state=RUNNING, phase=SEED" {
-    "$SCRIPT" --start >/dev/null 2>&1
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
 
     [ -f "$STATE_FILE" ]
     [ "$(jq -r '.state' "$STATE_FILE")" = "RUNNING" ]
@@ -79,7 +79,7 @@ teardown() {
 # T3: --start respects config defaults
 # =============================================================================
 @test "start: picks up max_cycles from config" {
-    "$SCRIPT" --start >/dev/null 2>&1
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
 
     [ "$(jq -r '.max_cycles' "$STATE_FILE")" = "3" ]
 }
@@ -88,7 +88,7 @@ teardown() {
 # T4: safety floor clamps max_cycles
 # =============================================================================
 @test "start: safety floor clamps max_cycles to 50" {
-    "$SCRIPT" --start --max-cycles 100 >/dev/null 2>&1
+    "$SCRIPT" --start --init-only --max-cycles 100 >/dev/null 2>&1
 
     [ "$(jq -r '.max_cycles' "$STATE_FILE")" = "50" ]
 }
@@ -97,7 +97,7 @@ teardown() {
 # T5: safety floor clamps budget_cents
 # =============================================================================
 @test "start: safety floor clamps budget_cents to 10000" {
-    "$SCRIPT" --start --budget-cents 999999 >/dev/null 2>&1
+    "$SCRIPT" --start --init-only --budget-cents 999999 >/dev/null 2>&1
 
     [ "$(jq -r '.budget.budget_cents' "$STATE_FILE")" = "10000" ]
 }
@@ -106,7 +106,7 @@ teardown() {
 # T6: safety floor clamps wall_clock_seconds
 # =============================================================================
 @test "start: safety floor clamps wall_clock_seconds to 86400" {
-    "$SCRIPT" --start --wall-clock-seconds 1000000 >/dev/null 2>&1
+    "$SCRIPT" --start --init-only --wall-clock-seconds 1000000 >/dev/null 2>&1
 
     [ "$(jq -r '.budget.wall_clock_seconds' "$STATE_FILE")" = "86400" ]
 }
@@ -115,7 +115,7 @@ teardown() {
 # T7: --start refuses when spiral already RUNNING
 # =============================================================================
 @test "start: refuses when spiral already RUNNING (exit 3)" {
-    "$SCRIPT" --start >/dev/null 2>&1
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
 
     set +e
     output=$("$SCRIPT" --start 2>&1)
@@ -152,7 +152,7 @@ teardown() {
 # T10: --status reports current cycle index and phase
 # =============================================================================
 @test "status: reports spiral_id, state, phase, cycle count" {
-    "$SCRIPT" --start >/dev/null 2>&1
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
 
     local output
     output=$("$SCRIPT" --status 2>&1)
@@ -167,7 +167,7 @@ teardown() {
 # T11: --halt creates sentinel and coalesces state to HALTED
 # =============================================================================
 @test "halt: creates sentinel file and transitions state to HALTED" {
-    "$SCRIPT" --start >/dev/null 2>&1
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
     "$SCRIPT" --halt --reason "test_halt" >/dev/null 2>&1
 
     [ -f "$HALT_SENTINEL" ]
@@ -183,24 +183,27 @@ teardown() {
 # =============================================================================
 # T12: --resume clears sentinel and transitions back to RUNNING
 # =============================================================================
-@test "resume: clears sentinel and restores RUNNING state" {
-    "$SCRIPT" --start >/dev/null 2>&1
+@test "resume: clears sentinel and runs to completion" {
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
     "$SCRIPT" --halt >/dev/null 2>&1
     [ -f "$HALT_SENTINEL" ]
 
     "$SCRIPT" --resume >/dev/null 2>&1
 
     [ ! -f "$HALT_SENTINEL" ]
-    [ "$(jq -r '.state' "$STATE_FILE")" = "RUNNING" ]
-    [ "$(jq -r '.stopping_condition' "$STATE_FILE")" = "null" ]
-    [ "$(jq -r '.timestamps.completed_at' "$STATE_FILE")" = "null" ]
+    # Resume now dispatches the cycle loop (cycle-067), so state is COMPLETED
+    [ "$(jq -r '.state' "$STATE_FILE")" = "COMPLETED" ]
 }
 
 # =============================================================================
 # T13: --resume refuses when spiral is RUNNING
 # =============================================================================
-@test "resume: refuses when spiral is already RUNNING" {
-    "$SCRIPT" --start >/dev/null 2>&1
+@test "resume: refuses when spiral is already RUNNING (PID alive)" {
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+    # Record current process PID to simulate live spiral
+    local tmp="${STATE_FILE}.tmp"
+    jq --argjson pid "$$" '.pid = $pid' "$STATE_FILE" > "$tmp"
+    mv "$tmp" "$STATE_FILE"
 
     set +e
     output=$("$SCRIPT" --resume 2>&1)
@@ -215,7 +218,7 @@ teardown() {
 # T14: --check-stop with HITL halt sentinel returns stop=true
 # =============================================================================
 @test "check-stop: detects HITL halt via sentinel file" {
-    "$SCRIPT" --start >/dev/null 2>&1
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
     touch "$HALT_SENTINEL"
 
     local output
@@ -229,7 +232,7 @@ teardown() {
 # T15: --check-stop detects cycle-budget exhausted
 # =============================================================================
 @test "check-stop: detects cycle budget exhausted" {
-    "$SCRIPT" --start --max-cycles 3 >/dev/null 2>&1
+    "$SCRIPT" --start --init-only --max-cycles 3 >/dev/null 2>&1
     # Artificially advance cycle_index to max
     jq '.cycle_index = 3' "$STATE_FILE" > "$STATE_FILE.tmp"
     mv "$STATE_FILE.tmp" "$STATE_FILE"
@@ -245,7 +248,7 @@ teardown() {
 # T16: --check-stop detects flatline convergence
 # =============================================================================
 @test "check-stop: detects flatline convergence after N low cycles" {
-    "$SCRIPT" --start >/dev/null 2>&1
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
     # Simulate 2 consecutive low-signal cycles
     jq '.flatline_counter = 2' "$STATE_FILE" > "$STATE_FILE.tmp"
     mv "$STATE_FILE.tmp" "$STATE_FILE"
@@ -261,7 +264,7 @@ teardown() {
 # T17: --check-stop detects cost budget exhausted
 # =============================================================================
 @test "check-stop: detects cost budget exhausted" {
-    "$SCRIPT" --start --budget-cents 500 >/dev/null 2>&1
+    "$SCRIPT" --start --init-only --budget-cents 500 >/dev/null 2>&1
     # Simulate cost accumulated past budget
     jq '.budget.cost_cents = 600' "$STATE_FILE" > "$STATE_FILE.tmp"
     mv "$STATE_FILE.tmp" "$STATE_FILE"
@@ -277,7 +280,7 @@ teardown() {
 # T18: --check-stop with no stopping condition returns stop=false
 # =============================================================================
 @test "check-stop: returns stop=false when no condition triggered" {
-    "$SCRIPT" --start >/dev/null 2>&1
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
 
     local output
     output=$("$SCRIPT" --check-stop 2>&1)
@@ -289,7 +292,7 @@ teardown() {
 # T19: trajectory log records spiral events
 # =============================================================================
 @test "trajectory: --start logs spiral_started event" {
-    "$SCRIPT" --start >/dev/null 2>&1
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
 
     local log_dir="$PROJECT_ROOT/grimoires/loa/a2a/trajectory"
     local log_file
@@ -331,7 +334,7 @@ teardown() {
 # T22: HITL halt takes priority over other stopping conditions
 # =============================================================================
 @test "check-stop: HITL halt has priority over other stopping conditions" {
-    "$SCRIPT" --start --max-cycles 1 >/dev/null 2>&1
+    "$SCRIPT" --start --init-only --max-cycles 1 >/dev/null 2>&1
     # Both cycle-budget and HITL triggered — HITL should win
     jq '.cycle_index = 1' "$STATE_FILE" > "$STATE_FILE.tmp"
     mv "$STATE_FILE.tmp" "$STATE_FILE"
@@ -341,4 +344,334 @@ teardown() {
     output=$("$SCRIPT" --check-stop 2>&1)
 
     echo "$output" | jq -e '.condition == "hitl_halt"' >/dev/null
+}
+
+# =============================================================================
+# T23: Wall-clock exhaustion test — cycle-067 FR-3
+# =============================================================================
+@test "check-stop: wall-clock exhaustion triggers stop" {
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+
+    # Manipulate timestamps.started to 60000s ago, budget to 30000s
+    local past
+    past=$(date -u -d "60000 seconds ago" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null \
+        || date -u -v-60000S +%Y-%m-%dT%H:%M:%SZ 2>/dev/null)
+
+    local tmp="${STATE_FILE}.tmp"
+    jq --arg ts "$past" --argjson budget 30000 '
+        .timestamps.started = $ts |
+        .budget.wall_clock_seconds = $budget
+    ' "$STATE_FILE" > "$tmp"
+    mv "$tmp" "$STATE_FILE"
+
+    local output
+    output=$("$SCRIPT" --check-stop 2>&1)
+    echo "$output" | jq -e '.condition == "wall_clock_exhausted"' >/dev/null
+}
+
+# =============================================================================
+# Quality Gate Truth Table Tests (T24-T31) — cycle-067 FR-2
+# =============================================================================
+
+# Helper: init state and inject a cycle record with given verdicts
+_init_with_cycle() {
+    local review_v="$1"
+    local audit_v="$2"
+
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+
+    # Inject a cycle record with given verdicts
+    # Need to handle null verdicts
+    local review_json audit_json
+    if [[ "$review_v" == "null" ]]; then
+        review_json="null"
+    else
+        review_json="\"$review_v\""
+    fi
+    if [[ "$audit_v" == "null" ]]; then
+        audit_json="null"
+    else
+        audit_json="\"$audit_v\""
+    fi
+
+    local tmp="${STATE_FILE}.tmp"
+    jq --argjson rv "$review_json" --argjson av "$audit_json" '
+        .cycles = [{
+            "cycle_id": "cycle-test",
+            "index": 1,
+            "review_verdict": $rv,
+            "audit_verdict": $av,
+            "findings_critical": 0,
+            "findings_minor": 0
+        }] |
+        .cycle_index = 1
+    ' "$STATE_FILE" > "$tmp"
+    mv "$tmp" "$STATE_FILE"
+}
+
+# T24: both fail → stop
+@test "quality_gate: REQUEST_CHANGES + CHANGES_REQUIRED → quality_gate_failure" {
+    _init_with_cycle "REQUEST_CHANGES" "CHANGES_REQUIRED"
+
+    local output
+    output=$("$SCRIPT" --check-stop 2>&1)
+    echo "$output" | jq -e '.condition == "quality_gate_failure"' >/dev/null
+}
+
+# T25: review fail / audit approve → continue
+@test "quality_gate: REQUEST_CHANGES + APPROVED → no stop (continues)" {
+    _init_with_cycle "REQUEST_CHANGES" "APPROVED"
+
+    local output
+    output=$("$SCRIPT" --check-stop 2>&1)
+    # Should NOT trigger quality gate; next in chain is cycle_budget
+    # With max_cycles=3 and cycle_index=1, should not hit cycle_budget either
+    echo "$output" | jq -e '.condition != "quality_gate_failure"' >/dev/null
+}
+
+# T26: audit fail / review approve → continue
+@test "quality_gate: APPROVED + CHANGES_REQUIRED → no stop (continues)" {
+    _init_with_cycle "APPROVED" "CHANGES_REQUIRED"
+
+    local output
+    output=$("$SCRIPT" --check-stop 2>&1)
+    echo "$output" | jq -e '.condition != "quality_gate_failure"' >/dev/null
+}
+
+# T27: both approve → continue
+@test "quality_gate: APPROVED + APPROVED → no stop (continues)" {
+    _init_with_cycle "APPROVED" "APPROVED"
+
+    local output
+    output=$("$SCRIPT" --check-stop 2>&1)
+    echo "$output" | jq -e '.condition != "quality_gate_failure"' >/dev/null
+}
+
+# T28: null review → stop
+@test "quality_gate: null review → quality_gate_failure (fail-closed)" {
+    _init_with_cycle "null" "APPROVED"
+
+    local output
+    output=$("$SCRIPT" --check-stop 2>&1)
+    echo "$output" | jq -e '.condition == "quality_gate_failure"' >/dev/null
+}
+
+# T29: null audit → stop
+@test "quality_gate: APPROVED + null audit → quality_gate_failure (fail-closed)" {
+    _init_with_cycle "APPROVED" "null"
+
+    local output
+    output=$("$SCRIPT" --check-stop 2>&1)
+    echo "$output" | jq -e '.condition == "quality_gate_failure"' >/dev/null
+}
+
+# T30: unrecognized verdict → stop
+@test "quality_gate: unrecognized review verdict → quality_gate_failure" {
+    _init_with_cycle "BANANA" "APPROVED"
+
+    local output
+    output=$("$SCRIPT" --check-stop 2>&1)
+    echo "$output" | jq -e '.condition == "quality_gate_failure"' >/dev/null
+}
+
+# T31: no cycles yet → continue
+@test "quality_gate: no cycles → no quality_gate_failure" {
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+
+    local output
+    output=$("$SCRIPT" --check-stop 2>&1)
+    # No cycles, quality gate returns 1 (continue), so shouldn't fire
+    echo "$output" | jq -e '.condition != "quality_gate_failure"' >/dev/null
+}
+
+# =============================================================================
+# Cycle-067 Helper Tests (T34, T37, T39, T40)
+# =============================================================================
+
+# Helper: source orchestrator functions for direct testing
+_source_orchestrator() {
+    # Source the script to get access to functions
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/spiral-orchestrator.sh" --source-only 2>/dev/null || true
+    # Re-export state file location
+    export STATE_FILE="$PROJECT_ROOT/.run/spiral-state.json"
+}
+
+# T35: seed_phase full mode → degrades to degraded with warning
+@test "seed_phase: full mode without Vision Registry degrades to degraded" {
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/bootstrap.sh"
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/spiral-orchestrator.sh"
+    export STATE_FILE="$PROJECT_ROOT/.run/spiral-state.json"
+
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+
+    # Set seed.mode to full
+    cat > "$PROJECT_ROOT/.loa.config.yaml" <<'EOF'
+spiral:
+  enabled: true
+  seed:
+    mode: full
+EOF
+
+    # Create a previous cycle dir with valid sidecar
+    local prev_dir="$PROJECT_ROOT/cycles/cycle-prev"
+    local cur_dir="$PROJECT_ROOT/cycles/cycle-cur"
+    mkdir -p "$prev_dir" "$cur_dir"
+    echo '{"$schema_version":1,"cycle_id":"cycle-prev","review_verdict":"APPROVED","audit_verdict":"APPROVED","findings":{"blocker":0,"high":1,"medium":0,"low":0},"flatline_signature":null,"content_hash":null,"elapsed_sec":1,"exit_status":"success"}' > "$prev_dir/cycle-outcome.json"
+
+    # Call seed_phase — should degrade to degraded + produce seed-context.md
+    local stderr_output
+    stderr_output=$(seed_phase "$cur_dir" "cycle-cur" "$prev_dir" 2>&1 >/dev/null)
+
+    # Should log WARNING about degrading
+    [[ "$stderr_output" == *"WARNING"* ]] || [[ "$stderr_output" == *"seed.mode=full"* ]]
+
+    # Should still write seed-context.md (degraded behavior)
+    [ -f "$cur_dir/seed-context.md" ]
+
+    # Trajectory should have seed_mode_transition event
+    local trajectory_file
+    trajectory_file=$(ls "$PROJECT_ROOT/grimoires/loa/a2a/trajectory"/spiral-*.jsonl 2>/dev/null | head -1)
+    [ -n "$trajectory_file" ]
+    grep -q "seed_mode_transition" "$trajectory_file"
+}
+
+# T41: SPIRAL_STUB_FINDINGS malformed input defaults to 3
+@test "simstim_phase: malformed SPIRAL_STUB_FINDINGS defaults to 3" {
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/bootstrap.sh"
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/spiral-orchestrator.sh"
+    export STATE_FILE="$PROJECT_ROOT/.run/spiral-state.json"
+
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+
+    local cycle_dir="$PROJECT_ROOT/cycles/cycle-stubtest"
+    mkdir -p "$cycle_dir"
+
+    # Set malformed env var
+    export SPIRAL_STUB_FINDINGS="not_a_number"
+    simstim_phase "$cycle_dir" "cycle-stubtest" 2>/dev/null
+
+    # Check sidecar was written with default findings (high=3)
+    [ -f "$cycle_dir/cycle-outcome.json" ]
+    local high_count
+    high_count=$(jq -r '.findings.high' "$cycle_dir/cycle-outcome.json")
+    [ "$high_count" -eq 3 ]
+
+    unset SPIRAL_STUB_FINDINGS
+}
+
+# T42: write_checkpoint rejects non-monotonic transition
+@test "write_checkpoint: rejects backward transition HARVEST → SEED" {
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/bootstrap.sh"
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/spiral-orchestrator.sh"
+    export STATE_FILE="$PROJECT_ROOT/.run/spiral-state.json"
+
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+
+    # Create a cycle record with checkpoint at HARVEST
+    local tmp="${STATE_FILE}.tmp"
+    jq '.cycles = [{"cycle_id": "cycle-mono", "checkpoint": "HARVEST"}]' "$STATE_FILE" > "$tmp"
+    mv "$tmp" "$STATE_FILE"
+
+    # Attempt backward transition: HARVEST → SEED
+    set +e
+    local error_output
+    error_output=$(write_checkpoint "cycle-mono" "SEED" 2>&1)
+    local exit_code=$?
+    set -e
+
+    [ "$exit_code" -eq 1 ]
+    [[ "$error_output" == *"Non-monotonic"* ]]
+}
+
+# T34: with_step_timeout — command exceeds budget → returns 124
+@test "with_step_timeout: command exceeding budget returns 124" {
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/bootstrap.sh"
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/spiral-orchestrator.sh"
+    export STATE_FILE="$PROJECT_ROOT/.run/spiral-state.json"
+
+    # Initialize state for trajectory logging
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+
+    require_timeout
+    if [[ -z "$_TIMEOUT_CMD" ]]; then
+        skip "timeout/gtimeout not available"
+    fi
+
+    set +e
+    with_step_timeout "test_step" 1 sleep 10
+    local exit_code=$?
+    set -e
+
+    [ "$exit_code" -eq 124 ]
+}
+
+# T37: PID guard detects stale RUNNING
+@test "pid_guard: detects stale RUNNING and coalesces to CRASHED" {
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+
+    # Inject a dead PID
+    local tmp="${STATE_FILE}.tmp"
+    jq '.pid = 999999 | .start_time = "2026-01-01T00:00:00Z"' "$STATE_FILE" > "$tmp"
+    mv "$tmp" "$STATE_FILE"
+
+    # Verify state is RUNNING
+    local state
+    state=$(jq -r '.state' "$STATE_FILE")
+    [ "$state" = "RUNNING" ]
+
+    # Source and run PID guard
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/bootstrap.sh"
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/spiral-orchestrator.sh"
+    export STATE_FILE="$PROJECT_ROOT/.run/spiral-state.json"
+
+    set +e
+    check_pid_guard 2>/dev/null
+    local exit_code=$?
+    set -e
+
+    [ "$exit_code" -eq 0 ]
+    # State should now be CRASHED
+    state=$(jq -r '.state' "$STATE_FILE")
+    [ "$state" = "CRASHED" ]
+}
+
+# T39: atomic_state_write handles jq failure
+@test "atomic_state_write: returns 1 on jq error and cleans up tmp" {
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/bootstrap.sh"
+    source "$BATS_TEST_DIRNAME/../../.claude/scripts/spiral-orchestrator.sh"
+    export STATE_FILE="$PROJECT_ROOT/.run/spiral-state.json"
+
+    set +e
+    # Pass invalid jq expression
+    atomic_state_write 'INVALID_JQ_THAT_WILL_FAIL' 2>/dev/null
+    local exit_code=$?
+    set -e
+
+    [ "$exit_code" -eq 1 ]
+    # .tmp should not exist
+    [ ! -f "${STATE_FILE}.tmp" ]
+    # Original state should be intact
+    jq -e '.state == "RUNNING"' "$STATE_FILE" >/dev/null
+}
+
+# T40: Backward compat — cycle-066 state (no .pid, no .checkpoint) reads without error
+@test "backward_compat: cycle-066 state without .pid or .checkpoint reads cleanly" {
+    "$SCRIPT" --start --init-only >/dev/null 2>&1
+
+    # State from cycle-066 won't have .pid or .start_time
+    local tmp="${STATE_FILE}.tmp"
+    jq 'del(.pid) | del(.start_time)' "$STATE_FILE" > "$tmp" 2>/dev/null
+    mv "$tmp" "$STATE_FILE"
+
+    # Verify fields are absent
+    local pid_val
+    pid_val=$(jq -r '.pid // "missing"' "$STATE_FILE")
+    [ "$pid_val" = "missing" ]
+
+    # Status should still work
+    local output
+    output=$("$SCRIPT" --status --json 2>&1)
+    echo "$output" | jq -e '.state == "RUNNING"' >/dev/null
 }
