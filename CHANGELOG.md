@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.93.0] — 2026-04-17 — Opus 4.7 Top-Review Migration
+
 ### Changed
 
 - **Opus 4.7 promoted to top-review default** (cycle-082) — `opus` alias retargeted from `anthropic:claude-opus-4-6` to `anthropic:claude-opus-4-7` across all adapters (bash, Python, TypeScript, YAML). Affects Flatline Protocol primary, Bridgebuilder enriched review, red-team adapter advisor role, spiral advisor/judge. Pricing verified identical to 4.6 ($5/$25 per Mtok input/output); no cost-ledger or budget impact. Sonnet 4.6 executor default unchanged.
