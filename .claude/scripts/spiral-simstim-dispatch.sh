@@ -118,8 +118,29 @@ _read_config() {
 local_budget=$(_read_config "spiral.max_budget_per_cycle_usd" "10")
 local_timeout=$(_read_config "spiral.step_timeouts.simstim_sec" "7200")
 
-# Build dispatch prompt (safe via jq --arg — no shell expansion)
+# Build dispatch prompt (safe via jq --arg — no shell expansion).
+# Defense-in-depth (#568): if SPIRAL_TASK is empty but the state file has
+# `.task`, read from there. The orchestrator SHOULD have exported it, but
+# fall back gracefully so intermediate dispatch invocations (tests,
+# debugging, reentry) don't silently run with an empty task.
 task="${SPIRAL_TASK:-}"
+_spiral_state_file="${SPIRAL_STATE_FILE:-${PROJECT_ROOT}/.run/spiral-state.json}"
+if [[ -z "$task" && -f "$_spiral_state_file" ]]; then
+    task=$(jq -r '.task // ""' "$_spiral_state_file" 2>/dev/null || echo "")
+fi
+
+# If task is STILL empty, fail with a clear, actionable message rather than
+# letting spiral-harness.sh emit a bare `ERROR: --task required`.
+# This dispatcher is invoked BY spiral-orchestrator.sh, so the fix path is
+# always "make the orchestrator export SPIRAL_TASK". Point users there.
+if [[ -z "$task" ]]; then
+    echo "FATAL: spiral-simstim-dispatch.sh: task is empty." >&2
+    echo "  Expected SPIRAL_TASK env var or .task in the spiral state file." >&2
+    echo "  The orchestrator (spiral-orchestrator.sh) should have exported this." >&2
+    echo "  Upstream fix: set spiral.task in .loa.config.yaml or pass --task to --start." >&2
+    exit 2
+fi
+
 parent_pr="${SPIRAL_PARENT_PR_URL:-}"
 spiral_id="${SPIRAL_ID:-unknown}"
 cycle_num="${SPIRAL_CYCLE_NUM:-1}"
