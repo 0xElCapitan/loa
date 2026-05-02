@@ -253,6 +253,20 @@ relocate_memory_stack() {
   log "Memory Stack relocated: .loa/ -> .loa-state/ ($source_count files)"
 }
 
+# Issue #669 / Bridgebuilder F6 (PR #671): scaffold helper sourced from the
+# canonical lib. Submodule mode passes the in-tree submodule path as
+# default source. Submodule installs copy (not symlink) the workflow file
+# into the consumer's .github/workflows/ — GH Actions ignores symlinked
+# workflow files, and consumer-side customization should be possible.
+# shellcheck source=lib/scaffold-post-merge-workflow.sh
+SCRIPT_DIR_FOR_SCAFFOLD="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "${SCRIPT_DIR_FOR_SCAFFOLD}/lib/scaffold-post-merge-workflow.sh"
+
+# Submodule mode wrapper — defaults source path to the in-tree submodule copy
+scaffold_post_merge_workflow_submodule() {
+    scaffold_post_merge_workflow "${1:-$SUBMODULE_PATH/.github/workflows/post-merge.yml}"
+}
+
 # === Auto-Init Submodule (post-clone recovery) ===
 auto_init_submodule() {
   if [[ -f ".gitmodules" ]] && grep -q "$SUBMODULE_PATH" .gitmodules 2>/dev/null; then
@@ -931,6 +945,7 @@ main() {
   create_config
   create_manifest
   init_state_zone
+  scaffold_post_merge_workflow_submodule
   create_commit
 
   echo ""

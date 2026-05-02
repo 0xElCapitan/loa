@@ -616,6 +616,10 @@ sync_zones() {
   # Create .reviewignore template for review scope filtering (FR-4, #303)
   create_reviewignore
 
+  # Scaffold post-merge automation workflow (#669). Idempotent: preserves a
+  # user-customized .github/workflows/post-merge.yml on re-mount.
+  scaffold_post_merge_workflow ""
+
   mkdir -p .beads
   touch .beads/.gitkeep
 
@@ -878,6 +882,12 @@ sync_optional_file() {
     warn "No $file in upstream, skipping..."
   }
 }
+
+# Issue #669 / Bridgebuilder F6 (PR #671): scaffold helper extracted to
+# .claude/scripts/lib/scaffold-post-merge-workflow.sh as single source of
+# truth (sourced by both installers AND the bats test).
+# shellcheck source=lib/scaffold-post-merge-workflow.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/scaffold-post-merge-workflow.sh"
 
 # Orchestrate root file synchronization
 sync_root_files() {
