@@ -146,9 +146,23 @@ emit_handoff(){
           "$(san "$hid")" "$(san "$ts")" "$(san "$topic")" "grimoires/loa/handoffs/$(san "$file")"
       done
 }
+# notes family (cycle-121): surfaces NOTES.md's ## headings so sessions can
+# jump to current working state without reading the whole file.
+emit_notes(){
+  local f="${G}/NOTES.md"; [[ -f "$f" ]] || return 0
+  local n=0 line title
+  while IFS= read -r line; do
+    n=$((n+1))
+    [[ "$line" == "## "* ]] || continue
+    title="${line#\#\# }"
+    printf 'notes\t%s\t%s\t%s\t%s\t\n' \
+      "L${n}" "" "$(san "$title")" "grimoires/loa/NOTES.md#L${n}"
+  done < "$f"
+}
+
 # emit_obs removed cycle-121 (observation store deleted)
 
-collect(){ { emit_kf; emit_vision; emit_lore; emit_handoff; } | LC_ALL=C sort -t$'\t' -k1,1 -k2,2; }
+collect(){ { emit_kf; emit_vision; emit_lore; emit_handoff; emit_notes; } | LC_ALL=C sort -t$'\t' -k1,1 -k2,2; }
 
 to_json(){
   collect | jq -R -s '
@@ -170,7 +184,7 @@ render_md(){
   echo
   echo "Unified cross-family catalog of the grimoire knowledge corpus (KF · vision · lore · handoff · observation). Generated; do not hand-edit. Total entries: $(echo "$json" | jq -r '.total')."
   echo
-  for fam in handoff kf lore obs vision; do
+  for fam in handoff kf lore notes vision; do
     count="$(echo "$json" | jq -r --arg f "$fam" '.counts[$f] // 0')"
     [[ "$count" == "0" ]] && continue
     echo "## ${fam} (${count})"
