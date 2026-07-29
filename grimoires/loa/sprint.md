@@ -60,14 +60,14 @@ These carried **RISKY**, **KEEP**, or **SAFE_WITH_MECHANISM** verdicts. Touching
 Every file with no real loading path (agent-context reference from CLAUDE.md/CLAUDE.loa.md, SKILL.md bodies/resources, commands, subagents, rules, hooks, or reference files) is deleted or relocated to `docs/`, with all validator couplings and dangling references fixed in the same commits, so `check-loa.sh` and the bats suite stay green in this repo and every downstream mount.
 
 ### Deliverables
-- [ ] **D1.1** — 13 dead protocols deleted; `destructive-command-guard.md` + `error-codes.md` folded into `hooks-reference.md` / `error-codes.json` then deleted (15 files, ~102KB)
-- [ ] **D1.2** — obsolete old-model context-management family removed: `attention-budget.md`, `context-compaction.md`, `recursive-context.md`, `semantic-cache.md`, `jit-retrieval.md`, `run-mode.md` (protocol) deleted; `context-editing.md` + `memory.md` moved to `docs/integration/`; `decision-capture.md` deleted (~75KB out of the protocol tier)
-- [ ] **D1.3** — `check-loa.sh` + `validate-prd-requirements.sh` updated in the SAME commits as the deletions they self-certify
-- [ ] **D1.4** — dead `protocols:` metadata blocks removed from all 13 `index.yaml` files
-- [ ] **D1.5** — ck-family merge: unique content of `negative-grounding.md`, `self-audit-checkpoint.md`, `edd-verification.md` merged into `citations.md`; the three files deleted. `grounding-enforcement.md` NOT touched (gated, out of scope)
-- [ ] **D1.6** — reference-tier orphans `permissions-reference.md`, `version-features.md` deleted after a grep-gate proves zero live references
-- [ ] **D1.7** — skills-tree stale artifacts: `riding-codebase/SKILL.md.bak` + `SKILL.md.bak-270` (69KB) and `flatline-knowledge/resources/__pycache__/` deleted; `bridgebuilder-review/` `node_modules`+`dist`+lockfile (47MB) removed from tree, gitignored, installed on demand via its `entry.sh`
-- [ ] **D1.8** — dangling-reference sweep + regenerated checksums manifest and grimoire INDEX
+- [x] **D1.1** — 13 dead protocols deleted; `destructive-command-guard.md` + `error-codes.md` folded into `hooks-reference.md` / `error-codes.json` then deleted (15 files, ~102KB)
+- [x] **D1.2** — obsolete old-model context-management family removed: `attention-budget.md`, `context-compaction.md`, `recursive-context.md`, `semantic-cache.md`, `jit-retrieval.md`, `run-mode.md` (protocol) deleted; `context-editing.md` + `memory.md` moved to `docs/integration/`; `decision-capture.md` deleted (~75KB out of the protocol tier)
+- [x] **D1.3** — `check-loa.sh` + `validate-prd-requirements.sh` updated in the SAME commits as the deletions they self-certify
+- [x] **D1.4** — dead `protocols:` metadata blocks removed from all 13 `index.yaml` files
+- [x] **D1.5** — ck-family merge: unique content of `negative-grounding.md`, `self-audit-checkpoint.md`, `edd-verification.md` merged into `citations.md`; the three files deleted. `grounding-enforcement.md` NOT touched (gated, out of scope)
+- [x] **D1.6** — reference-tier orphans `permissions-reference.md`, `version-features.md` deleted after a grep-gate proves zero live references
+- [x] **D1.7** — skills-tree stale artifacts: `riding-codebase/SKILL.md.bak` + `SKILL.md.bak-270` (69KB) and `flatline-knowledge/resources/__pycache__/` deleted; `bridgebuilder-review/` `node_modules`+`dist`+lockfile (47MB) removed from tree, gitignored, installed on demand via its `entry.sh`
+- [x] **D1.8** — dangling-reference sweep + regenerated checksums manifest and grimoire INDEX
 
 ### Acceptance Criteria
 - [ ] Loading-path grep gate: for every deleted file, `grep -rF "<basename>" .claude/skills .claude/commands .claude/agents .claude/hooks .claude/rules .claude/loa CLAUDE.md` returns ZERO hits post-change (checksums.json/CHANGELOG excluded)
