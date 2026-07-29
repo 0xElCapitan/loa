@@ -301,11 +301,11 @@ Every framework rule pasted across skills is delivered from a single generated s
 The four verified-SAFE shrinks land in the always-loaded files — routed through the constraint registry where rows are generated — and the whole cycle is validated end-to-end with a recorded before/after context measurement.
 
 ### Deliverables
-- [ ] **D5.1** — Post-PR Bridgebuilder Loop section → 2 lines: activation flag + the `.run/bridge-pending-bugs.jsonl` → next-`/bug` consumption contract (verified as the SOLE carrier of that contract — it MUST survive); detail lives in the referenced proposal doc
-- [ ] **D5.2** — Safety Hooks section → 2–3 lines keeping exactly: "active in ALL modes", the fence-not-boundary caveat, deny-rules pointer, `hooks-reference.md` pointer
-- [ ] **D5.3** — Merge Constraints: M1 (use orchestrator) + M2 (never hand-tag) rows KEPT in CLAUDE.loa.md; M3–M5 (script properties: RTFM non-blocking, idempotency, cycle-only full pipeline) moved to `post-merge-orchestrator.sh` header + deploying-infrastructure SKILL.md automated_mode section — via constraints.json layer edits + SECTIONS arrays in BOTH `generate-constraints.sh` and `validate-constraints.sh`
-- [ ] **D5.4** — root CLAUDE.md: "How This Works" boilerplate + stale byte-count deleted; Context-Intake section trimmed ~30% (dead-end parentheticals the KF hook already surfaces) keeping: recurrence-≥3 rule, Reading-guide-only discipline, kf-write-lib contribution commands; Conventions triple-statement deduped
-- [ ] **D5.5** — cycle E2E: full validation suite + fresh-mount smoke + before/after context measurement recorded in a cycle report
+- [x] **D5.1** — Post-PR Bridgebuilder Loop section → 2 lines: activation flag + the `.run/bridge-pending-bugs.jsonl` → next-`/bug` consumption contract (verified as the SOLE carrier of that contract — it MUST survive); detail lives in the referenced proposal doc
+- [x] **D5.2** — Safety Hooks section → 2–3 lines keeping exactly: "active in ALL modes", the fence-not-boundary caveat, deny-rules pointer, `hooks-reference.md` pointer
+- [x] **D5.3** — Merge Constraints: M1 (use orchestrator) + M2 (never hand-tag) rows KEPT in CLAUDE.loa.md; M3–M5 (script properties: RTFM non-blocking, idempotency, cycle-only full pipeline) moved to `post-merge-orchestrator.sh` header + deploying-infrastructure SKILL.md automated_mode section — via constraints.json layer edits + SECTIONS arrays in BOTH `generate-constraints.sh` and `validate-constraints.sh`
+- [x] **D5.4** — root CLAUDE.md: "How This Works" boilerplate + stale byte-count deleted; Context-Intake section trimmed ~30% (dead-end parentheticals the KF hook already surfaces) keeping: recurrence-≥3 rule, Reading-guide-only discipline, kf-write-lib contribution commands; Conventions triple-statement deduped
+- [x] **D5.5** — cycle E2E: full validation suite + fresh-mount smoke + before/after context measurement recorded in a cycle report
 
 ### Acceptance Criteria
 - [ ] `generate-constraints.sh` + `validate-constraints.sh` green after D5.3 (generated blocks and SECTIONS arrays consistent); hand-edits never touch generated block interiors
