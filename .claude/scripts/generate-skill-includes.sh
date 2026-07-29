@@ -21,17 +21,20 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 MODE="${1:---check}"
-export MODE
+ROOT="${3:-.}"
+if [[ "${2:-}" == "--root" ]]; then ROOT="${3:?--root needs a directory}"; fi
+export MODE ROOT
 python3 - <<'PYEOF'
 import re, sys, glob, hashlib, os
 mode = os.environ.get('MODE','--check')
-src_dir = '.claude/data/skill-includes'
+root = os.environ.get('ROOT','.')
+src_dir = os.path.join(root, '.claude/data/skill-includes')
 sources = {os.path.basename(p)[:-3]: open(p).read().rstrip('\n') for p in glob.glob(f'{src_dir}/*.md')}
 drift = []
 changed = 0
 pat = re.compile(r'(<!-- @skill-include: start (\w+) \| hash:([0-9a-f]{8})(?: \| DO NOT EDIT[^>]*)? -->\n)(.*?)(\n<!-- @skill-include: end \2 -->)', re.S)
-for f in sorted(glob.glob('.claude/skills/*/SKILL.md')):
-    skill = f.split('/')[2]
+for f in sorted(glob.glob(os.path.join(root, '.claude/skills/*/SKILL.md'))):
+    skill = os.path.basename(os.path.dirname(f))
     s = open(f).read()
     out = s
     for m in list(pat.finditer(s)):
@@ -41,7 +44,7 @@ for f in sorted(glob.glob('.claude/skills/*/SKILL.md')):
             continue
         body = sources[name].replace('{{SKILL}}', skill)
         h = hashlib.md5(body.encode()).hexdigest()[:8]
-        rendered = f'<!-- @skill-include: start {name} | hash:{h} | DO NOT EDIT — generated from {src_dir}/{name}.md -->\n{body}\n<!-- @skill-include: end {name} -->'
+        rendered = f'<!-- @skill-include: start {name} | hash:{h} | DO NOT EDIT — generated from .claude/data/skill-includes/{name}.md -->\n{body}\n<!-- @skill-include: end {name} -->'
         current = m.group(0)
         if current != rendered:
             if mode == '--write':
