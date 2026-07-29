@@ -71,7 +71,6 @@ capabilities_json() {
     {path: ".claude/scripts/grimoire-index.sh",            purpose: "regenerate the grimoire INDEX (KF/vision/lore catalog)", json: "flag", help: "true", flags: []},
     {path: ".claude/scripts/lib/kf-write-lib.sh",          purpose: "append-only known-failures writer", json: "none", help: "true", flags: [], subcommands: ["new","attempt","recur","notes-header"]},
     {path: ".claude/scripts/repo-map-gen.sh",              purpose: "regenerate REPO-MAP.md ranked symbol map", json: "flag", help: "true", flags: []},
-    {path: ".claude/scripts/memory-admin.sh",              purpose: "memory database admin (init/add)", json: "none", help: "true", flags: [], subcommands: ["init","add"]},
     {path: ".claude/scripts/qmd-sync.sh",                  purpose: "QMD document index sync + query", json: "none", help: "true", flags: [], subcommands: ["sync","query","status"]},
     {path: ".claude/scripts/verdict-derive.sh",            purpose: "derive/validate LOA-VERDICT trailer on review/audit feedback", json: "flag", help: "true", flags: ["--file","--gate","--json","--require-trailer"]},
     {path: ".claude/scripts/validate-skill-capabilities.sh", purpose: "SKILL.md frontmatter invariant lint (MUST gate)", json: "flag", help: "true", flags: ["--json","--strict","--skill"]},
