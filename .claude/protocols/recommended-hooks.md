@@ -308,7 +308,7 @@ Prevent accidental pushes to upstream template.
 
 ### 4. Memory Injection Hook — REMOVED (cycle-121)
 
-The semantic-memory subsystem (memory-inject.sh / memory-writer.sh, observations.jsonl) was deleted in cycle-121; Claude Code auto-memory owns cross-session recall. Section number retained to keep inbound anchors stable.
+The semantic-memory subsystem (its inject/writer hooks and observation store) was deleted in cycle-121; Claude Code auto-memory owns cross-session recall. Section number retained to keep inbound anchors stable.
 
 ### 5. Sprint Completion Hook (PostToolUse)
 

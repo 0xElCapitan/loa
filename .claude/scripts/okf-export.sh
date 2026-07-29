@@ -121,7 +121,7 @@ build_handoffs(){
       done || true
 }
 
-# build_observations removed cycle-121 (observations.jsonl deleted with the semantic-memory subsystem)
+# build_observations removed cycle-121 (observation store deleted with the semantic-memory subsystem)
 
 render_subindex(){ # heading, manifest, subdir-prefix
   local heading="$1" man="$2" prefix="$3"

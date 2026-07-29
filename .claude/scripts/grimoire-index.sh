@@ -146,7 +146,7 @@ emit_handoff(){
           "$(san "$hid")" "$(san "$ts")" "$(san "$topic")" "grimoires/loa/handoffs/$(san "$file")"
       done
 }
-# emit_obs removed cycle-121 (observations.jsonl deleted)
+# emit_obs removed cycle-121 (observation store deleted)
 
 collect(){ { emit_kf; emit_vision; emit_lore; emit_handoff; } | LC_ALL=C sort -t$'\t' -k1,1 -k2,2; }
 
