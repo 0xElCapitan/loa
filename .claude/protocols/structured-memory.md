@@ -15,7 +15,7 @@
 
 ## Required Sections (NOTES.md template)
 
-`.claude/templates/NOTES.md.template` is the mechanical carrier for new mounts: Current Focus, Session Log, Decisions, Blockers, Technical Debt, Goal Status, Learnings, Session Continuity. `check-loa.sh check_notes_template` WARNs (never fails) when the live file lacks **Session Continuity** or **Decision Log** — the two recovery-critical sections KF forensics depend on (KF-002/KF-003 attempts tables cite Decision Log entries).
+`.claude/templates/NOTES.md.template` is the mechanical carrier for new mounts: Current Focus, Session Log, Decisions, Blockers, Technical Debt, Goal Status, Learnings, Session Continuity. `check-loa.sh check_notes_template` WARNs (never fails) when the live file lacks **Session Continuity** or **Decision Log** — the two recovery-critical sections KF forensics depend on (KF-002/KF-003 attempts tables cite Decision Log entries). Known drift: the template ships `## Decisions` while the validator and live convention use dated `## Decision Log` headings — a fresh mount WARNs until renamed (tracked as a discovered issue; alignment is template-owner work, not per-session).
 
 ## Agent Discipline (when to write)
 

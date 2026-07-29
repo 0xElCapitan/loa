@@ -11,7 +11,7 @@ Pointer map for Loa's context/memory surfaces: what exists, where the detail liv
 | Compaction survival | `pre-compact-marker.sh` (PreCompact) + `post-compact-reminder.sh` (UserPromptSubmit) — mechanical, zero thinking-budget | Active (hooks registered in settings.json) |
 | Pre-clear validation | `.claude/protocols/synthesis-checkpoint.md` | Active |
 | KF ledger surfacing | `loa-kf-surface.sh` (SessionStart) → generated `grimoires/loa/INDEX.md` → `known-failures.md` | Active — three-tier progressive disclosure |
-| Cross-session memory | Claude Code auto-memory (harness-managed, per-user) + git-tracked team surfaces (KF ledger, GT files, current-cycle NOTES.md) | Active |
+| Cross-session memory | Claude Code auto-memory (harness-managed, per-user) + git-tracked team surfaces (KF ledger, GT files) + untracked per-operator NOTES.md (`.gitignore:293`) | Active |
 | Context tooling scripts | `context-manager.sh`, `cache-manager.sh`, `condense.sh`, `early-exit.sh` — each script's `--help` | Available (low adoption) |
 
 ## What is NOT wired (do not rely on)
