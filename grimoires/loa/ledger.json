@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_cycle": "cycle-121-claude5-context-diet",
+  "active_cycle": "cycle-122-mechanical-floor-extensions",
   "cycles": [
     {
       "id": "cycle-036",
@@ -2048,9 +2048,49 @@
           "completed_at": "2026-07-29T07:56:49Z"
         }
       ]
+    },
+    {
+      "id": "cycle-122-mechanical-floor-extensions",
+      "label": "Mechanical floor extensions — wire parked gate, close fence gaps, pipeline hardening, parity-gated Karpathy trim",
+      "status": "active",
+      "created_at": "2026-07-29T08:31:36Z",
+      "prd": null,
+      "sdd": null,
+      "epic": null,
+      "source_plan": "grimoires/loa/sprint.md",
+      "note": "Stacked on cycle-121 (PR #1238). Operator delegations recorded in sprint.md Provenance.",
+      "sprints": [
+        {
+          "id": "sprint-232",
+          "local_id": "sprint-1",
+          "global_id": 232,
+          "cycle": "cycle-122-mechanical-floor-extensions",
+          "theme": "Fences",
+          "status": "pending",
+          "created": "2026-07-29T08:31:36Z"
+        },
+        {
+          "id": "sprint-233",
+          "local_id": "sprint-2",
+          "global_id": 233,
+          "cycle": "cycle-122-mechanical-floor-extensions",
+          "theme": "Pipeline hardening",
+          "status": "pending",
+          "created": "2026-07-29T08:31:36Z"
+        },
+        {
+          "id": "sprint-234",
+          "local_id": "sprint-3",
+          "global_id": 234,
+          "cycle": "cycle-122-mechanical-floor-extensions",
+          "theme": "Delegated judgment + E2E",
+          "status": "pending",
+          "created": "2026-07-29T08:31:36Z"
+        }
+      ]
     }
   ],
-  "global_sprint_counter": 231,
+  "global_sprint_counter": 234,
   "bugfix_cycles": [
     {
       "id": "cycle-bug-20260418-i554-00a529",
@@ -2390,5 +2430,5 @@
       "sprint_plan": "grimoires/loa/a2a/bug-20260428-i640-1cc190/sprint.md"
     }
   ],
-  "next_sprint_number": 232
+  "next_sprint_number": 235
 }
