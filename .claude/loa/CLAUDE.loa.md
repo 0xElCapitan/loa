@@ -16,7 +16,6 @@ Agent-driven development framework. Skills auto-load their SKILL.md when invoked
 | Beads | `.claude/loa/reference/beads-reference.md` |
 | Run Bridge | `.claude/loa/reference/run-bridge-reference.md` |
 | Flatline | `.claude/loa/reference/flatline-reference.md` |
-| Memory | `.claude/loa/reference/memory-reference.md` |
 | Guardrails | `.claude/loa/reference/guardrails-reference.md` |
 | Hooks | `.claude/loa/reference/hooks-reference.md` |
 | Agent Teams | `.claude/loa/reference/agent-teams-reference.md` |
@@ -326,12 +325,6 @@ Learnings auto-detected during skill execution. Quality gates: Depth, Reusabilit
 Pre-execution validation. PII filtering (blocking), injection detection (blocking), relevance check (advisory).
 
 **Reference**: `.claude/loa/reference/guardrails-reference.md`
-
-## Persistent Memory
-
-Session-spanning observations in `grimoires/loa/memory/observations.jsonl`. Query via `.claude/scripts/memory-query.sh`. Ownership boundary: auto-memory owns user preferences/working style; observations.jsonl owns framework patterns/debugging discoveries. See reference for full table.
-
-**Reference**: `.claude/loa/reference/memory-reference.md`
 
 ## Post-PR Bridgebuilder Loop
 

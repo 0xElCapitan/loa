@@ -306,58 +306,9 @@ Prevent accidental pushes to upstream template.
 
 ---
 
-### 4. Memory Injection Hook (PreToolUse) - v1.8.0
+### 4. Memory Injection Hook — REMOVED (cycle-121)
 
-Inject relevant project memories before tool execution.
-
-> **EXPERIMENTAL — not wired, do not rely on.** As of cycle-115 the
-> `memory-inject.sh` / `memory-writer.sh` wiring is **dead/optional**: neither
-> hook is registered in `settings.hooks.json`, the vector DB is empty, and
-> `observations.jsonl` holds a single hand-authored entry (zero hook-generated
-> entries). The config block below is aspirational — enabling it does nothing
-> until the subsystem is revived. Do not treat memory injection as active.
->
-> **Note**: This hook is part of the Loa Memory Stack. It requires initialization
-> via `memory-admin.sh init` and enabling in `.loa.config.yaml`.
-
-```json
-{
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Read|Glob|Grep|WebFetch|WebSearch",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/hooks/memory-inject.sh"
-          }
-        ]
-      }
-    ]
-  }
-}
-```
-
-**Configuration** (`.loa.config.yaml`):
-```yaml
-memory:
-  pretooluse_hook:
-    enabled: true
-    thinking_chars: 1500
-    similarity_threshold: 0.35
-    max_memories: 3
-    timeout_ms: 500
-```
-
-**Features**:
-- Extracts last 1500 chars from Claude's thinking block
-- Queries vector database for similar memories
-- Injects top 3 memories via `additionalContext`
-- Hash-based deduplication (skips if same query)
-- Strict timeout enforcement (500ms)
-- Graceful degradation (never blocks tool execution)
-
----
+The semantic-memory subsystem (memory-inject.sh / memory-writer.sh, observations.jsonl) was deleted in cycle-121; Claude Code auto-memory owns cross-session recall. Section number retained to keep inbound anchors stable.
 
 ### 5. Sprint Completion Hook (PostToolUse)
 

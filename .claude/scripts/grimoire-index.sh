@@ -9,7 +9,6 @@
 #
 # Families (v1): KF (## KF-NNN: headings, enriched from the ## Index table),
 #   vision (visions/entries/), lore (lore/index.yaml), handoff (handoffs/INDEX.md),
-#   obs (memory/observations.jsonl).
 #
 # SECURITY: L5/L6/L7 + observation bodies are UNTRUSTED (CLAUDE.md universal
 #   invariant). This generator extracts ONLY id/status/path/title/tags and
@@ -147,24 +146,9 @@ emit_handoff(){
           "$(san "$hid")" "$(san "$ts")" "$(san "$topic")" "grimoires/loa/handoffs/$(san "$file")"
       done
 }
-emit_obs(){
-  local f="${G}/memory/observations.jsonl"; [[ -f "$f" ]] || return 0
-  local n=0 line ts ty cat title sha id
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    n=$((n+1)); [[ -z "$line" ]] && continue
-    echo "$line" | jq -e . >/dev/null 2>&1 || continue
-    ts="$(echo "$line"   | jq -r '.timestamp // ""')"
-    ty="$(echo "$line"   | jq -r '.type // ""')"
-    cat="$(echo "$line"  | jq -r '.category // ""')"
-    title="$(echo "$line"| jq -r '.title // ""')"
-    sha="$(printf '%s|%s' "$ts" "$title" | sha256_portable | cut -c1-8)"
-    id="obs-${sha}"
-    printf 'obs\t%s\t%s\t%s\t%s\t%s\n' \
-      "$id" "$(san "$ty")" "$(san "$title")" "grimoires/loa/memory/observations.jsonl#L${n}" ""
-  done < "$f"
-}
+# emit_obs removed cycle-121 (observations.jsonl deleted)
 
-collect(){ { emit_kf; emit_vision; emit_lore; emit_handoff; emit_obs; } | LC_ALL=C sort -t$'\t' -k1,1 -k2,2; }
+collect(){ { emit_kf; emit_vision; emit_lore; emit_handoff; } | LC_ALL=C sort -t$'\t' -k1,1 -k2,2; }
 
 to_json(){
   collect | jq -R -s '
