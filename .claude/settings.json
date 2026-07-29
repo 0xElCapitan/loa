@@ -571,6 +571,10 @@
           {
             "type": "command",
             "command": ".claude/hooks/hook-guard.sh .claude/hooks/safety/zone-write-guard.sh"
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/hook-guard.sh .claude/hooks/compliance/implement-gate.sh"
           }
         ]
       },
