@@ -30,7 +30,7 @@ Complete index of `.claude/protocols/` (one row per file — regenerate this tab
 | `structured-memory.md` | NOTES.md contract: where durable knowledge goes, required sections, write discipline | notes-template tests; NOTES.md.template pointer |
 | `subagent-invocation.md` | Subagent dispatch patterns | parallel-execution sections of skills |
 | `synthesis-checkpoint.md` | Pre-clear validation (BLOCKING, 7-step) | check-loa v0.9.0 required; context_discipline |
-| `tool-result-clearing.md` | Clearing thresholds + 4-step synthesis + edge cases | 10 skills' context_discipline blocks; check-loa v0.9.0 required |
+| `tool-result-clearing.md` | Clearing thresholds + 4-step synthesis + edge cases | 10 skills' context_discipline blocks; validate-ck-integration required |
 | `trajectory-evaluation.md` | ADK-style reasoning audit trail | implementing-tasks + reviewing-code resources |
 | `upgrade-process.md` | Framework upgrade workflow | update-loa flow |
 | `visual-communication.md` | Mermaid diagram standards | review feedback authoring |
