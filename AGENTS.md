@@ -11,7 +11,7 @@
 
 ## Quick Start
 
-Primary interface: 48+ commands fronted by **5 Golden Path commands** (zero-arg).
+Primary interface: 49+ commands fronted by **5 Golden Path commands** (zero-arg).
 
 ```
 /loa
@@ -29,7 +29,7 @@ Primary interface: 48+ commands fronted by **5 Golden Path commands** (zero-arg)
 
 ## Commands
 
-**5 Golden Path commands** (`/loa`, `/plan`, `/build`, `/review`, `/ship`) front **48 total commands** (truenames). See `PROCESS.md` for the full list; type `/loa` for orientation.
+**5 Golden Path commands** (`/loa`, `/plan`, `/build`, `/review`, `/ship`) front **49 total commands** (truenames). See `PROCESS.md` for the full list; type `/loa` for orientation.
 
 ## Project Governance
 
@@ -59,7 +59,7 @@ Precedence: **NEVER > MUST > ALWAYS > SHOULD > MAY.** These are mechanically enf
 | App | `src/`, `lib/`, `app/` | Confirm writes |
 
 ## Conventions
-- **Default PR reviewer:** @janitooor (always request review).
+- **Default PR reviewer:** @deep-name (always request review).
 - **Branch from `main`**; never commit directly to the default branch.
 - **Commit trailer:** end commit messages with `Co-Authored-By: Claude <noreply@anthropic.com>`.
 - **Beads-first:** task lifecycle is tracked via `br` (beads_rust); it is the source of truth, not ad-hoc TODOs.
