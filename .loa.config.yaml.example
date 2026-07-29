@@ -2780,3 +2780,16 @@ karpathy_principles:
   # avoid surprise breaking changes during initial rollout. Even with
   # `enforce: block` set, the v1 hook returns 0 (informational only).
   enforce: warn
+
+# -----------------------------------------------------------------------------
+# Structured Handoffs (L6) — surfacing controls
+# -----------------------------------------------------------------------------
+structured_handoff:
+  # Master toggle for the L6 SessionStart surfacing hook.
+  enabled: false
+  # Per-handoff body byte cap at surfacing.
+  surface_max_chars: 4000
+  # cycle-121: skip UNREAD handoffs older than N days at surfacing (0 = never
+  # skip). Read-path only — INDEX.md and read_by are untouched; old handoffs
+  # stay recoverable via the structured-handoff skill.
+  surface_max_age_days: 30
