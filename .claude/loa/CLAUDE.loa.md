@@ -89,7 +89,7 @@ Grimoire and state file locations configurable via `.loa.config.yaml`. Overrides
 - **Feedback**: Check audit feedback FIRST, then engineer feedback
 - **Git Safety**: 4-layer upstream detection with soft block
 
-## Karpathy Principles (applies on EVERY turn, not just /implement)
+## Karpathy Principles (applies on every code-touching turn, not just /implement)
 
 Adapted from [Andrej Karpathy's LLM coding observations](https://x.com/karpathy/status/2015883857489522876).
 The four principles apply to every code-touching turn in Loa. This section is
@@ -102,8 +102,10 @@ fan-out budgets): `.claude/protocols/agent-ergonomics.md`.
 
 Surface assumptions explicitly. When multiple interpretations exist, present
 them rather than choosing silently. When requirements are unclear, ask before
-implementing. Use `AskUserQuestion` for clarifications rather than inferring
-beyond what was stated.
+implementing — in interactive sessions via `AskUserQuestion`; in unattended
+runs (Run Mode state RUNNING), record the open question and your chosen
+interpretation in NOTES.md Decision Log and proceed on the documented
+assumption instead of halting to ask.
 
 ### 2. Simplicity First
 
