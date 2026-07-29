@@ -40,7 +40,6 @@ The "Clear, Don't Compact" paradigm for context management.
 | `session-continuity.md` | Tiered recovery, fork detection |
 | `grounding-enforcement.md` | Citation requirements (>=0.95 ratio) |
 | `synthesis-checkpoint.md` | Pre-clear validation |
-| `jit-retrieval.md` | Lightweight identifiers + cache integration |
 
 ---
 
@@ -119,16 +118,7 @@ br sync --flush-only     # Session end
 | `constructs-integration.md` | Loa Constructs skill loading |
 | `helper-scripts.md` | Full script documentation |
 | `upgrade-process.md` | Framework upgrade workflow |
-| `context-compaction.md` | Compaction preservation rules |
-| `run-mode.md` | Run Mode protocol |
-| `recursive-context.md` | Recursive JIT Context system |
-| `semantic-cache.md` | Cache operations and invalidation |
-| `jit-retrieval.md` | JIT retrieval with cache integration |
 | `continuous-learning.md` | Skill extraction quality gates |
-| `context-editing.md` | Context editing policies |
-| `memory.md` | Memory schema and lifecycle |
 | `karpathy-principles.md` | LLM coding principles |
 | `recommended-hooks.md` | Claude Code hooks |
-| `skill-forking.md` | Skill isolation |
-| `url-registry.md` | Canonical URL management |
 | `visual-communication.md` | Mermaid integration |

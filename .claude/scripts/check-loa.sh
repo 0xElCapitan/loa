@@ -148,8 +148,6 @@ check_v090_protocols() {
     "session-continuity.md"
     "synthesis-checkpoint.md"
     "grounding-enforcement.md"
-    "jit-retrieval.md"
-    "attention-budget.md"
   )
 
   for proto in "${required_protocols[@]}"; do

@@ -120,6 +120,12 @@ Pre-built configs available in `.claude/mcp-examples/` for Slack, GitHub, Sentry
 
 ---
 
+## Error Codes (LOA-EXXX)
+
+Structured error codes: registry `.claude/data/error-codes.json`, renderer `.claude/scripts/lib/dx-utils.sh` (errors teach: every code carries a what + a fix, surfaced by `/loa doctor`). Ranges: `E0xx` framework/env, `E1xx` workflow/lifecycle, `E2xx` beads, `E3xx` events/bus, `E4xx` security/guardrails, `E5xx` constructs/packs. Add codes in the JSON registry, never hardcoded strings.
+
+---
+
 ## Full Documentation
 
 See `.claude/protocols/helper-scripts.md` for comprehensive script documentation.
