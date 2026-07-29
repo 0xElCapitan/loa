@@ -73,15 +73,7 @@ Implement sprint tasks from `grimoires/loa/sprint.md` with production-grade code
 <zone_constraints>
 ## Zone Constraints
 
-This skill operates under **Managed Scaffolding**:
-
-| Zone | Permission | Notes |
-|------|------------|-------|
-| `.claude/` | NONE | System zone - never suggest edits |
-| `grimoires/loa/`, `.beads/` | Read/Write | State zone - project memory |
-| `src/`, `lib/`, `app/` | Read/Write | App zone - implementation target |
-
-**NEVER** suggest modifications to `.claude/`. Direct users to `.claude/overrides/` or `.loa.config.yaml`.
+Zones per CLAUDE.loa.md Three-Zone Model (`.claude/` system = never edit — use `.claude/overrides/` or `.loa.config.yaml`; `grimoires/loa/`, `.beads/` state = read/write). This skill's app zone (`src/`, `lib/`, `app/`): **Read/Write**.
 </zone_constraints>
 
 <cli_tool_permissions>
@@ -582,25 +574,7 @@ When bugs or tech debt are discovered during implementation:
 This creates a new issue with semantic label `discovered-during:<parent-id>` for traceability.
 
 ### For each task:
-1. Implement according to specifications
-2. Follow established project patterns
-3. Write clean, maintainable, documented code
-4. Consider performance, security, scalability
-5. Handle edge cases and errors gracefully
-
-**Testing Requirements:**
-- Comprehensive unit tests for all new code
-- Test both happy paths and error conditions
-- Include edge cases and boundary conditions
-- Follow existing test patterns
-- Ensure tests are readable and maintainable
-
-**Code Quality Standards:**
-- Self-documenting with clear names
-- Comments for complex logic
-- DRY principles
-- Consistent formatting
-- Future maintainability
+Implement to spec, following established project patterns (Karpathy principles govern style — they're in context every session). Tests: happy path + error conditions + edge cases, following existing test patterns; the runnable-check floor from CLAUDE.loa.md applies.
 
 ## Phase 3: Documentation and Reporting
 

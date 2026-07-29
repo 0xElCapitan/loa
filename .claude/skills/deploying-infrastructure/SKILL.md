@@ -46,15 +46,7 @@ Design and deploy production-grade infrastructure for crypto/blockchain projects
 <zone_constraints>
 ## Zone Constraints
 
-This skill operates under **Managed Scaffolding**:
-
-| Zone | Permission | Notes |
-|------|------------|-------|
-| `.claude/` | NONE | System zone - never suggest edits |
-| `grimoires/loa/`, `.beads/` | Read/Write | State zone - project memory |
-| `src/`, `lib/`, `app/` | Read-only | App zone - requires user confirmation |
-
-**NEVER** suggest modifications to `.claude/`. Direct users to `.claude/overrides/` or `.loa.config.yaml`.
+Zones per CLAUDE.loa.md Three-Zone Model (`.claude/` system = never edit — use `.claude/overrides/` or `.loa.config.yaml`; `grimoires/loa/`, `.beads/` state = read/write). This skill's app zone (`src/`, `lib/`, `app/`): **Read-only**.
 </zone_constraints>
 
 <integrity_precheck>
@@ -220,105 +212,16 @@ If it exists, read it to understand:
 
 If the file doesn't exist, proceed with standard workflow.
 
-### Phase 1: Discovery & Analysis
+### Phases 1-5 (Discovery → Design → Implementation → Testing → Documentation)
 
-1. **Understand the Requirement**:
-   - What is the user trying to achieve?
-   - What are the constraints (budget, timeline, compliance)?
-   - What are the security and privacy requirements?
-   - Current state (greenfield vs. brownfield)?
+Standard infra methodology — apply judgment, no ritual walkthrough. The Loa-specific invariants per phase:
 
-2. **Review Existing Infrastructure**:
-   - Examine current architecture and configurations
-   - Identify technical debt and vulnerabilities
-   - Assess performance bottlenecks and cost inefficiencies
-   - Review monitoring and alerting setup
+1. **Discovery**: read `grimoires/loa/a2a/integration-context.md`, `prd.md`, `sdd.md` before designing; note blockchain/crypto-specific requirements.
+2. **Design**: document decisions + tradeoffs in the SDD trail; threat-model key management and secrets handling explicitly.
+3. **Implementation**: IaC only (version-controlled, parameterized, state-managed); least-privilege + audit trails are non-negotiable.
+4. **Testing**: `terraform validate`/`plan` (or stack equivalent) BEFORE staging, staging BEFORE production; test rollback, not just deploy.
+5. **Documentation**: runbooks + rollback steps land where integration-context.md says they must (deployment tracking, alert channels, on-call).
 
-3. **Gather Context**:
-   - Check `grimoires/loa/a2a/integration-context.md`
-   - Check `grimoires/loa/prd.md` for product requirements
-   - Check `grimoires/loa/sdd.md` for system design decisions
-   - Review any existing infrastructure code
-   - Understand blockchain/crypto specific requirements
-
-### Phase 2: Design & Planning
-
-1. **Architecture Design**:
-   - Design with security, scalability, and cost in mind
-   - Create architecture diagrams (text-based or references)
-   - Document design decisions and tradeoffs
-   - Consider multi-region, multi-cloud, or hybrid approaches
-
-2. **Security Threat Modeling**:
-   - Identify potential attack vectors
-   - Design defense-in-depth strategies
-   - Plan key management and secrets handling
-   - Consider privacy implications
-
-3. **Cost Estimation**:
-   - Estimate infrastructure costs
-   - Identify cost optimization opportunities
-   - Plan for scaling costs
-
-4. **Implementation Plan**:
-   - Break down work into phases
-   - Identify dependencies and critical path
-   - Plan testing and validation strategies
-   - Document rollback procedures
-
-### Phase 3: Implementation
-
-1. **Infrastructure as Code**:
-   - Write clean, modular, reusable IaC
-   - Use variables and parameterization
-   - Implement proper state management
-   - Version control all infrastructure code
-
-2. **Security Implementation**:
-   - Implement least privilege access
-   - Configure secrets management
-   - Set up network security controls
-   - Enable logging and audit trails
-
-3. **CI/CD Pipeline Setup**:
-   - Create automated deployment pipelines
-   - Implement testing stages
-   - Configure deployment strategies
-   - Set up notifications and approvals
-
-4. **Monitoring & Observability**:
-   - Deploy monitoring stack
-   - Create dashboards for key metrics
-   - Configure alerting rules
-   - Set up on-call rotation
-
-### Phase 4: Testing & Validation
-
-1. **Infrastructure Testing**:
-   - Validate IaC (`terraform validate`, `terraform plan`)
-   - Test in staging/development first
-   - Perform load testing
-   - Conduct security scanning
-
-2. **Disaster Recovery Testing**:
-   - Test backup and restore procedures
-   - Validate failover mechanisms
-   - Conduct chaos engineering experiments
-   - Document lessons learned
-
-### Phase 5: Documentation & Knowledge Transfer
-
-1. **Technical Documentation**:
-   - Architecture diagrams and decision records
-   - Runbooks for common operations
-   - Deployment procedures and rollback steps
-   - Security policies and compliance documentation
-
-2. **Operational Documentation**:
-   - Monitoring dashboard guides
-   - Alerting runbooks
-   - On-call procedures
-   - Cost allocation strategies
 </workflow>
 
 <parallel_execution>

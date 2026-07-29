@@ -96,43 +96,13 @@ This skill incorporates solutions from open Loa issues:
 <prime_directive>
 ## Prime Directive
 
-**NO SHORTCUTS. NO EXCEPTIONS.**
-
-You are operating autonomously. Every action reflects on your principal's reputation.
-Follow EVERY step. Pass EVERY gate. Audit EVERYTHING.
-
-If uncertain: STOP and ASK rather than proceed with assumptions.
+Pass every gate; when uncertain, STOP and ASK rather than proceed on assumptions (in unattended runs: record the assumption in NOTES.md Decision Log per CLAUDE.loa.md principle 1 and proceed).
 </prime_directive>
 
 <execution_model>
 ## Execution Model
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    AUTONOMOUS EXECUTION FLOW                     │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                  │
-│   PREFLIGHT ──▶ DISCOVER ──▶ DESIGN ──▶ IMPLEMENT               │
-│       │                                      │                   │
-│       │                                      ▼                   │
-│       │         ┌──────────────────────  AUDIT ◀─────┐          │
-│       │         │                          │         │          │
-│       │         │    ┌─────────────────────┤         │          │
-│       │         │    │                     │         │          │
-│       │         │    ▼                     ▼         │          │
-│       │         │  PASS?  ──YES──▶  SUBMIT                      │
-│       │         │    │                │                          │
-│       │         │   NO                ▼                          │
-│       │         │    │          POST-PR-VAL ◀── (v1.25.0)       │
-│       │         │    ▼                │                          │
-│       │         └─ REMEDIATE    READY_FOR_HITL                   │
-│       │              │                │                          │
-│       │              │ loop > 3       ▼                          │
-│       │              ▼          DEPLOY ──▶ LEARN                 │
-│       └────────── ESCALATE ─────────────────────────────────────│
-│                                                                  │
-└─────────────────────────────────────────────────────────────────┘
-```
+PREFLIGHT → DISCOVER → DESIGN → IMPLEMENT → AUDIT → (pass? SUBMIT : REMEDIATE, loop ≤3 then ESCALATE) → POST-PR-VAL (v1.25.0) → READY_FOR_HITL → DEPLOY → LEARN. Phase details below; exit criteria per phase are the enforcement.
 </execution_model>
 
 <operator_detection>
@@ -346,15 +316,21 @@ VERIFY PRD contains:
 
 ### 1.4 Flatline PRD Review (v1.22.0)
 
-**Purpose:** Adversarial multi-model review of PRD before proceeding to Design.
+**Purpose:** Adversarial multi-model review at each planning gate. This block is the CANONICAL Flatline invocation — 2.3 and 2.5 reference it with different parameters (Karpathy P4: one home per procedure).
+
+| Gate | --doc | --phase | On exit 0 |
+|------|-------|---------|-----------|
+| 1.4 PRD | grimoires/loa/prd.md | prd | Continue to Phase 2 |
+| 2.3 SDD | grimoires/loa/sdd.md | sdd | Continue to Sprint review |
+| 2.5 Sprint | grimoires/loa/sprint.md | sprint | Continue to Phase 3 (Implementation) |
 
 ```markdown
 IF flatline_protocol.enabled AND autonomous_mode.enabled:
-  1. Execute Flatline Protocol on PRD:
+  1. Execute Flatline Protocol on the gate's document:
      ```bash
      result=$(.claude/scripts/flatline-orchestrator.sh \
-         --doc grimoires/loa/prd.md \
-         --phase prd \
+         --doc {doc} \
+         --phase {phase} \
          --autonomous \
          --run-id "$run_id" \
          --json)
@@ -365,21 +341,21 @@ IF flatline_protocol.enabled AND autonomous_mode.enabled:
      .claude/scripts/flatline-result-handler.sh \
          --mode autonomous \
          --result "$result" \
-         --document grimoires/loa/prd.md \
-         --phase prd \
+         --document {doc} \
+         --phase {phase} \
          --run-id "$run_id"
      ```
 
   3. Exit code handling:
-     - 0: Continue to Phase 2
+     - 0: Continue (per gate table above)
      - 1: BLOCKER halt → Generate escalation, STOP workflow
      - 4: Disputed threshold → Generate escalation, STOP workflow
 
   4. Log summary to NOTES.md:
-     "Flatline PRD Review: {N} integrated, {M} disputed, {K} blockers"
+     "Flatline {phase} Review: {N} integrated, {M} disputed, {K} blockers"
 
 ELSE:
-  Skip Flatline review, log "Flatline disabled for PRD phase"
+  Skip Flatline review, log "Flatline disabled for {phase} phase"
 ```
 
 ### Exit Criteria
@@ -419,38 +395,7 @@ ELSE:
 
 ### 2.3 Flatline SDD Review (v1.22.0)
 
-**Purpose:** Adversarial multi-model review of SDD before sprint planning execution.
-
-```markdown
-IF flatline_protocol.enabled AND autonomous_mode.enabled:
-  1. Execute Flatline Protocol on SDD:
-     ```bash
-     result=$(.claude/scripts/flatline-orchestrator.sh \
-         --doc grimoires/loa/sdd.md \
-         --phase sdd \
-         --autonomous \
-         --run-id "$run_id" \
-         --json)
-     ```
-
-  2. Handle results per autonomous_mode.actions:
-     ```bash
-     .claude/scripts/flatline-result-handler.sh \
-         --mode autonomous \
-         --result "$result" \
-         --document grimoires/loa/sdd.md \
-         --phase sdd \
-         --run-id "$run_id"
-     ```
-
-  3. Exit code handling:
-     - 0: Continue to Sprint review
-     - 1: BLOCKER halt → Generate escalation, STOP workflow
-     - 4: Disputed threshold → Generate escalation, STOP workflow
-
-ELSE:
-  Skip Flatline review, log "Flatline disabled for SDD phase"
-```
+Run the canonical Flatline gate (§1.4) with the SDD row parameters (`--doc grimoires/loa/sdd.md --phase sdd`).
 
 ### 2.4 Design Review
 
@@ -464,38 +409,7 @@ VERIFY:
 
 ### 2.5 Flatline Sprint Review (v1.22.0)
 
-**Purpose:** Adversarial multi-model review of sprint plan before implementation.
-
-```markdown
-IF flatline_protocol.enabled AND autonomous_mode.enabled:
-  1. Execute Flatline Protocol on sprint plan:
-     ```bash
-     result=$(.claude/scripts/flatline-orchestrator.sh \
-         --doc grimoires/loa/sprint.md \
-         --phase sprint \
-         --autonomous \
-         --run-id "$run_id" \
-         --json)
-     ```
-
-  2. Handle results per autonomous_mode.actions:
-     ```bash
-     .claude/scripts/flatline-result-handler.sh \
-         --mode autonomous \
-         --result "$result" \
-         --document grimoires/loa/sprint.md \
-         --phase sprint \
-         --run-id "$run_id"
-     ```
-
-  3. Exit code handling:
-     - 0: Continue to Phase 3 (Implementation)
-     - 1: BLOCKER halt → Generate escalation, STOP workflow
-     - 4: Disputed threshold → Generate escalation, STOP workflow
-
-ELSE:
-  Skip Flatline review, log "Flatline disabled for sprint phase"
-```
+Run the canonical Flatline gate (§1.4) with the Sprint row parameters (`--doc grimoires/loa/sprint.md --phase sprint`).
 
 ### Exit Criteria
 - [ ] SDD complete
@@ -1076,20 +990,7 @@ Log EVERY significant action to `grimoires/{project}/trajectory/{date}.jsonl`:
 - `remediation_loop`: Loop counter if remediating
 </trajectory_logging>
 
-<quality_commitment>
-## Quality Commitment
 
-As an autonomous agent, I commit to:
-
-1. **NEVER skip a phase** - Every phase has value
-2. **NEVER skip an audit** - Quality is non-negotiable
-3. **NEVER submit without passing** - Reputation matters
-4. **ALWAYS log my work** - Transparency enables trust
-5. **ALWAYS ask when uncertain** - Assumptions are risks
-6. **ALWAYS learn from failures** - Every remediation teaches
-
-This skill exists because autonomous work must be BETTER than rushed work, not just faster.
-</quality_commitment>
 
 <context_management>
 ## Context Management Protocol

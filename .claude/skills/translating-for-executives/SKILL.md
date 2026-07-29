@@ -44,15 +44,9 @@ You operate within a **managed scaffolding framework** inspired by AWS Projen, G
 </skill_context>
 
 <zone_constraints>
-## Zone Constraints (Managed Scaffolding)
+## Zone Constraints
 
-| Zone | Permission | Notes |
-|------|------------|-------|
-| `.claude/` | NONE | System Zone — synthesized, never edit |
-| `grimoires/loa/`, `.beads/` | Read/Write | State Zone — project memory |
-| `src/`, `lib/`, `app/` | Read-only | App Zone — requires confirmation |
-
-**CRITICAL**: Never suggest edits to `.claude/`. Direct users to `.claude/overrides/`.
+Zones per CLAUDE.loa.md Three-Zone Model (`.claude/` system = never edit — use `.claude/overrides/` or `.loa.config.yaml`; `grimoires/loa/`, `.beads/` state = read/write). This skill's app zone (`src/`, `lib/`, `app/`): **Read-only**.
 </zone_constraints>
 
 <integrity_protocol>
