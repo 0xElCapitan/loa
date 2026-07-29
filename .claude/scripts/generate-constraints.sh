@@ -26,6 +26,7 @@ readonly -a SECTIONS=(
   "bridge_constraints|.claude/loa/CLAUDE.loa.md|claude-loa-md-table.jq|[.constraints[] | select(.layers[] | select(.section == \"bridge_constraints\"))] | sort_by(.order)"
   "permission_grants|.claude/loa/CLAUDE.loa.md|claude-loa-md-table.jq|[.constraints[] | select(.layers[] | select(.section == \"permission_grants\"))] | sort_by(.order)"
   "merge_constraints|.claude/loa/CLAUDE.loa.md|claude-loa-md-table.jq|[.constraints[] | select(.layers[] | select(.section == \"merge_constraints\"))] | sort_by(.order)"
+  "deploying_infrastructure_merge|.claude/skills/deploying-infrastructure/SKILL.md|skill-md-constraints.jq|[\"C-MERGE-003\",\"C-MERGE-004\",\"C-MERGE-005\"] as \$o | [\$o[] as \$id | .constraints[] | select(.id == \$id)]"
 )
 
 # Flags

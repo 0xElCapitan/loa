@@ -58,7 +58,6 @@ Precedence: **NEVER > MUST > ALWAYS > SHOULD > MAY.** These are mechanically enf
 - ALWAYS include source bridge iteration and PR in vision entries
 - ALWAYS load and validate bridgebuilder-persona.md before enriched review iterations
 - ALWAYS use `post-merge-orchestrator.sh` for pipeline execution, not ad-hoc commands
-- ALWAYS check for existing work before acting — all phases must be idempotent
 
 **MAY**
 - MAY question the framing of requirements during `/plan-and-analyze` and bridge reviews when analysis warrants reframing

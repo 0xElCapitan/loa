@@ -736,6 +736,15 @@ Add to deployment report before requesting approval:
 <automated_mode>
 ## Automated Mode (v1.36.0) — Post-Merge Pipeline
 
+### Pipeline Constraints (generated)
+
+<!-- @constraint-generated: start deploying_infrastructure_merge | hash:0b5224eb9176596d -->
+<!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
+1. MUST log RTFM gaps but MUST NOT block the pipeline on documentation drift
+2. ALWAYS check for existing work before acting (tag exists, release exists, CHANGELOG version present)
+3. MUST only run full pipeline (CHANGELOG, GT, RTFM, Release) for cycle-type PRs
+<!-- @constraint-generated: end deploying_infrastructure_merge -->
+
 When invoked by claude-code-action via the post-merge GH Actions workflow, the `/ship` command
 operates in automated mode. This suppresses interactive confirmations and delegates to the
 post-merge orchestrator.
