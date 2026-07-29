@@ -9,9 +9,9 @@
       "rule_type": "NEVER",
       "text": "write application code outside of `/implement` skill invocation",
       "text_variants": {
-        "claude-loa-md": "NEVER write application code outside of `/implement` skill invocation"
+        "claude-loa-md": "NEVER write application code outside `/implement` (OR a construct with declared `workflow.gates`), and NEVER reach implementation except via `/run sprint-plan`, `/run sprint-N`, or `/bug` against an existing sprint plan"
       },
-      "why": "Code written outside `/implement` bypasses review and audit gates",
+      "why": "Code outside /implement bypasses review+audit; /run wraps the cycle with a circuit breaker. Mechanically enforced since cycle-122: implement-gate.sh (PreToolUse, fail-ask) + disallowed-tools on review skills + the adversarial gates — the hook's ask-prompt is the repair path.",
       "construct_yield": {
         "enabled": true,
         "condition": "construct with workflow.gates is active",
@@ -97,11 +97,6 @@
       "order": 2,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "process_compliance_never",
-          "render_as": "table_row"
-        },
-        {
           "target": "skill-md",
           "skills": [
             "autonomous-agent",
@@ -167,11 +162,11 @@
       "rule_type": "ALWAYS",
       "text": "use `/run sprint-plan`, `/run sprint-N`, or `/bug` for implementation",
       "text_variants": {
-        "claude-loa-md": "ALWAYS use `/run sprint-plan`, `/run sprint-N`, or `/bug` for implementation",
+        "claude-loa-md": "ALWAYS route implementation through `/run sprint-plan`, `/run sprint-N`, or `/bug`, checking for the existing sprint plan first",
         "skill-md": "Phase 7 MUST invoke `/run sprint-plan` — NEVER implement code directly",
         "protocol": "Using /run or /bug (not direct /implement) ||| For autonomous/simstim ||| /run wraps implement+review+audit"
       },
-      "why": "Ensures review+audit cycle with circuit breaker protection. `/bug` enforces the same cycle for bug fixes.",
+      "why": "Ensures the implement→review→audit cycle with circuit-breaker protection and requirements traceability (absorbs the former separate check-sprint-plan row; implement-gate.sh asks on ungated App-Zone writes).",
       "order": 0,
       "layers": [
         {
@@ -280,11 +275,6 @@
       },
       "order": 3,
       "layers": [
-        {
-          "target": "claude-loa-md",
-          "section": "process_compliance_always",
-          "render_as": "table_row"
-        },
         {
           "target": "protocol",
           "file": ".claude/protocols/implementation-compliance.md",

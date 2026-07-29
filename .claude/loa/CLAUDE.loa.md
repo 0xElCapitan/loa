@@ -1,4 +1,4 @@
-<!-- @loa-managed: true | version: 1.196.0 | hash: a568f3284c20852e3a0c775d0d77c95ad7a6d68d789347f30e9a7fb9c1294d23 -->
+<!-- @loa-managed: true | version: 1.196.0 | hash: 47a64534b07ff02a83f5f5149bee294f0b015a811800362ffc7826835c7580d1 -->
 <!-- WARNING: This file is managed by the Loa Framework. Do not edit directly. -->
 
 # Loa Framework Instructions
@@ -193,11 +193,10 @@ applies to tests too) — but never skip the check on logic that can break.
 
 | Rule | Why |
 |------|-----|
-<!-- @constraint-generated: start process_compliance_never | hash:05ba770e1e3535ec -->
+<!-- @constraint-generated: start process_compliance_never | hash:4abe1314de34475a -->
 <!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
-| NEVER write application code outside of `/implement` skill invocation (OR when a construct with declared `workflow.gates` owns the current workflow) | Code written outside `/implement` bypasses review and audit gates |
+| NEVER write application code outside `/implement` (OR a construct with declared `workflow.gates`), and NEVER reach implementation except via `/run sprint-plan`, `/run sprint-N`, or `/bug` against an existing sprint plan (OR when a construct with declared `workflow.gates` owns the current workflow) | Code outside /implement bypasses review+audit; /run wraps the cycle with a circuit breaker. Mechanically enforced since cycle-122: implement-gate.sh (PreToolUse, fail-ask) + disallowed-tools on review skills + the adversarial gates — the hook's ask-prompt is the repair path. |
 | NEVER use Claude's `TaskCreate`/`TaskUpdate` for sprint task tracking when beads (`br`) is available | Beads is the single source of truth for task lifecycle; TaskCreate is for session progress display only |
-| NEVER skip from sprint plan directly to implementation without `/run sprint-plan`, `/run sprint-N`, or `/bug` triage (OR when a construct with `workflow.gates` declares pipeline composition) | `/run` wraps implement+review+audit in a cycle loop with circuit breaker. `/bug` produces a triage handoff that feeds directly into `/implement`. |
 | NEVER skip `/review-sprint` and `/audit-sprint` quality gates (Yield when construct declares `review: skip` or `audit: skip`) | These are the only validation that code meets acceptance criteria and security standards |
 | NEVER use `/bug` for feature work that doesn't reference an observed failure | `/bug` bypasses PRD/SDD gates; feature work must go through `/plan` |
 | NEVER implement code directly when `/spiraling` is invoked with a task — dispatch through the harness pipeline (`/run sprint-plan`, `/simstim`, or `spiral-harness.sh`) | `/spiraling` loads as context, not as an orchestrator. Without mechanical dispatch, the agent bypasses all quality gates (Flatline, Review, Audit, Bridgebuilder) — the fox-guarding-the-henhouse antipattern that the harness was built to prevent. |
@@ -206,12 +205,11 @@ applies to tests too) — but never skip the check on logic that can break.
 
 | Rule | Why |
 |------|-----|
-<!-- @constraint-generated: start process_compliance_always | hash:66dd674d9d03c67b -->
+<!-- @constraint-generated: start process_compliance_always | hash:d73891bbe4600f60 -->
 <!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
-| ALWAYS use `/run sprint-plan`, `/run sprint-N`, or `/bug` for implementation | Ensures review+audit cycle with circuit breaker protection. `/bug` enforces the same cycle for bug fixes. |
+| ALWAYS route implementation through `/run sprint-plan`, `/run sprint-N`, or `/bug`, checking for the existing sprint plan first | Ensures the implement→review→audit cycle with circuit-breaker protection and requirements traceability (absorbs the former separate check-sprint-plan row; implement-gate.sh asks on ungated App-Zone writes). |
 | ALWAYS create beads tasks from sprint plan before implementation (if beads available) | Tasks without beads tracking are invisible to cross-session recovery |
 | ALWAYS complete the full implement → review → audit cycle | Partial cycles leave unreviewed code in the codebase |
-| ALWAYS check for existing sprint plan before writing code (Yield when construct declares `sprint: skip`) | Prevents ad-hoc implementation without requirements traceability |
 | ALWAYS validate bug eligibility before `/bug` implementation | Prevents feature work from bypassing PRD/SDD gates via `/bug`. Must reference observed failure, regression, or stack trace. |
 | ALWAYS Read a state artifact (NOTES.md, a2a/ docs, MEMORY.md, contracts/*.yaml — any existing file) before Write/Edit | The Write tool rejects writes to un-Read existing files (~570 errors/month fleet-wide, issue #1177 item F) and blind writes clobber cross-session state. |
 <!-- @constraint-generated: end process_compliance_always -->
