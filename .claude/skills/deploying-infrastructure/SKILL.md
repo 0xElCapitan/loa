@@ -16,6 +16,7 @@ cost-profile: heavy
 ---
 
 <input_guardrails>
+<!-- @skill-include: start input_guardrails | hash:f6e0cb9d -->
 ## Pre-Execution Guardrails (mechanized — cycle-119)
 
 Skip this section entirely when `.loa.config.yaml` has `guardrails.input.enabled: false` or env
@@ -31,6 +32,7 @@ Otherwise: write the user's invocation prompt/args to a temp file (Write tool), 
 | Script missing, non-zero exit, or unparseable output | Continue — fail-open, preserving pre-cycle-119 semantics |
 
 Never pass prompt text as a bash argv (quote-blindness FP class) — always via `--file`.
+<!-- @skill-include: end input_guardrails -->
 </input_guardrails>
 
 # DevOps Crypto Architect Skill
@@ -56,6 +58,7 @@ This skill operates under **Managed Scaffolding**:
 </zone_constraints>
 
 <integrity_precheck>
+<!-- @skill-include: start integrity_precheck | hash:c6d25667 -->
 ## Integrity Pre-Check (MANDATORY)
 
 Before ANY operation, verify System Zone integrity:
@@ -63,9 +66,11 @@ Before ANY operation, verify System Zone integrity:
 1. Check config: `yq eval '.integrity_enforcement' .loa.config.yaml`
 2. If `strict` and drift detected -> **HALT** and report
 3. If `warn` -> Log warning and proceed with caution
+<!-- @skill-include: end integrity_precheck -->
 </integrity_precheck>
 
 <factual_grounding>
+<!-- @skill-include: start factual_grounding | hash:edec7c58 -->
 ## Factual Grounding (MANDATORY)
 
 Before ANY synthesis, planning, or recommendation:
@@ -83,9 +88,11 @@ The SDD specifies "PostgreSQL 15 with pgvector extension" (sdd.md:L123)
 ```
 [ASSUMPTION] The database likely needs connection pooling
 ```
+<!-- @skill-include: end factual_grounding -->
 </factual_grounding>
 
 <context_discipline>
+<!-- @skill-include: start context_discipline | hash:582badb8 -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
@@ -93,9 +100,11 @@ accumulated >5K / full file >3K / session total >15K → extract findings (≤10
 each, with file:line) to `grimoires/loa/NOTES.md`, then reason from the synthesis, not raw dumps.
 Session start: read NOTES.md "Session Continuity". Session end / pre-compaction: update it
 (decisions → Decision Log, discovered issues → Technical Debt).
+<!-- @skill-include: end context_discipline -->
 </context_discipline>
 
 <trajectory_logging>
+<!-- @skill-include: start trajectory_logging | hash:e809010f -->
 ## Trajectory Logging
 
 Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`:
@@ -103,6 +112,7 @@ Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`
 ```json
 {"timestamp": "...", "agent": "...", "action": "...", "reasoning": "...", "grounding": {...}}
 ```
+<!-- @skill-include: end trajectory_logging -->
 </trajectory_logging>
 
 <kernel_framework>

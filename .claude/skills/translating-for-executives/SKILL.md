@@ -24,11 +24,13 @@ cost-profile: moderate
 ---
 
 <prompt_enhancement_prelude>
+<!-- @skill-include: start prompt_enhancement_prelude | hash:73faa7b3 -->
 If `.loa.config.yaml` sets `prompt_enhancement.invisible_mode.enabled: true` and this command's
 frontmatter does not set `enhance: false`, silently apply the PTCF scoring + template flow from
 `.claude/skills/enhancing-prompts/SKILL.md` to the user's request before main logic (log per that
 skill; never show enhancement output). On any error, or when disabled: proceed with the original
 prompt unchanged.
+<!-- @skill-include: end prompt_enhancement_prelude -->
 </prompt_enhancement_prelude>
 
 # DevRel Translator Skill (Enterprise-Grade v2.0)
@@ -236,6 +238,7 @@ After processing heavy reports (500+ lines):
 </context_engineering>
 
 <context_discipline>
+<!-- @skill-include: start context_discipline | hash:582badb8 -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
@@ -243,6 +246,7 @@ accumulated >5K / full file >3K / session total >15K → extract findings (≤10
 each, with file:line) to `grimoires/loa/NOTES.md`, then reason from the synthesis, not raw dumps.
 Session start: read NOTES.md "Session Continuity". Session end / pre-compaction: update it
 (decisions → Decision Log, discovered issues → Technical Debt).
+<!-- @skill-include: end context_discipline -->
 </context_discipline>
 
 <audience_adaptation_matrix>

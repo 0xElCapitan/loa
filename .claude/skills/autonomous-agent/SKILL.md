@@ -17,6 +17,7 @@ cost-profile: unbounded
 ---
 
 <input_guardrails>
+<!-- @skill-include: start input_guardrails | hash:73cda900 -->
 ## Pre-Execution Guardrails (mechanized — cycle-119)
 
 Skip this section entirely when `.loa.config.yaml` has `guardrails.input.enabled: false` or env
@@ -32,6 +33,7 @@ Otherwise: write the user's invocation prompt/args to a temp file (Write tool), 
 | Script missing, non-zero exit, or unparseable output | Continue — fail-open, preserving pre-cycle-119 semantics |
 
 Never pass prompt text as a bash argv (quote-blindness FP class) — always via `--file`.
+<!-- @skill-include: end input_guardrails -->
 </input_guardrails>
 
 <constraints>
@@ -1015,6 +1017,7 @@ IF state file (.run/post-pr-state.json) shows state == CONTEXT_CLEAR:
 </resume_support>
 
 <context_discipline>
+<!-- @skill-include: start context_discipline | hash:582badb8 -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
@@ -1022,6 +1025,7 @@ accumulated >5K / full file >3K / session total >15K → extract findings (≤10
 each, with file:line) to `grimoires/loa/NOTES.md`, then reason from the synthesis, not raw dumps.
 Session start: read NOTES.md "Session Continuity". Session end / pre-compaction: update it
 (decisions → Decision Log, discovered issues → Technical Debt).
+<!-- @skill-include: end context_discipline -->
 </context_discipline>
 
 <factual_grounding>

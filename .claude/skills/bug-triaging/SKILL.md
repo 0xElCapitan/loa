@@ -36,6 +36,7 @@ inputs:
 ---
 
 <input_guardrails>
+<!-- @skill-include: start input_guardrails | hash:a96d9dc0 -->
 ## Pre-Execution Guardrails (mechanized — cycle-119)
 
 Skip this section entirely when `.loa.config.yaml` has `guardrails.input.enabled: false` or env
@@ -51,14 +52,17 @@ Otherwise: write the user's invocation prompt/args to a temp file (Write tool), 
 | Script missing, non-zero exit, or unparseable output | Continue — fail-open, preserving pre-cycle-119 semantics |
 
 Never pass prompt text as a bash argv (quote-blindness FP class) — always via `--file`.
+<!-- @skill-include: end input_guardrails -->
 </input_guardrails>
 
 <prompt_enhancement_prelude>
+<!-- @skill-include: start prompt_enhancement_prelude | hash:73faa7b3 -->
 If `.loa.config.yaml` sets `prompt_enhancement.invisible_mode.enabled: true` and this command's
 frontmatter does not set `enhance: false`, silently apply the PTCF scoring + template flow from
 `.claude/skills/enhancing-prompts/SKILL.md` to the user's request before main logic (log per that
 skill; never show enhancement output). On any error, or when disabled: proceed with the original
 prompt unchanged.
+<!-- @skill-include: end prompt_enhancement_prelude -->
 </prompt_enhancement_prelude>
 
 # Bug Triage Skill
