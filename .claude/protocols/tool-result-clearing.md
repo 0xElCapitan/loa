@@ -393,9 +393,7 @@ semantic_search "token" --top-k 25 # 1200 tokens
 ## Related Protocols
 
 - **Trajectory Evaluation** (`.claude/protocols/trajectory-evaluation.md`) - Intent logging before search
-- **Self-Audit Checkpoint** (`.claude/protocols/self-audit-checkpoint.md`) - Verify clearing applied
-- **Citations** (`.claude/protocols/citations.md`) - Reference NOTES.md in citations
-- **Negative Grounding** (`.claude/protocols/negative-grounding.md`) - Clear results during Ghost detection
+- **Citations** (`.claude/protocols/citations.md`) - Citation format, self-audit checkpoint, negative grounding
 
 ---
 
