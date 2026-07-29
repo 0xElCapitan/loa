@@ -73,6 +73,18 @@ Never pass prompt text as a bash argv (quote-blindness FP class) — always via 
 Review sprint implementation for completeness, quality, security, and architecture alignment. Either approve (write "All good" + update sprint.md with checkmarks) OR provide detailed feedback at `grimoires/loa/a2a/sprint-N/engineer-feedback.md`.
 </objective>
 
+<permission_grants>
+## Permission Grants (MAY — registry-rendered)
+
+Precedence: NEVER > MUST > ALWAYS > SHOULD > MAY. Cite the constraint ID when exercising a grant.
+
+<!-- @constraint-generated: start reviewing_code_grants | hash:4e516b2d06e953a5 -->
+<!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
+1. MAY propose alternative approaches that challenge existing architecture during bridge reviews and `/review-sprint`
+2. MAY create SPECULATION findings during planning and review skills (`/plan-and-analyze`, `/architect`, `/review-sprint`, bridge reviews) — explicitly excluded from `/implement` and `/audit-sprint`
+<!-- @constraint-generated: end reviewing_code_grants -->
+</permission_grants>
+
 <adversarial_protocol>
 ## Adversarial Review Protocol
 

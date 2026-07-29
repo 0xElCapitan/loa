@@ -34,6 +34,20 @@ zones:
     permission: none
 ---
 
+<permission_grants>
+## Permission Grants (MAY — registry-rendered)
+
+Precedence: NEVER > MUST > ALWAYS > SHOULD > MAY. Cite the constraint ID when exercising a grant.
+
+<!-- @constraint-generated: start bridgebuilder_review_grants | hash:70750066881f676d -->
+<!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
+1. MAY question the framing of requirements during `/plan-and-analyze` and bridge reviews, proposing alternative problem definitions when the analysis warrants reframing
+2. MAY propose alternative approaches that challenge existing architecture during bridge reviews and `/review-sprint`
+3. MAY create SPECULATION findings during planning and review skills (`/plan-and-analyze`, `/architect`, `/review-sprint`, bridge reviews) — explicitly excluded from `/implement` and `/audit-sprint`
+<!-- @constraint-generated: end bridgebuilder_review_grants -->
+</permission_grants>
+
+
 # Bridgebuilder — Autonomous PR Review
 
 ## Prerequisites

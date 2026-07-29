@@ -117,6 +117,18 @@ Precedence: Construct (if trust >= BACKTESTED) > per_skill config > global mode 
 
 # Discovering Requirements
 
+<permission_grants>
+## Permission Grants (MAY — registry-rendered)
+
+Precedence: NEVER > MUST > ALWAYS > SHOULD > MAY. Cite the constraint ID when exercising a grant.
+
+<!-- @constraint-generated: start discovering_requirements_grants | hash:926caf91dd268bf8 -->
+<!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
+1. MAY question the framing of requirements during `/plan-and-analyze` and bridge reviews, proposing alternative problem definitions when the analysis warrants reframing
+2. MAY create SPECULATION findings during planning and review skills (`/plan-and-analyze`, `/architect`, `/review-sprint`, bridge reviews) — explicitly excluded from `/implement` and `/audit-sprint`
+<!-- @constraint-generated: end discovering_requirements_grants -->
+</permission_grants>
+
 <objective>
 Synthesize existing project documentation and conduct targeted discovery
 interviews to produce a comprehensive PRD at `grimoires/loa/prd.md`.

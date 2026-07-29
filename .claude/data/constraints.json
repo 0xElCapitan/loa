@@ -1370,9 +1370,12 @@
       "order": 0,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "permission_grants",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "discovering-requirements",
+            "bridgebuilder-review"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "low"
@@ -1390,9 +1393,11 @@
       "order": 1,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "permission_grants",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "implementing-tasks"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "low"
@@ -1410,9 +1415,12 @@
       "order": 2,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "permission_grants",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "reviewing-code",
+            "bridgebuilder-review"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "low"
@@ -1430,9 +1438,13 @@
       "order": 3,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "permission_grants",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "discovering-requirements",
+            "reviewing-code",
+            "bridgebuilder-review"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "low"

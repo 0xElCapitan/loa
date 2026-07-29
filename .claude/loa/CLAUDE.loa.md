@@ -1,4 +1,4 @@
-<!-- @loa-managed: true | version: 1.196.0 | hash: fc7a13d212b2afb8c2679517bda2d882f7315f6a098a471f4814ae1216981272 -->
+<!-- @loa-managed: true | version: 1.196.0 | hash: a568f3284c20852e3a0c775d0d77c95ad7a6d68d789347f30e9a7fb9c1294d23 -->
 <!-- WARNING: This file is managed by the Loa Framework. Do not edit directly. -->
 
 # Loa Framework Instructions
@@ -217,17 +217,8 @@ applies to tests too) — but never skip the check on logic that can break.
 <!-- @constraint-generated: end process_compliance_always -->
 ### Permission Grants (MAY Rules)
 
-Positive rights that agents may exercise at their discretion. Precedence: `NEVER > MUST > ALWAYS > SHOULD > MAY`. When exercising a MAY permission, cite the constraint ID.
+Precedence: `NEVER > MUST > ALWAYS > SHOULD > MAY`. The four MAY grants (question-the-framing, vision exploration, alternative architectures, SPECULATION findings) are rendered into the SKILL.md of the skills where they apply — discovering-requirements, reviewing-code, bridgebuilder-review, implementing-tasks — and are exercised there, citing the constraint ID. C-PERM-004's exclusion from `/implement` and `/audit-sprint` is now structural (the grant is absent from those skills' context).
 
-| Rule | Why |
-|------|-----|
-<!-- @constraint-generated: start permission_grants | hash:d9c73e5a5b716954 -->
-<!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
-| MAY question the framing of requirements during `/plan-and-analyze` and bridge reviews when analysis warrants reframing | The deepest architectural insights come from questioning the frame, not just analyzing within it. Permission to ask 'is this the right problem?' enables the level of inquiry that produced findings like lot_invariant-as-social-contract and Ostrom-as-governance. |
-| MAY allocate time for Vision Registry exploration when a captured vision is relevant to current work | The Vision Registry captures speculative insights but none have ever been explored. Permission to allocate effort enables the 20% creative exploration that transforms captured ideas into actionable proposals. |
-| MAY propose alternative architectural approaches during bridge reviews and `/review-sprint` | Architectural evolution requires the ability to propose alternatives. Reviews that only check conformance to existing patterns cannot discover when the pattern itself should change. |
-| MAY create SPECULATION findings during planning and review skills — excluded from `/implement` and `/audit-sprint` | SPECULATION is currently scoped to bridge reviews only. Extending to planning and review skills enables creative architectural thinking at the stages where it has the most impact, while excluding implementation and audit where it could rationalize unsafe changes. |
-<!-- @constraint-generated: end permission_grants -->
 ### Task Tracking Hierarchy
 
 | Tool | Use For | Do NOT Use For |

@@ -179,19 +179,20 @@ Implement sprint tasks from `grimoires/loa/sprint.md` with production-grade code
 - **Desired state**: Working, tested implementation + comprehensive report
 
 ## Constraints (E - Explicit)
-<!-- @constraint-generated: start implementing_tasks_constraints | hash:5b15ea042277c84d -->
+<!-- @constraint-generated: start implementing_tasks_constraints | hash:56b77a38f8893cf7 -->
 <!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
 1. DO NOT start new work without checking for audit feedback FIRST (highest priority)
 2. DO NOT start new work without checking for engineer feedback SECOND
-3. DO NOT assume feedback meaning—ask clarifying questions if unclear
-4. DO NOT skip tests—comprehensive test coverage is non-negotiable
-5. DO NOT ignore existing codebase patterns—follow established conventions
-6. DO NOT skip reading context files—always review PRD, SDD, sprint.md
-7. DO link implementations to source discussions if integration context requires
-8. DO update relevant documentation if specified in integration context
-9. DO format commits per org standards if defined
-10. DO follow SemVer for version updates
-11. DO walk the YAGNI ladder before writing code — stop at the first rung that holds (need it? → stdlib → native → installed dependency → one line → minimum code); reinventing stdlib/native features is a dominant over-engineering class
+3. MAY allocate time within a sprint for Vision Registry exploration when a captured vision is relevant to the current work
+4. DO NOT assume feedback meaning—ask clarifying questions if unclear
+5. DO NOT skip tests—comprehensive test coverage is non-negotiable
+6. DO NOT ignore existing codebase patterns—follow established conventions
+7. DO NOT skip reading context files—always review PRD, SDD, sprint.md
+8. DO link implementations to source discussions if integration context requires
+9. DO update relevant documentation if specified in integration context
+10. DO format commits per org standards if defined
+11. DO follow SemVer for version updates
+12. DO walk the YAGNI ladder before writing code — stop at the first rung that holds (need it? → stdlib → native → installed dependency → one line → minimum code); reinventing stdlib/native features is a dominant over-engineering class
 <!-- @constraint-generated: end implementing_tasks_constraints -->
 
 ## Verification (E - Easy to Verify)
