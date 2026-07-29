@@ -520,9 +520,9 @@ fi
 # pass-8 pre-filter: `stash` plus one of the swallow literals.
 # -----------------------------------------------------------------------------
 if [[ "$command" == *"stash"* && ( "$command" == *"tail"* || "$command" == *"head"* || "$command" == *"/dev/null"* || "$command" == *"true"* ) ]] \
-   && _match '(^|/|;|&&|\||[[:space:]]|\(|'"'"'|")[[:space:]]*(sudo[[:space:]]+)?git[[:space:]]+stash[[:space:]]+(push|pop|apply)[^;&|]*(\|[[:space:]]*(tail|head)([[:space:]]|$)|\|\|[[:space:]]*true([[:space:]]*([;&|#]|$))|2>[[:space:]]*/dev/null)'; then
+   && _match '(^|/|;|&&|\||[[:space:]]|\(|'"'"'|")[[:space:]]*(sudo[[:space:]]+)?git[[:space:]]+stash[[:space:]]+(push|pop|apply)[^;&|]*(\|[[:space:]]*(tail|head)([[:space:]]|$)|\|\|[[:space:]]*true([[:space:]]*([;&|#]|$))|(&|[0-9]*)>>?[[:space:]]*/dev/null)'; then
   matched=$(echo "$command" | grep -oE 'git[[:space:]]+stash[[:space:]]+(push|pop|apply)[^;&|]*.{0,20}' | head -1)
-  emit_block "FR-1.2b" "$matched" "Output-swallowing around git stash push/pop/apply hides CONFLICT lines and wrong-slot pops (silent data loss, issue #555). Use stash_with_guard from .claude/scripts/stash-safety.sh, or run the stash bare and read its FULL output. Rules: .claude/rules/stash-safety.md"
+  emit_block "FR-1.2b" "$matched" "Output-swallowing (pipe-truncate, exit-mask, or ANY /dev/null redirect) around git stash push/pop/apply hides CONFLICT lines and wrong-slot pops (silent data loss, issue #555). Use stash_with_guard from .claude/scripts/stash-safety.sh, or run the stash bare and read its FULL output. Rules: .claude/rules/stash-safety.md"
 fi
 
 # -----------------------------------------------------------------------------
@@ -831,8 +831,14 @@ fi
 # Shapes: redirect, tee, copy-family dest, sed-in-place, rm. Same accepted
 # bypass classes as FR-SZ (fence, not boundary).
 # -----------------------------------------------------------------------------
-_c2_cmd="${command//.claude\/overrides/.EXCLUDED-OVR}"
-_c2_cmd="${_c2_cmd//.claude\/cache/.EXCLUDED-CACHE}"
+if [[ "$command" == *".."* ]]; then
+  # traversal-looking command: no exclusions (a path like
+  # .claude/overrides/../hooks/x resolves back into protected space)
+  _c2_cmd="$command"
+else
+  _c2_cmd="${command//.claude\/overrides/.EXCLUDED-OVR}"
+  _c2_cmd="${_c2_cmd//.claude\/cache/.EXCLUDED-CACHE}"
+fi
 if [[ "$_c2_cmd" == *".claude/"* ]]; then
   _c2_file="\\.claude/${_sz_pc}+"
   _c2_tgt="\\.claude(/${_sz_pc}*)?"

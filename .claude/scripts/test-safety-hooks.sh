@@ -100,6 +100,9 @@ test_hook "git tag -a v1 -m x"       2 "git tag annotated creation"
 test_hook "git stash push | tail -3" 2 "stash push piped to tail (FR-1.2b)"
 test_hook "git stash pop || true"    2 "stash pop exit-masked (FR-1.2b)"
 test_hook "git stash pop 2>/dev/null" 2 "stash pop stderr-suppressed (FR-1.2b)"
+test_hook "git stash pop >/dev/null 2>&1" 2 "stash pop full-suppression (FR-1.2b r2, dissenter F1)"
+LOA_ZONE_GUARD_AUTH_FILE=/nonexistent-c122 \
+  test_hook "echo x > .claude/overrides/../hooks/evil.sh" 2 "overrides traversal re-protected (FR-SZ2 r2, dissenter F2)"
 LOA_ZONE_GUARD_AUTH_FILE=/nonexistent-c122 \
   test_hook "echo x > .claude/foo.sh" 2 "System-Zone redirect write (FR-SZ2, no marker)"
 LOA_ZONE_GUARD_AUTH_FILE=/nonexistent-c122 \
@@ -146,6 +149,7 @@ test_hook "git tag"                  0 "git tag bare (list) allowed"
 test_hook "git tag -d v1.2.3"        0 "git tag delete allowed (not version-minting)"
 test_hook "git stash push -m wip"    0 "bare stash push allowed"
 test_hook "git stash pop"            0 "bare stash pop allowed"
+test_hook "git stash list > /dev/null" 0 "stash LIST null-redirect allowed (scoped to push/pop/apply)"
 test_hook "echo x > .claude/overrides/custom.md" 0 "overrides/ write allowed (sanctioned path)"
 test_hook "cat .claude/settings.json" 0 "System-Zone read allowed"
 test_hook "bash .claude/scripts/check-loa.sh" 0 "System-Zone script exec allowed"

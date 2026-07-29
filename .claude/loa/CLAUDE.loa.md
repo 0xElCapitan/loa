@@ -1,4 +1,4 @@
-<!-- @loa-managed: true | version: 1.196.0 | hash: 47a64534b07ff02a83f5f5149bee294f0b015a811800362ffc7826835c7580d1 -->
+<!-- @loa-managed: true | version: 1.196.0 | hash: d39d5fbddc5164dca45e545e3d42848a06249fa678bc1ce50ac3ec9a13e5c855 -->
 <!-- WARNING: This file is managed by the Loa Framework. Do not edit directly. -->
 
 # Loa Framework Instructions
@@ -193,9 +193,9 @@ applies to tests too) — but never skip the check on logic that can break.
 
 | Rule | Why |
 |------|-----|
-<!-- @constraint-generated: start process_compliance_never | hash:4abe1314de34475a -->
+<!-- @constraint-generated: start process_compliance_never | hash:e8fd568124a0fac4 -->
 <!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
-| NEVER write application code outside `/implement` (OR a construct with declared `workflow.gates`), and NEVER reach implementation except via `/run sprint-plan`, `/run sprint-N`, or `/bug` against an existing sprint plan (OR when a construct with declared `workflow.gates` owns the current workflow) | Code outside /implement bypasses review+audit; /run wraps the cycle with a circuit breaker. Mechanically enforced since cycle-122: implement-gate.sh (PreToolUse, fail-ask) + disallowed-tools on review skills + the adversarial gates — the hook's ask-prompt is the repair path. |
+| NEVER write application code outside `/implement` (OR a construct with declared `workflow.gates`), and NEVER reach implementation except via `/run sprint-plan`, `/run sprint-N`, or `/bug` against an existing sprint plan (OR when a construct with declared `workflow.gates` owns the current workflow) | Code outside /implement bypasses review+audit; /run wraps the cycle with a circuit breaker. Mechanical stack (cycle-122): implement-gate.sh fail-asks Write/Edit-tool App-Zone writes outside /implement//bug; disallowed-tools strips write tools from pure-review skills; the adversarial gates catch the rest. Bash-path App-Zone writes remain review-territory (accepted fence gap, same class as the spiral guard's). |
 | NEVER use Claude's `TaskCreate`/`TaskUpdate` for sprint task tracking when beads (`br`) is available | Beads is the single source of truth for task lifecycle; TaskCreate is for session progress display only |
 | NEVER skip `/review-sprint` and `/audit-sprint` quality gates (Yield when construct declares `review: skip` or `audit: skip`) | These are the only validation that code meets acceptance criteria and security standards |
 | NEVER use `/bug` for feature work that doesn't reference an observed failure | `/bug` bypasses PRD/SDD gates; feature work must go through `/plan` |
