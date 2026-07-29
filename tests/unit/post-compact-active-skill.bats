@@ -48,3 +48,22 @@ run_pair() {  # writes marker then captures reminder output
     [[ "$out" == *"RECOVERY REQUIRED"* ]]
     [[ "$out" != *"Step 1b"* ]]
 }
+
+@test "active-skill: stale lowercase-complete simstim does NOT shadow an active bridge (dissenter r2)" {
+    jq -n '{phase:"complete"}' > "$FIX/.run/simstim-state.json"
+    jq -n '{state:"PREFLIGHT"}' > "$FIX/.run/bridge-state.json"
+    out="$(run_pair)"
+    [[ "$out" == *".claude/skills/run-bridge/SKILL.md"* ]]
+}
+
+@test "active-skill: bridge PREFLIGHT counts as active (dissenter r2)" {
+    jq -n '{state:"PREFLIGHT"}' > "$FIX/.run/bridge-state.json"
+    out="$(run_pair)"
+    [[ "$out" == *".claude/skills/run-bridge/SKILL.md"* ]]
+}
+
+@test "active-skill: READY_FOR_HITL run-mode is terminal (no Step 1b)" {
+    jq -n '{state:"READY_FOR_HITL"}' > "$FIX/.run/sprint-plan-state.json"
+    out="$(run_pair)"
+    [[ "$out" != *"Step 1b"* ]]
+}
