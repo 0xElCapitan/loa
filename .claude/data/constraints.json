@@ -946,11 +946,6 @@
       "order": 0,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "bridge_constraints",
-          "render_as": "table_row"
-        },
-        {
           "target": "skill-md",
           "skills": [
             "run-bridge"
@@ -973,11 +968,6 @@
       "why": "GitHub trail provides auditable history of iterative improvement decisions",
       "order": 1,
       "layers": [
-        {
-          "target": "claude-loa-md",
-          "section": "bridge_constraints",
-          "render_as": "table_row"
-        },
         {
           "target": "skill-md",
           "skills": [
@@ -1002,15 +992,10 @@
       "order": 2,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "bridge_constraints",
-          "render_as": "table_row"
-        },
-        {
           "target": "skill-md",
           "skills": [
-            "run-bridge",
-            "riding-codebase"
+            "riding-codebase",
+            "run-bridge"
           ],
           "render_as": "constraint_rule"
         }
@@ -1031,9 +1016,11 @@
       "order": 3,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "bridge_constraints",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "run-bridge"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "medium"
@@ -1051,11 +1038,6 @@
       "why": "Vision entries without provenance cannot be traced back to the context that inspired them",
       "order": 4,
       "layers": [
-        {
-          "target": "claude-loa-md",
-          "section": "bridge_constraints",
-          "render_as": "table_row"
-        },
         {
           "target": "skill-md",
           "skills": [
@@ -1080,11 +1062,6 @@
       "order": 5,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "bridge_constraints",
-          "render_as": "table_row"
-        },
-        {
           "target": "skill-md",
           "skills": [
             "run-bridge"
@@ -1108,9 +1085,11 @@
       "order": 6,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "bridge_constraints",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "run-bridge"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "low"
@@ -1129,9 +1108,11 @@
       "order": 7,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "bridge_constraints",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "run-bridge"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "low"
