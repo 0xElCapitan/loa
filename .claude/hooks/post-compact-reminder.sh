@@ -113,20 +113,23 @@ mapfile -d '' -t _pc_fields < <(
         fld(.run_mode.active // false; "false") + $z +
         fld(.run_mode.state // "unknown"; "unknown") + $z +
         fld(.simstim.active // false; "false") + $z +
-        fld(.simstim.phase // "unknown"; "unknown") + $z
+        fld(.simstim.phase // "unknown"; "unknown") + $z +
+        fld(.active_skill_doc // ""; "") + $z
     ' 2>/dev/null
 )
-if [[ "${#_pc_fields[@]}" -eq 4 ]]; then
+if [[ "${#_pc_fields[@]}" -eq 5 ]]; then
     run_mode_active="${_pc_fields[0]}"
     run_mode_state_raw="${_pc_fields[1]}"
     simstim_active="${_pc_fields[2]}"
     simstim_phase_raw="${_pc_fields[3]}"
+    active_skill_doc_raw="${_pc_fields[4]}"
 else
     # Whole-parse failure — the old per-call `|| default` values.
     run_mode_active="false"
     run_mode_state_raw="unknown"
     simstim_active="false"
     simstim_phase_raw="unknown"
+    active_skill_doc_raw=""
 fi
 
 # SECURITY: Validate state values against allowlists to prevent prompt injection
@@ -149,6 +152,14 @@ Read CLAUDE.md to restore project guidelines, conventions, and patterns.
 ## Step 2: Check Run Mode State
 REMINDER
 printf '%s' "$_blk"
+
+# cycle-122: an allowlisted active-skill doc was mid-flight — its point-of-use
+# constraints must be re-read too (CLAUDE.md alone doesn't carry them).
+case "${active_skill_doc_raw:-}" in
+    .claude/skills/simstim-workflow/SKILL.md|.claude/skills/run-bridge/SKILL.md|.claude/skills/run-mode/SKILL.md)
+        printf '\n## Step 1b: Re-read the ACTIVE skill contract\nA skill was mid-flight when compaction hit. Read %s (its point-of-use rules are NOT in CLAUDE.md).\n' "$active_skill_doc_raw"
+        ;;
+esac
 
 if [[ "$run_mode_active" == "true" ]]; then
     IFS= read -rd '' _blk <<EOF || true
