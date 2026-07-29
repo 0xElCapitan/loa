@@ -111,6 +111,14 @@ emit_kf(){
   ' "$f" > "$meta"
   while IFS=$'\t' read -r id status title symptom recurrence; do
     [[ -n "$id" ]] || continue
+    # cycle-121: recurrence >=3 is the load-bearing signal (CLAUDE.md intake
+    # discipline) — an unparseable count silently disarms it, so WARN loudly.
+    if [[ "${recurrence:-?}" == "?" ]]; then
+      echo "grimoire-index: WARN — ${id} Recurrence count is not integer-leading; the >=3 escalation signal cannot fire for it" >&2
+    fi
+    # Status cells are tier-2 index material: truncate resolution prose >120
+    # chars (tier-3 detail belongs in the entry body, not the index row).
+    if [[ "${#status}" -gt 120 ]]; then status="${status:0:117}..."; fi
     printf 'kf\t%s\t%s\t%s\tgrimoires/loa/known-failures.md\t\t%s\t%s\n' \
       "$(san "$id")" "$(san "${status:-}")" "$(san "$title")" "$(san "${symptom:-}")" "$(san "${recurrence:-?}")"
   done < "$meta"
