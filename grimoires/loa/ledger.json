@@ -2066,8 +2066,9 @@
           "global_id": 232,
           "cycle": "cycle-122-mechanical-floor-extensions",
           "theme": "Fences",
-          "status": "pending",
-          "created": "2026-07-29T08:31:36Z"
+          "status": "completed",
+          "created": "2026-07-29T08:31:36Z",
+          "completed_at": "2026-07-29T09:13:04Z"
         },
         {
           "id": "sprint-233",
@@ -2075,8 +2076,9 @@
           "global_id": 233,
           "cycle": "cycle-122-mechanical-floor-extensions",
           "theme": "Pipeline hardening",
-          "status": "pending",
-          "created": "2026-07-29T08:31:36Z"
+          "status": "completed",
+          "created": "2026-07-29T08:31:36Z",
+          "completed_at": "2026-07-29T09:13:04Z"
         },
         {
           "id": "sprint-234",
@@ -2084,8 +2086,9 @@
           "global_id": 234,
           "cycle": "cycle-122-mechanical-floor-extensions",
           "theme": "Delegated judgment + E2E",
-          "status": "pending",
-          "created": "2026-07-29T08:31:36Z"
+          "status": "completed",
+          "created": "2026-07-29T08:31:36Z",
+          "completed_at": "2026-07-29T09:13:04Z"
         }
       ]
     }
