@@ -62,7 +62,7 @@ Anthropic's automatic context compaction for long-running agentic workflows. Ach
 
 **Source**: [Anthropic Context Management Blog](https://claude.com/blog/context-management)
 
-**Protocol**: See `.claude/protocols/context-editing.md`
+**Spec** (unwired API-beta design, historical): `docs/integration/context-editing.md`
 
 ---
 
@@ -123,7 +123,7 @@ effectiveness:
 
 **Schema**: See `.claude/schemas/memory.schema.json`
 
-**Protocol**: See `.claude/protocols/memory.md`
+**Spec** (never-built design, historical): `docs/integration/memory-schema.md`
 
 ---
 
@@ -166,4 +166,4 @@ condense.sh condense --strategy structured_verdict --input result.json
 early-exit.sh signal session-123 agent-1
 ```
 
-**Protocol**: See `.claude/protocols/recursive-context.md`, `.claude/protocols/semantic-cache.md`
+**Scripts**: `context-manager.sh`, `cache-manager.sh`, `condense.sh`, `early-exit.sh` — see `.claude/loa/reference/scripts-reference.md` and each script's `--help`

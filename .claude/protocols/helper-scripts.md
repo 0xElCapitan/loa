@@ -522,7 +522,6 @@ visual_communication:
 
 ## Related Protocols
 
-- `.claude/protocols/context-compaction.md` - Context preservation rules
 - `.claude/protocols/upgrade-process.md` - Framework upgrade workflow
 - `.claude/protocols/constructs-integration.md` - Registry integration
 - `.claude/protocols/recommended-hooks.md` - Hook patterns

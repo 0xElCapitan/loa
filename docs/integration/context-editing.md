@@ -229,9 +229,7 @@ Based on Anthropic benchmarks:
 ## Related
 
 - Configuration: `.loa.config.yaml` (context_editing section)
-- Attention Budgets: `.claude/protocols/attention-budget.md`
-- Lossless Ledger: `.claude/protocols/lossless-ledger.md`
-- Memory Protocol: `.claude/protocols/memory.md`
+- Memory Schema Spec: `docs/integration/memory-schema.md` (sibling unwired design)
 
 ## Sources
 
