@@ -116,7 +116,6 @@
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git show:*)",
-      "Bash(git tag:*)",
       "Bash(git reset:*)",
       "Bash(git restore:*)",
       "Bash(git clean:*)",
