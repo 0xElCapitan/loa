@@ -20,7 +20,7 @@ For code navigation, consult `grimoires/loa/REPO-MAP.md` (generated; `bash .clau
 
 ## Team & Ownership
 
-- **Primary maintainer / default PR reviewer**: @janitooor — always request review from them
+- **Primary maintainer / default PR reviewer**: @deep-name — always request review from them
 - **Repo**: 0xHoneyJar/loa · CODEOWNERS: `.github/CODEOWNERS`
 
 ## Related Documentation

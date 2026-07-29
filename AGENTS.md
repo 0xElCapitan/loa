@@ -11,7 +11,7 @@
 
 ## Quick Start
 
-Primary interface: 48+ commands fronted by **5 Golden Path commands** (zero-arg).
+Primary interface: 49+ commands fronted by **5 Golden Path commands** (zero-arg).
 
 ```
 /loa
@@ -29,7 +29,7 @@ Primary interface: 48+ commands fronted by **5 Golden Path commands** (zero-arg)
 
 ## Commands
 
-**5 Golden Path commands** (`/loa`, `/plan`, `/build`, `/review`, `/ship`) front **48 total commands** (truenames). See `PROCESS.md` for the full list; type `/loa` for orientation.
+**5 Golden Path commands** (`/loa`, `/plan`, `/build`, `/review`, `/ship`) front **49 total commands** (truenames). See `PROCESS.md` for the full list; type `/loa` for orientation.
 
 ## Project Governance
 
@@ -59,12 +59,6 @@ Precedence: **NEVER > MUST > ALWAYS > SHOULD > MAY.** These are mechanically enf
 - ALWAYS load and validate bridgebuilder-persona.md before enriched review iterations
 - ALWAYS use `post-merge-orchestrator.sh` for pipeline execution, not ad-hoc commands
 
-**MAY**
-- MAY question the framing of requirements during `/plan-and-analyze` and bridge reviews when analysis warrants reframing
-- MAY allocate time for Vision Registry exploration when a captured vision is relevant to current work
-- MAY propose alternative architectural approaches during bridge reviews and `/review-sprint`
-- MAY create SPECULATION findings during planning and review skills — excluded from `/implement` and `/audit-sprint`
-
 ### Three-Zone model
 | Zone | Path | Rule |
 |------|------|------|
@@ -73,7 +67,7 @@ Precedence: **NEVER > MUST > ALWAYS > SHOULD > MAY.** These are mechanically enf
 | App | `src/`, `lib/`, `app/` | Confirm writes |
 
 ## Conventions
-- **Default PR reviewer:** @janitooor (always request review).
+- **Default PR reviewer:** @deep-name (always request review).
 - **Branch from `main`**; never commit directly to the default branch.
 - **Commit trailer:** end commit messages with `Co-Authored-By: Claude <noreply@anthropic.com>`.
 - **Beads-first:** task lifecycle is tracked via `br` (beads_rust); it is the source of truth, not ad-hoc TODOs.
