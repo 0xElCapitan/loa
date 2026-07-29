@@ -393,6 +393,4 @@ Universal invariants (apply per turn): mutate these primitives ONLY through thei
 
 ## Conventions
 
-- Never skip phases - each builds on previous
-- Never edit `.claude/` directly
-- Security first
+Security first. (Phase-skipping and `.claude/` edits are governed by the Process Compliance tables and the Three-Zone Model above — stated once, enforced there.)
