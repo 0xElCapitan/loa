@@ -29,7 +29,7 @@ src_dir = '.claude/data/skill-includes'
 sources = {os.path.basename(p)[:-3]: open(p).read().rstrip('\n') for p in glob.glob(f'{src_dir}/*.md')}
 drift = []
 changed = 0
-pat = re.compile(r'(<!-- @skill-include: start (\w+) \| hash:([0-9a-f]{8}) -->\n)(.*?)(\n<!-- @skill-include: end \2 -->)', re.S)
+pat = re.compile(r'(<!-- @skill-include: start (\w+) \| hash:([0-9a-f]{8})(?: \| DO NOT EDIT[^>]*)? -->\n)(.*?)(\n<!-- @skill-include: end \2 -->)', re.S)
 for f in sorted(glob.glob('.claude/skills/*/SKILL.md')):
     skill = f.split('/')[2]
     s = open(f).read()
@@ -41,7 +41,7 @@ for f in sorted(glob.glob('.claude/skills/*/SKILL.md')):
             continue
         body = sources[name].replace('{{SKILL}}', skill)
         h = hashlib.md5(body.encode()).hexdigest()[:8]
-        rendered = f'<!-- @skill-include: start {name} | hash:{h} -->\n{body}\n<!-- @skill-include: end {name} -->'
+        rendered = f'<!-- @skill-include: start {name} | hash:{h} | DO NOT EDIT — generated from {src_dir}/{name}.md -->\n{body}\n<!-- @skill-include: end {name} -->'
         current = m.group(0)
         if current != rendered:
             if mode == '--write':

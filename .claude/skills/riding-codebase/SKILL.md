@@ -150,7 +150,7 @@ During drift analysis, if `.claude/scripts/qmd-context-query.sh` exists and `qmd
 ---
 
 <context_discipline>
-<!-- @skill-include: start context_discipline | hash:582badb8 -->
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /

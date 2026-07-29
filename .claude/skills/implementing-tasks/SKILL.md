@@ -35,7 +35,7 @@ inputs:
 ---
 
 <input_guardrails>
-<!-- @skill-include: start input_guardrails | hash:f3482c6c -->
+<!-- @skill-include: start input_guardrails | hash:f3482c6c | DO NOT EDIT — generated from .claude/data/skill-includes/input_guardrails.md -->
 ## Pre-Execution Guardrails (mechanized — cycle-119)
 
 Skip this section entirely when `.loa.config.yaml` has `guardrails.input.enabled: false` or env
@@ -55,7 +55,7 @@ Never pass prompt text as a bash argv (quote-blindness FP class) — always via 
 </input_guardrails>
 
 <prompt_enhancement_prelude>
-<!-- @skill-include: start prompt_enhancement_prelude | hash:73faa7b3 -->
+<!-- @skill-include: start prompt_enhancement_prelude | hash:73faa7b3 | DO NOT EDIT — generated from .claude/data/skill-includes/prompt_enhancement_prelude.md -->
 If `.loa.config.yaml` sets `prompt_enhancement.invisible_mode.enabled: true` and this command's
 frontmatter does not set `enhance: false`, silently apply the PTCF scoring + template flow from
 `.claude/skills/enhancing-prompts/SKILL.md` to the user's request before main logic (log per that
@@ -108,7 +108,7 @@ Agents SHOULD proactively run CLI tools from the approved allowlist without aski
 </cli_tool_permissions>
 
 <integrity_precheck>
-<!-- @skill-include: start integrity_precheck | hash:c6d25667 -->
+<!-- @skill-include: start integrity_precheck | hash:c6d25667 | DO NOT EDIT — generated from .claude/data/skill-includes/integrity_precheck.md -->
 ## Integrity Pre-Check (MANDATORY)
 
 Before ANY operation, verify System Zone integrity:
@@ -120,7 +120,7 @@ Before ANY operation, verify System Zone integrity:
 </integrity_precheck>
 
 <factual_grounding>
-<!-- @skill-include: start factual_grounding | hash:edec7c58 -->
+<!-- @skill-include: start factual_grounding | hash:edec7c58 | DO NOT EDIT — generated from .claude/data/skill-includes/factual_grounding.md -->
 ## Factual Grounding (MANDATORY)
 
 Before ANY synthesis, planning, or recommendation:
@@ -142,7 +142,7 @@ The SDD specifies "PostgreSQL 15 with pgvector extension" (sdd.md:L123)
 </factual_grounding>
 
 <context_discipline>
-<!-- @skill-include: start context_discipline | hash:582badb8 -->
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
@@ -154,7 +154,7 @@ Session start: read NOTES.md "Session Continuity". Session end / pre-compaction:
 </context_discipline>
 
 <trajectory_logging>
-<!-- @skill-include: start trajectory_logging | hash:e809010f -->
+<!-- @skill-include: start trajectory_logging | hash:e809010f | DO NOT EDIT — generated from .claude/data/skill-includes/trajectory_logging.md -->
 ## Trajectory Logging
 
 Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`:
@@ -762,7 +762,7 @@ task-lifecycle / semantic-labels / session-end command reference (including
 </beads_workflow>
 
 <retrospective_postlude>
-<!-- @skill-include: start retrospective_postlude | hash:44ec4643 -->
+<!-- @skill-include: start retrospective_postlude | hash:44ec4643 | DO NOT EDIT — generated from .claude/data/skill-includes/retrospective_postlude.md -->
 After main skill logic completes, if `.loa.config.yaml` `invisible_retrospective.enabled: true`
 (and not disabled for this skill under `invisible_retrospective.skills`), silently run the
 learning-signal scan per `.claude/skills/continuous-learning/SKILL.md` and its

@@ -1,6 +1,6 @@
 ---
 name: run
-description: "Autonomous sprint execution mode"
+description: "Autonomous sprint execution: /run sprint-N and /run sprint-plan wrap implement->review->audit cycles with circuit breaker, ICE git safety, and draft-PR completion. Use for UNATTENDED execution of an existing sprint plan. (Contrast: autonomous-agent orchestrates the FULL lifecycle from requirements; simstim keeps a human driving the planning phases.)"
 role: review
 primary_role: review
 capabilities:
@@ -561,16 +561,7 @@ On completion, create a draft PR via ICE:
 
 ### High-Risk Area Detection
 
-Checked against suspected files during triage (Phase 3): `auth, authentication, login, password,
-token, jwt, oauth, payment, billing, charge, stripe, checkout, migration, schema, database, db,
-encrypt, decrypt, secret, credential, key`.
-
-| Mode | Risk Level | Behavior |
-|------|-----------|----------|
-| Interactive | high | WARN: display risk, ask confirmation |
-| Autonomous | high (no `--allow-high`) | **HALT**: require `--allow-high` |
-| Autonomous | high (`--allow-high`) | Proceed with `risk_level: high` in PR |
-| Any | low/medium | Proceed normally |
+Triage checks suspected files against the high-risk keyword list (auth/payment/migration/secrets classes); autonomous mode HALTs on `high` without `--allow-high`; interactive mode warns and asks. Full keyword list + mode table: → `resources/render-templates.md` §high-risk-area-detection.
 
 ## Safety Model
 

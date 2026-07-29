@@ -270,3 +270,19 @@ This PR was created by `/run --bug` autonomous mode.
 Please review before merging.
 ```
 
+## high-risk-area-detection
+
+### High-Risk Area Detection
+
+Checked against suspected files during triage (Phase 3): `auth, authentication, login, password,
+token, jwt, oauth, payment, billing, charge, stripe, checkout, migration, schema, database, db,
+encrypt, decrypt, secret, credential, key`.
+
+| Mode | Risk Level | Behavior |
+|------|-----------|----------|
+| Interactive | high | WARN: display risk, ask confirmation |
+| Autonomous | high (no `--allow-high`) | **HALT**: require `--allow-high` |
+| Autonomous | high (`--allow-high`) | Proceed with `risk_level: high` in PR |
+| Any | low/medium | Proceed normally |
+
+

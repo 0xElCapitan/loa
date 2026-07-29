@@ -1,6 +1,6 @@
 ---
 name: run-bridge
-description: "Run Bridge — Autonomous Excellence Loop"
+description: "Autonomous excellence loop: iterative improvement bridges with kaironic termination, Bridgebuilder PR reviews, grounded-truth/lore/vision capture. Use via /run-bridge on an existing PR or improvement target; each iteration inherits the full implement->review->audit cycle."
 role: review
 primary_role: review
 capabilities:

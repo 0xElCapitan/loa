@@ -1,6 +1,6 @@
 ---
 name: autonomous
-description: "Autonomous agent execution mode"
+description: "Meta-orchestrator for the FULL Loa lifecycle (discover -> design -> implement -> audit -> submit -> learn) with mandatory quality gates — use when starting from raw requirements with no PRD/SDD/sprint plan yet. (Contrast: run-mode executes an EXISTING sprint plan; simstim keeps a human in the planning loop.)"
 role: review
 primary_role: review
 capabilities:
@@ -17,7 +17,7 @@ cost-profile: unbounded
 ---
 
 <input_guardrails>
-<!-- @skill-include: start input_guardrails | hash:73cda900 -->
+<!-- @skill-include: start input_guardrails | hash:73cda900 | DO NOT EDIT — generated from .claude/data/skill-includes/input_guardrails.md -->
 ## Pre-Execution Guardrails (mechanized — cycle-119)
 
 Skip this section entirely when `.loa.config.yaml` has `guardrails.input.enabled: false` or env
@@ -931,7 +931,7 @@ IF state file (.run/post-pr-state.json) shows state == CONTEXT_CLEAR:
 </resume_support>
 
 <context_discipline>
-<!-- @skill-include: start context_discipline | hash:582badb8 -->
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /

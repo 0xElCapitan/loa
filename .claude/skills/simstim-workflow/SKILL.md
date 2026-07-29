@@ -1,6 +1,6 @@
 ---
 name: simstim
-description: "Simstim - HITL Accelerated Development Workflow"
+description: "HITL-accelerated development: orchestrates PRD -> SDD -> Sprint -> Run with integrated Flatline reviews, the human driving planning decisions while HIGH_CONSENSUS findings auto-integrate. Use when the operator wants to steer planning but automate execution. (Contrast: run-mode and autonomous-agent are unattended.)"
 role: implementation
 capabilities:
   schema_version: 1

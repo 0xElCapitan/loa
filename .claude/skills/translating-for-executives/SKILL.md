@@ -24,7 +24,7 @@ cost-profile: moderate
 ---
 
 <prompt_enhancement_prelude>
-<!-- @skill-include: start prompt_enhancement_prelude | hash:73faa7b3 -->
+<!-- @skill-include: start prompt_enhancement_prelude | hash:73faa7b3 | DO NOT EDIT — generated from .claude/data/skill-includes/prompt_enhancement_prelude.md -->
 If `.loa.config.yaml` sets `prompt_enhancement.invisible_mode.enabled: true` and this command's
 frontmatter does not set `enhance: false`, silently apply the PTCF scoring + template flow from
 `.claude/skills/enhancing-prompts/SKILL.md` to the user's request before main logic (log per that
@@ -232,7 +232,7 @@ After processing heavy reports (500+ lines):
 </context_engineering>
 
 <context_discipline>
-<!-- @skill-include: start context_discipline | hash:582badb8 -->
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /

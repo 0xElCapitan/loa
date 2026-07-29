@@ -42,7 +42,7 @@ Zones per CLAUDE.loa.md Three-Zone Model (`.claude/` system = never edit — use
 </zone_constraints>
 
 <integrity_precheck>
-<!-- @skill-include: start integrity_precheck | hash:c6d25667 -->
+<!-- @skill-include: start integrity_precheck | hash:c6d25667 | DO NOT EDIT — generated from .claude/data/skill-includes/integrity_precheck.md -->
 ## Integrity Pre-Check (MANDATORY)
 
 Before ANY operation, verify System Zone integrity:
@@ -54,7 +54,7 @@ Before ANY operation, verify System Zone integrity:
 </integrity_precheck>
 
 <factual_grounding>
-<!-- @skill-include: start factual_grounding | hash:edec7c58 -->
+<!-- @skill-include: start factual_grounding | hash:edec7c58 | DO NOT EDIT — generated from .claude/data/skill-includes/factual_grounding.md -->
 ## Factual Grounding (MANDATORY)
 
 Before ANY synthesis, planning, or recommendation:
@@ -76,7 +76,7 @@ The SDD specifies "PostgreSQL 15 with pgvector extension" (sdd.md:L123)
 </factual_grounding>
 
 <context_discipline>
-<!-- @skill-include: start context_discipline | hash:582badb8 -->
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
@@ -88,7 +88,7 @@ Session start: read NOTES.md "Session Continuity". Session end / pre-compaction:
 </context_discipline>
 
 <trajectory_logging>
-<!-- @skill-include: start trajectory_logging | hash:e809010f -->
+<!-- @skill-include: start trajectory_logging | hash:e809010f | DO NOT EDIT — generated from .claude/data/skill-includes/trajectory_logging.md -->
 ## Trajectory Logging
 
 Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`:
