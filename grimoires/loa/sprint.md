@@ -133,12 +133,12 @@ Every file with no real loading path (agent-context reference from CLAUDE.md/CLA
 The five most-duplicated/stale prose files are rewritten in place (same paths — every live pointer keeps resolving) down to their genuinely load-bearing content, and the two internal contradictions in CLAUDE.loa.md's Karpathy section are fixed without compressing it.
 
 ### Deliverables
-- [ ] **D2.1** — `tool-result-clearing.md` 12.9KB → ~2KB (keep thresholds, 4-step extract→synthesize→clear→summary, NOTES.md format, edge cases 1–3; delete semantic-decay wall-clock timers, token-estimation bash, validation/troubleshooting sections)
-- [ ] **D2.2** — `karpathy-principles.md` 10.8KB → ~1KB stub: config keys (`.loa.config.yaml.example:2789-2812`), hook pointers (`karpathy-surgical-diff-check.sh`, goal-driven gate), and a "canonical text lives in CLAUDE.loa.md" banner. CLAUDE.loa.md's section is NOT touched (RISKY — out of scope) except D2.5
-- [ ] **D2.3** — `reference/context-engineering.md` 6.3KB → ~1.5KB honest pointer table (what exists, where detail lives, what is wired); stale Opus-4.6/4.7 claims and dead attention-budget references removed
-- [ ] **D2.4** — `structured-memory.md` ~10KB → ~40 lines in place: NOTES.md location, what-belongs-where (NOTES vs KF vs auto-memory), session-continuity recovery pointer; MUST-section tables and semantic-decay ritual deleted; `check-loa.sh` `check_notes_template` aligned with the survivor
-- [ ] **D2.5** — CLAUDE.loa.md Karpathy wording fixes ONLY: reconcile "applies on EVERY turn" (heading) vs "every code-touching turn" (body); scope "ask before implementing" so it doesn't contradict Run Mode's "Resume immediately, do NOT ask" (line ~250)
-- [ ] **D2.6** — `protocols-summary.md` rewritten as a complete one-line-per-file table (name, purpose, loaded-by) covering exactly the surviving protocol set; prose restatements (karpathy, NOTES sections, git-safety) deleted
+- [x] **D2.1** — `tool-result-clearing.md` 12.9KB → ~2KB (keep thresholds, 4-step extract→synthesize→clear→summary, NOTES.md format, edge cases 1–3; delete semantic-decay wall-clock timers, token-estimation bash, validation/troubleshooting sections)
+- [x] **D2.2** — `karpathy-principles.md` 10.8KB → ~1KB stub: config keys (`.loa.config.yaml.example:2789-2812`), hook pointers (`karpathy-surgical-diff-check.sh`, goal-driven gate), and a "canonical text lives in CLAUDE.loa.md" banner. CLAUDE.loa.md's section is NOT touched (RISKY — out of scope) except D2.5
+- [x] **D2.3** — `reference/context-engineering.md` 6.3KB → ~1.5KB honest pointer table (what exists, where detail lives, what is wired); stale Opus-4.6/4.7 claims and dead attention-budget references removed
+- [x] **D2.4** — `structured-memory.md` ~10KB → ~40 lines in place: NOTES.md location, what-belongs-where (NOTES vs KF vs auto-memory), session-continuity recovery pointer; MUST-section tables and semantic-decay ritual deleted; `check-loa.sh` `check_notes_template` aligned with the survivor
+- [x] **D2.5** — CLAUDE.loa.md Karpathy wording fixes ONLY: reconcile "applies on EVERY turn" (heading) vs "every code-touching turn" (body); scope "ask before implementing" so it doesn't contradict Run Mode's "Resume immediately, do NOT ask" (line ~250)
+- [x] **D2.6** — `protocols-summary.md` rewritten as a complete one-line-per-file table (name, purpose, loaded-by) covering exactly the surviving protocol set; prose restatements (karpathy, NOTES sections, git-safety) deleted
 
 ### Acceptance Criteria
 - [ ] All five files keep their exact paths; every inbound reference (grep) still resolves
