@@ -35,8 +35,8 @@ setup() {
     grep -q "## Session Log" "$TEMPLATE_FILE"
 }
 
-@test "template has Decisions section" {
-    grep -q "## Decisions" "$TEMPLATE_FILE"
+@test "template has Decision Log section (renamed from Decisions, bd-a3ks)" {
+    grep -q "## Decision Log" "$TEMPLATE_FILE"
 }
 
 @test "template has Blockers section" {

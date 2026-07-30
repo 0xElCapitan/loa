@@ -120,6 +120,25 @@ Pre-built configs available in `.claude/mcp-examples/` for Slack, GitHub, Sentry
 
 ---
 
+## Context Tooling (recursive-JIT scripts)
+
+```bash
+.claude/scripts/context-manager.sh   # Session context orchestration (status/init)
+.claude/scripts/cache-manager.sh     # Semantic cache get/set/invalidate (.claude/cache/)
+.claude/scripts/condense.sh          # Condense long docs for context injection
+.claude/scripts/early-exit.sh        # Parallel-subagent early-exit signaling
+```
+
+Each script's `--help` is the authoritative interface doc. Durable rule: externalize decisions/findings to `grimoires/loa/NOTES.md` before context loss (owned by `session-continuity.md` + skill context_discipline blocks).
+
+---
+
+## Error Codes (LOA-EXXX)
+
+Structured error codes: registry `.claude/data/error-codes.json`, renderer `.claude/scripts/lib/dx-utils.sh` (errors teach: every code carries a what + a fix, surfaced by `/loa doctor`). Ranges: `E0xx` framework/env, `E1xx` workflow/lifecycle, `E2xx` beads, `E3xx` events/bus, `E4xx` security/guardrails, `E5xx` constructs/packs. Add codes in the JSON registry, never hardcoded strings.
+
+---
+
 ## Full Documentation
 
 See `.claude/protocols/helper-scripts.md` for comprehensive script documentation.

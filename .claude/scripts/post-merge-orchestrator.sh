@@ -15,6 +15,16 @@
 #   1 - Invalid arguments
 #   2 - Fatal error (state file corruption, missing dependencies)
 
+#
+# Pipeline invariants (C-MERGE-003/004/005, cycle-121: these live HERE and in
+# deploying-infrastructure SKILL.md automated_mode — the only actors who can
+# break them are editors of this script):
+#   C-MERGE-003  RTFM gaps are logged, never block the pipeline
+#   C-MERGE-004  every phase is idempotent (check for existing tag/release/
+#                CHANGELOG entry before acting)
+#   C-MERGE-005  full pipeline (CHANGELOG/GT/RTFM/Release) only for cycle-type
+#                PRs; bugfix/other get patch bump + tag only
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

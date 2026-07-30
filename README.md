@@ -2,7 +2,7 @@
 
 <!-- AGENT-CONTEXT: Loa is an agent-driven development framework for Claude Code.
 Primary interface: 5 Golden Path commands (/loa, /plan, /build, /review, /ship).
-Power user interface: 48 slash commands (truenames).
+Power user interface: 49 slash commands (truenames).
 Architecture: Three-zone model (System: .claude/, State: grimoires/ + .beads/, App: src/).
 Configuration: .loa.config.yaml (user-owned, never modified by framework).
 Health check: /loa doctor
@@ -17,7 +17,7 @@ Version: 1.196.0
 
 ## What Is This?
 
-Loa is an agent-driven development framework for [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) (Anthropic's official CLI). It adds 40 specialized skills, quality gates, persistent memory, and structured workflows on top of Claude Code — including a self-improving [spiral orchestrator](#spiral-autopoietic-orchestrator) that can autonomously plan, build, review, and learn across multiple development cycles. Works on macOS and Linux. Created by [@janitooor](https://github.com/deep-name) at [The Honey Jar](https://0xhoneyjar.xyz).
+Loa is an agent-driven development framework for [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) (Anthropic's official CLI). It adds 40 specialized skills, quality gates, persistent memory, and structured workflows on top of Claude Code — including a self-improving [spiral orchestrator](#spiral-autopoietic-orchestrator) that can autonomously plan, build, review, and learn across multiple development cycles. Works on macOS and Linux. Created by [@deep-name](https://github.com/deep-name) at [The Honey Jar](https://0xhoneyjar.xyz).
 
 ### Why "Loa"?
 
@@ -105,7 +105,7 @@ For fine-grained control, use the underlying commands directly:
 | 5.5 | `/audit-sprint sprint-N` | Security Approval |
 | 6 | `/deploy-production` | Infrastructure |
 
-**48 total commands.** Type `/loa` for the Golden Path or see [PROCESS.md](PROCESS.md) for all commands.
+**49 total commands.** Type `/loa` for the Golden Path or see [PROCESS.md](PROCESS.md) for all commands.
 
 ## The Agents
 
@@ -186,7 +186,7 @@ Loa uses a **three-zone model** inspired by AWS Projen and Google's ADK:
 | **Cross-Repo Patterns** | 25 reusable patterns in 5 library modules | [Lib](.claude/lib/) |
 | **DRY Constraint Registry** | Single-source constraint generation from JSON | [Data](.claude/data/constraints.json) |
 | **Beads-First Architecture** | Persistent task tracking (recommended; required for `/run` mode, works without for interactive use) | [CLAUDE.md](CLAUDE.md#beads-first-architecture) |
-| **Persistent Memory** | Session-spanning observations with progressive disclosure | [Scripts](.claude/scripts/memory-query.sh) |
+| **Known-Failures Ledger** | Compounding failure memory with recurrence-driven escalation | [Grimoire](grimoires/loa/known-failures.md) |
 | **Input Guardrails** | PII filtering, injection detection, danger levels | [Protocol](.claude/protocols/input-guardrails.md) |
 | **Portable Persistence** | WAL-based persistence with circuit breakers | [Lib](.claude/lib/persistence/) |
 | **Cross-Platform Compat** | Shell scripting protocol for macOS + Linux | [Scripts](.claude/scripts/compat-lib.sh) |
@@ -219,7 +219,7 @@ Loa uses a **three-zone model** inspired by AWS Projen and Google's ADK:
 
 ## Maintainer
 
-[@janitooor](https://github.com/deep-name)
+[@deep-name](https://github.com/deep-name)
 
 ## License
 
@@ -236,4 +236,3 @@ Commercial licenses are available for organizations that wish to use Loa without
 - [beads_rust](https://github.com/Dicklesworthstone/beads_rust)
 
 Ridden with [Loa](https://github.com/0xHoneyJar/loa)
-

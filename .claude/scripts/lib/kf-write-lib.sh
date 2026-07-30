@@ -190,10 +190,26 @@ op_recur(){
   e="$(entry_end "$id" "$f" "$s")"
   local cur; cur="$(awk -v s="$s" -v e="$e" 'NR>=s&&NR<=e&&/^\*\*Recurrence count\*\*:/{sub(/^[^:]*:[[:space:]]*/,"");print;exit}' "$f")"
   cur="$(san1 "$cur")"
-  [[ "$cur" =~ ^[0-9]+$ ]] || die "recur: ${id} Recurrence count is free-text (\"$cur\") — increment it manually to preserve meaning"
-  local newv=$((cur + 1)) tmp; tmp="$(mktemp)"
-  awk -v s="$s" -v e="$e" -v nv="$newv" '
-    NR>=s && NR<=e && /^\*\*Recurrence count\*\*:/ && !done { sub(/:.*/, ": " nv); done=1 }
+  # cycle-121: accept values that LEAD with an integer after optional
+  # comparison markers (">=28 prose...", "\u2265 7 across...", "6 (notes)").
+  # Increment the leading integer IN PLACE, preserving prefix + prose tail.
+  local prefix="" lead="" tail="" v="$cur" geq
+  geq="$(printf '\342\211\245')"   # UTF-8 ">=" glyph
+  while :; do
+    case "$v" in
+      ">"*|"="*|"~"*|" "*) v="${v#?}" ;;
+      "$geq"*)             v="${v#"$geq"}" ;;
+      *) break ;;
+    esac
+  done
+  if [[ "$v" =~ ^([0-9]+)(.*)$ ]]; then
+    lead="${BASH_REMATCH[1]}"; tail="${BASH_REMATCH[2]}"; prefix="${cur%"$v"}"
+  fi
+  [[ -n "$lead" ]] || die "recur: ${id} Recurrence count has no leading integer (\"$cur\") — normalize it to lead with a number (prose may follow), then retry"
+  local newv=$((lead + 1)) tmp; tmp="$(mktemp)"
+  local newfield="${prefix}${newv}${tail}"
+  awk -v s="$s" -v e="$e" -v nf="$newfield" '
+    NR>=s && NR<=e && /^\*\*Recurrence count\*\*:/ && !done { $0 = "**Recurrence count**: " nf; done=1 }
     { print }
   ' "$f" > "$tmp"
   local idxcur; idxcur="$(awk -F'|' -v id="$id" '$0 ~ ("^\\|[[:space:]]*\\[" id "\\]") && NF>=5 {gsub(/^[[:space:]]+|[[:space:]]+$/,"",$5); print $5; exit}' "$tmp")"
@@ -205,7 +221,7 @@ op_recur(){
     log "kf-write: NOTE — ${id} Index recurrence cell is non-integer/unmatched (\"$idxcur\"); left unchanged"
   fi
   verify_and_swap "$tmp" "$f"
-  log "kf-write: ${id} Recurrence count ${cur} -> ${newv}"
+  log "kf-write: ${id} Recurrence count leading integer ${lead} -> ${newv}"
 }
 
 op_notes_header(){

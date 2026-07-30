@@ -49,7 +49,7 @@ Content that survives compaction (configured in `.loa.config.yaml`):
 | Tool results | COMPACTED | Summarized |
 | Thinking blocks | COMPACTED | Logged to trajectory |
 
-See: `.claude/protocols/context-compaction.md` for full compaction protocol.
+Compaction survival is mechanical: `pre-compact-marker.sh` (PreCompact) + `post-compact-reminder.sh` (UserPromptSubmit) inject the recovery sequence — see `.claude/loa/reference/hooks-reference.md`.
 
 ---
 
@@ -576,10 +576,8 @@ git push              # Push to remote
 
 ### Related Protocols
 
-- **context-compaction.md**: Compaction preservation rules (v0.11.0)
 - **synthesis-checkpoint.md**: Pre-clear validation (BLOCKING)
-- **jit-retrieval.md**: Lightweight identifier handling
-- **attention-budget.md**: Token threshold monitoring
+- **tool-result-clearing.md**: Clearing thresholds + NOTES.md synthesis discipline
 - **grounding-enforcement.md**: Citation quality verification
 - **trajectory-evaluation.md**: Handoff logging
 

@@ -1257,6 +1257,31 @@ surface_unread_handoffs() {
 
     [[ -n "$unread_lines" ]] || return 0
 
+    # cycle-121 staleness filter (read-path only; INDEX/read_by untouched):
+    # a months-old unread handoff surfaced into every session is negative-value
+    # context. Rows older than structured_handoff.surface_max_age_days
+    # (default 0 = disabled) are skipped — still unread, still in INDEX,
+    # recoverable via the structured-handoff skill.
+    local max_age_days=0
+    if command -v yq >/dev/null 2>&1 && [[ -f "${_LOA_HANDOFF_REPO_ROOT}/.loa.config.yaml" ]]; then
+        max_age_days="$(yq '.structured_handoff.surface_max_age_days // 0' "${_LOA_HANDOFF_REPO_ROOT}/.loa.config.yaml" 2>/dev/null || echo 0)"
+    fi
+    if [[ "$max_age_days" =~ ^[0-9]+$ ]] && (( max_age_days > 0 )); then
+        local now_epoch cutoff_epoch
+        printf -v now_epoch '%(%s)T' -1
+        cutoff_epoch=$(( now_epoch - max_age_days * 86400 ))
+        unread_lines="$(printf '%s\n' "$unread_lines" | awk -F' *\\| *' -v cutoff="$cutoff_epoch" '
+            {
+                ts = $7
+                gsub(/[TZ]/, " ", ts); gsub(/-|:/, " ", ts)
+                split(ts, t, " ")
+                epoch = mktime(t[1] " " t[2] " " t[3] " " t[4] " " t[5] " " t[6])
+                if (epoch < 0 || epoch >= cutoff) print   # unparseable ts -> keep (fail-open surface)
+            }
+        ')"
+        [[ -n "$unread_lines" ]] || return 0
+    fi
+
     # Header banner (only emitted when there is content).
     printf '[L6 Unread handoffs to: %s]\n' "$op"
 

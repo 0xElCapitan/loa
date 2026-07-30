@@ -12,7 +12,6 @@
 #
 # Consumer inventory (file:line references are illustrative, not load-bearing
 # on line numbers moving):
-#   memory-bootstrap.sh   — extract_feedback() first-line "All good"/"APPROVED" skip
 #   golden-path.sh        — covered separately in golden-path-c8-verdict-trailer.bats
 #   workflow-state.sh     — get_sprint_state()
 #   check-prerequisites.sh — --phase audit-sprint
@@ -203,40 +202,5 @@ EOF
 }
 
 # =============================================================================
-# memory-bootstrap.sh:261-264 — extract_feedback() first-line skip
-# =============================================================================
-
-@test "C8 inventory: memory-bootstrap.sh skips files whose first line is 'All good'/'APPROVED' (legacy)" {
-    # Isolate the exact shipped skip-check (a self-contained conditional
-    # keyed only on a file's first line) rather than driving the whole
-    # multi-source extraction pipeline.
-    local script="${PROJECT_ROOT}/.claude/scripts/memory-bootstrap.sh"
-    grep -qF 'first_line=$(head -1 "$f" 2>/dev/null || echo "")' "$script"
-    grep -qF '[[ "$first_line" == "All good"* || "$first_line" == "APPROVED"* ]] && continue' "$script"
-
-    echo "All good" > "${TEST_TMPDIR}/approved.md"
-    echo "APPROVED - LET'S FUCKING GO" > "${TEST_TMPDIR}/approved2.md"
-    echo "## Findings\n- something" > "${TEST_TMPDIR}/not-approved.md"
-
-    run bash -c '
-        f="$1"
-        first_line=$(head -1 "$f" 2>/dev/null || echo "")
-        if [[ "$first_line" == "All good"* || "$first_line" == "APPROVED"* ]]; then
-            echo "SKIPPED"
-        else
-            echo "PROCESSED"
-        fi
-    ' _ "${TEST_TMPDIR}/approved.md"
-    [ "$output" = "SKIPPED" ]
-
-    run bash -c '
-        f="$1"
-        first_line=$(head -1 "$f" 2>/dev/null || echo "")
-        if [[ "$first_line" == "All good"* || "$first_line" == "APPROVED"* ]]; then
-            echo "SKIPPED"
-        else
-            echo "PROCESSED"
-        fi
-    ' _ "${TEST_TMPDIR}/not-approved.md"
-    [ "$output" = "PROCESSED" ]
-}
+# memory-bootstrap.sh consumer test removed cycle-121 (script deleted with the
+# semantic-memory subsystem).

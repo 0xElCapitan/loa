@@ -72,11 +72,12 @@ setup() {
     stderr_output=$(_curl_fallback_log_429_quota_hint "$response" 2>&1)
     [[ "$stderr_output" == *"insufficient_quota"* ]]
     [[ "$stderr_output" == *"billing limit"* ]]
-    # Iter-1 review MEDIUM: hint now points at the canonical config + protocol
-    # doc rather than naming specific model/agent IDs that aren't actually
-    # registered in the repo.
+    # Iter-1 review MEDIUM: hint points at the canonical config keys rather
+    # than naming specific model/agent IDs that aren't actually registered.
+    # cycle-121: the gpt-review-integration.md protocol doc was deleted (dead
+    # loading path) — the hint now routes to .loa.config.yaml.example instead.
     [[ "$stderr_output" == *".gpt_review.models"* ]]
-    [[ "$stderr_output" == *"gpt-review-integration.md"* ]]
+    [[ "$stderr_output" == *"gpt_review section"* ]]
 }
 
 @test "429 quota hint does NOT fire for burst rate_limit_exceeded" {
