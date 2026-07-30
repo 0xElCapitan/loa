@@ -351,5 +351,4 @@ python3 .claude/skills/flatline-knowledge/resources/notebooklm-query.py --setup-
 ## Related Documentation
 
 - [INSTALLATION.md](../../INSTALLATION.md#notebooklm-optional) - NotebookLM setup
-- [gpt-review-integration.md](gpt-review-integration.md) - GPT review protocol
 - [Two-Tier Learnings](../../.claude/loa/CLAUDE.loa.md#two-tier-learnings-architecture) - Knowledge architecture

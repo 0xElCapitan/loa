@@ -1,6 +1,6 @@
 ---
 name: butterfreezone
-description: "BUTTERFREEZONE Generation Skill"
+description: "Generate and validate BUTTERFREEZONE.md, the agent-grounded README (token-efficient, provenance-tagged project summary). Invokes butterfreezone-gen.sh + butterfreezone-validate.sh."
 role: implementation
 capabilities:
   schema_version: 1

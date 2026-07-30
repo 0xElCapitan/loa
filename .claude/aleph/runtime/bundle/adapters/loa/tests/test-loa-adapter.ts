@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import type { SpawnSyncReturns } from 'node:child_process';
+import { spawnSync, type SpawnSyncReturns } from 'node:child_process';
 import {
   chmodSync,
   copyFileSync,
@@ -27,6 +27,10 @@ import {
   assembleBundles,
   verifyBundle,
 } from '../../../scripts/assemble-bundles.ts';
+import {
+  findTable,
+  parseTables,
+} from '../../../scripts/lib/markdown.ts';
 import {
   dispatchLoaCommand,
   recordS0AuthorityResponse,
@@ -317,6 +321,48 @@ function readRuntime(runDir: string): RuntimeSnapshot {
   return readJsonFile(runtimeSnapshotPath(runDir)) as RuntimeSnapshot;
 }
 
+function corpusSourceRows(runDir: string): string[][] {
+  const relativePath = 'corpus/manifest.md';
+  const text = readFileSync(join(runDir, relativePath), 'utf8');
+  const table = findTable(parseTables(text, relativePath), [
+    'source id',
+    'kind',
+    'locus',
+    'scheme',
+    'content hash',
+    'date(s)',
+    'trust class',
+    'sensitivity',
+    'admission note',
+  ]);
+  expect(table !== null, 'corpus manifest source inventory is not a parseable Core table');
+  return table.rows.map((row) => row.cells);
+}
+
+function pinnedCheckerReport(runDir: string): {
+  checks: Array<{ id: string; status: string; message: string }>;
+} {
+  const runtime = readRuntime(runDir);
+  const checker = join(runtime.bundle.root, 'runtime-js', 'scripts', 'validate-run.js');
+  const result = spawnSync(process.execPath, [
+    checker,
+    '--root',
+    runtime.bundle.root,
+    '--run',
+    runDir,
+    '--json',
+  ], {
+    cwd: runtime.bundle.root,
+    encoding: 'utf8',
+    maxBuffer: 16 * 1024 * 1024,
+  });
+  expect(!result.error, `pinned checker failed to start: ${String(result.error)}`);
+  expect(result.stdout.trim().length > 0, `pinned checker returned no JSON: ${result.stderr}`);
+  return JSON.parse(result.stdout) as {
+    checks: Array<{ id: string; status: string; message: string }>;
+  };
+}
+
 function exactWithheldInventory(
   bundle: VerifiedLoaBundle,
   runDir: string,
@@ -558,6 +604,28 @@ export async function runLoaAdapterTests(): Promise<LoaAdapterTestReport> {
       }
       const skill = readFileSync(join(context.loaRoot, INSTALL_EXPOSURES[1].destination), 'utf8');
       expect(skill.includes('.claude/aleph/bin/loa-aleph.mjs'), 'skill does not resolve launcher');
+      expect(
+        existsSync(join(
+          runtimeRoot,
+          'runtime-js',
+          'adapters',
+          'loa',
+          'src',
+          'host-attestation.js',
+        )),
+        'installed bundle omits the compiled host attestation entrypoint',
+      );
+      expect(
+        skill.includes('host-attestation.js attest')
+          && skill.includes('worker-dispatch.js dispatch')
+          && skill.includes('worker-dispatch.js accept'),
+        'skill does not require the attested prepare-dispatch-accept path',
+      );
+      expect(
+        skill.includes('S1 finalizes `corpus/manifest.md`')
+          && skill.includes('`ledgers/source-inventory.md`'),
+        'skill does not pin the canonical S1 source-inventory path',
+      );
       expect(skill.includes('fixture-simulated'), 'skill omits simulation evidence boundary');
     });
 
@@ -624,6 +692,12 @@ export async function runLoaAdapterTests(): Promise<LoaAdapterTestReport> {
       expect(started.gate?.status === 'awaiting-authority', 'S0 gate is not awaiting authority');
       context.runDir = runDirectory(context.loaRoot, RUN_ID);
       context.stagedCorpus = verifyCorpusSnapshot(context.runDir);
+      const stagedRows = corpusSourceRows(context.runDir);
+      expect(stagedRows.length === 2, 'staged corpus manifest does not define both sources');
+      expect(
+        stagedRows.map((row) => row[0]).join(',') === 'SRC-001,SRC-002',
+        'staged corpus manifest source IDs are malformed or out of order',
+      );
 
       const status = dispatchLoaCommand(['status', RUN_ID], startOptions(context));
       expect(status.result === 'BLOCKED', 'status did not preserve the human halt');
@@ -698,6 +772,11 @@ export async function runLoaAdapterTests(): Promise<LoaAdapterTestReport> {
       expect(
         existsSync(join(context.runDir, 'verification', 'kernel-report.md')),
         'validate did not render the pinned Core kernel report',
+      );
+      expect(
+        readFileSync(join(context.runDir, 'verification', 'kernel-report.md'), 'utf8')
+          .startsWith(`# Kernel Report — ${RUN_ID}\n`),
+        'kernel report retained the Core run-slug placeholder',
       );
       assertFixtureBoundary(readRunState(context.runDir), context.runDir);
     });
@@ -810,6 +889,18 @@ export async function runLoaAdapterTests(): Promise<LoaAdapterTestReport> {
       );
       const frozen = verifyCorpusSnapshot(runDir);
       expect(frozen.status === 'frozen', 'authority-approved corpus did not freeze');
+      const frozenRows = corpusSourceRows(runDir);
+      expect(frozenRows.length === 2, 'frozen corpus manifest does not define both sources');
+      expect(
+        frozenRows.map((row) => row[0]).join(',') === 'SRC-001,SRC-002',
+        'frozen corpus manifest source IDs are malformed or out of order',
+      );
+      const conformance = pinnedCheckerReport(runDir);
+      const dueFailures = conformance.checks.filter((check) => check.status === 'FAIL');
+      expect(
+        dueFailures.length === 0,
+        `S0 artifacts fail current-stage conformance: ${dueFailures.map((check) => check.message).join('; ')}`,
+      );
       for (const file of frozen.files) {
         expect(
           (lstatSync(join(runDir, file.frozen_path)).mode & 0o222) === 0,
@@ -847,7 +938,7 @@ export async function runLoaAdapterTests(): Promise<LoaAdapterTestReport> {
         ];
         expect(statuses[0] === 1, 'installed start did not dispatch its fail-closed input check');
         expect(statuses[1] === 0 && statuses[2] === 0, 'installed status or resume dispatch failed');
-        expect(statuses[3] === 1, 'incomplete synthetic run unexpectedly passed installed validate');
+        expect(statuses[3] === 0, 'CORPUS-FROZEN synthetic run failed installed validate');
       } finally {
         console.log = priorLog;
         console.error = priorError;
@@ -1510,6 +1601,9 @@ export async function runLoaAdapterTests(): Promise<LoaAdapterTestReport> {
         invocation_digest: prepared.invocation.invocation_digest,
         worker_bundle_digest: prepared.invocation.worker_bundle_digest,
         host_capability_receipt_digest: prepared.invocation.host_capability_receipt.digest,
+        event_stream_digest: null,
+        structured_return_digest: sha256Digest(stableJsonBytes(raw)),
+        host_evidence: null,
         receipt: nativeReceipt,
       };
       writeFileSync(prepared.nativeDispatchPath, stableJsonBytes(nativeDispatch), { mode: 0o400 });
@@ -1553,6 +1647,9 @@ export async function runLoaAdapterTests(): Promise<LoaAdapterTestReport> {
         invocation_digest: `sha256:${'0'.repeat(64)}`,
         worker_bundle_digest: tampered.invocation.worker_bundle_digest,
         host_capability_receipt_digest: tampered.invocation.host_capability_receipt.digest,
+        event_stream_digest: null,
+        structured_return_digest: sha256Digest(stableJsonBytes(raw)),
+        host_evidence: null,
         receipt: tamperedReceipt,
       }), { mode: 0o400 });
       writeFileSync(tampered.nativeReturnPath, stableJsonBytes(raw), { mode: 0o400 });

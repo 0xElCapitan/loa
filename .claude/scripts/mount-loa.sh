@@ -1222,7 +1222,6 @@ init_url_registry() {
     cat > "$urls_file" << 'EOF'
 # Canonical URL Registry
 # Agents MUST use these URLs instead of guessing/hallucinating
-# See: .claude/protocols/url-registry.md
 
 environments:
   production:

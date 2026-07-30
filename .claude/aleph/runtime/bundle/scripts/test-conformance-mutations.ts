@@ -22,7 +22,7 @@ const PRECIS_CHECKER = join(REPO_ROOT, 'scripts', 'validate-precis-fixtures.ts')
 const RUN_CHECKER = join(REPO_ROOT, 'scripts', 'validate-run.ts');
 const EXPECTED_CASES = new Map<string, number>([
   ['K1', 5],
-  ['K2', 20],
+  ['K2', 22],
   ['K3', 8],
   ['K4/K5', 9],
   ['K6', 11],
@@ -441,6 +441,66 @@ addCase('K2', 'top-level adapter control is outside canonical discovery', (root)
   requireFailure(runFixture(root, relativePath), 'K2.5');
 });
 
+addCase('K2', 'CORPUS-FROZEN excludes future-stage artifacts', (root) => {
+  const relativePath = join('docs', 'fixtures', 'run-slice-2');
+  const path = copyFixture('run-slice-2', root, relativePath);
+  for (const entry of [
+    'README.md',
+    'arms',
+    'clusters',
+    'ledgers',
+    'precis.md',
+    'projections',
+    'synthesis',
+    'verification',
+  ]) {
+    rmSync(join(path, entry), { recursive: true, force: true });
+  }
+  writeFileSync(
+    join(path, 'run-manifest.md'),
+    '# Run Manifest — RUN-slice-2\n\n'
+      + '## Identity\n\n'
+      + '- run_id: RUN-slice-2\n'
+      + '- predecessor_run: none\n'
+      + '- mode: manual\n'
+      + '- doctrine_sha: 2dc3549a0c6f3fed660b10743198409945c70b64\n\n'
+      + '## Corpus binding\n\n'
+      + '- corpus_ref: corpus/manifest.md\n'
+      + '- corpus_hash: sha256:ccf27103ab6e9855057688bd861df942feec1597fde0283932bbbcc4f2f606a1\n\n'
+      + '## State log\n\n'
+      + '| # | state | entered | actor | note |\n'
+      + '|---|-------|---------|-------|------|\n'
+      + '| 1 | DRAFT | 2026-07-16 08:00 UTC | manual-fixture-coordinator | run directory created |\n'
+      + '| 2 | CORPUS-FROZEN | 2026-07-16 08:20 UTC | fixture-simulated authority | corpus frozen |\n\n'
+      + '## Authority sign-offs\n\n'
+      + '| gate | decision | by | date | reference |\n'
+      + '|------|----------|----|------|-----------|\n'
+      + '| S0 corpus scope + sensitivity | fixture-simulated approved | fixture-simulated authority | 2026-07-16 | run-log.md S0 gate entry |\n',
+  );
+  writeFileSync(
+    join(path, 'run-log.md'),
+    '# Run Log — RUN-slice-2\n\n'
+      + '## 2026-07-16 08:00 UTC — S0 — entry\n\n'
+      + 'The run directory was created.\n\n'
+      + '## 2026-07-16 08:20 UTC — S0 — exit\n\n'
+      + 'The corpus was frozen.\n',
+  );
+
+  const patterns = new Map([
+    ['K2.6', /not applicable before DISTILLING/],
+    ['K2.9', /not applicable before DISTILLING/],
+  ]);
+  requirePass(runFixture(root, relativePath), ['K2.1', 'K2.6', 'K2.9'], patterns);
+
+  replaceOnce(
+    join(path, 'run-manifest.md'),
+    '| 2 | CORPUS-FROZEN | 2026-07-16 08:20 UTC | fixture-simulated authority | corpus frozen |',
+    '| 2 | CORPUS-FROZEN | 2026-07-16 08:20 UTC | fixture-simulated authority | corpus frozen |\n'
+      + '| 3 | DISTILLING | 2026-07-16 08:30 UTC | manual-runner | distillation began |',
+  );
+  requireFailure(runFixture(root, relativePath), 'K2.1');
+});
+
 addFailureCase('K2', 'missing run manifest', 'run-slice-2', 'K2.1', (path) => {
   rmSync(join(path, 'run-manifest.md'));
 });
@@ -478,6 +538,38 @@ addCase('K2', 'declared predecessor is an external run reference', (root) => {
     '- predecessor_run: RUN-prior-fixture',
   );
   requirePass(runFixture(root, relativePath), ['K2.2', 'K2.5']);
+});
+
+addCase('K2', 'RFC 3339 fractional timestamps remain ordered', (root) => {
+  const relativePath = join('docs', 'fixtures', 'run-slice-2');
+  const path = copyFixture('run-slice-2', root, relativePath);
+  replaceOnce(
+    join(path, 'run-manifest.md'),
+    '| 1 | DRAFT | 2026-07-16 08:00 UTC |',
+    '| 1 | DRAFT | 2026-07-16T08:00:00.123Z |',
+  );
+  replaceOnce(
+    join(path, 'run-manifest.md'),
+    '| 2 | CORPUS-FROZEN | 2026-07-16 08:20 UTC |',
+    '| 2 | CORPUS-FROZEN | 2026-07-16T08:00:00.456Z |',
+  );
+  replaceOnce(
+    join(path, 'ledgers', 'extraction-criteria.md'),
+    '- written: 2026-07-16 08:25 UTC',
+    '- written: 2026-07-16T08:25:00.123456789Z',
+  );
+  replaceOnce(
+    join(path, 'run-log.md'),
+    '## 2026-07-16 08:40 UTC — S2 — entry',
+    '## 2026-07-16T08:40:00.456Z — S2 — entry',
+  );
+  requirePass(runFixture(root, relativePath), ['K2.2', 'K2.9']);
+  replaceOnce(
+    join(path, 'run-manifest.md'),
+    '| 1 | DRAFT | 2026-07-16T08:00:00.123Z |',
+    '| 1 | DRAFT | 2026-07-16T08:00:00.789Z |',
+  );
+  requireFailure(runFixture(root, relativePath), 'K2.2');
 });
 
 addCase('K2', 'predecessor id cited outside manifest is dangling', (root) => {

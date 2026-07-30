@@ -308,5 +308,4 @@ git checkout loa@v1.3.0 -- .claude
 ## Related Protocols
 
 - `.claude/protocols/helper-scripts.md` - Full script documentation
-- `.claude/protocols/preflight-integrity.md` - Integrity check details
 - `.claude/protocols/constructs-integration.md` - Registry upgrades

@@ -184,3 +184,77 @@ Phase 7 is terminal — it moves to pre-generation review, not a next phase: car
 forward to PRD generation, omit the "Skip ahead" option, and use "Moving to
 pre-generation review." (plain) / "Moving to PRD generation." (gate off). The
 Phase 7 structured option description is "Move to pre-generation summary".
+
+
+# Codebase-grounding error recovery (cycle-121 split from SKILL.md Phase -0.5)
+
+Execute EXACTLY as written when /ride fails or times out during grounding.
+
+### Error Recovery
+
+If /ride fails or times out:
+
+1. **Capture error** in NOTES.md Decision Log:
+   ```markdown
+   | Date | Decision | Rationale | Source |
+   |------|----------|-----------|--------|
+   | YYYY-MM-DD | /ride failed during codebase grounding | [error message] | Phase -0.5 |
+   ```
+
+2. **Check config for auto-skip**:
+   ```bash
+   skip_on_error=$(yq eval '.plan_and_analyze.codebase_grounding.skip_on_ride_error // false' .loa.config.yaml)
+   ```
+   If `skip_on_error: true`, automatically skip to Phase -1 with warning.
+
+3. **Otherwise prompt user** with AskUserQuestion:
+   ```yaml
+   questions:
+     - question: "/ride analysis failed. How would you like to proceed?"
+       header: "Recovery"
+       options:
+         - label: "Retry /ride analysis"
+           description: "Re-run codebase analysis (recommended)"
+         - label: "Skip codebase grounding"
+           description: "Proceed without code-based requirements (not recommended)"
+         - label: "Abort"
+           description: "Cancel /plan-and-analyze entirely"
+       multiSelect: false
+   ```
+
+4. **Handle user response**:
+
+   **If "Retry"**:
+   - Re-run /ride with fresh attempt
+   - If fails again, return to step 3 (max 2 retries)
+
+   **If "Skip"**:
+   - Log warning to NOTES.md blockers:
+     ```markdown
+     - [ ] [BLOCKER] PRD created without codebase grounding - /ride failed: [error]
+     ```
+   - Proceed to Phase -1 without reality context
+   - Add warning banner to generated PRD:
+     ```markdown
+     > ⚠️ **WARNING**: This PRD was created without codebase grounding.
+     > Run `/ride` and `/plan-and-analyze --fresh` for accurate requirements.
+     ```
+
+   **If "Abort"**:
+   - Log abort decision to trajectory
+   - Exit cleanly with message: "Aborting /plan-and-analyze. Run /ride manually and retry."
+
+5. **Preserve partial results** if available:
+   - If /ride produced any output files before failing, keep them
+   - Use whatever reality context exists for Phase 0
+
+### Timeout Handling
+
+Default timeout: 20 minutes (configurable in `.loa.config.yaml`)
+
+```yaml
+plan_and_analyze:
+  codebase_grounding:
+    ride_timeout_minutes: 20
+```
+

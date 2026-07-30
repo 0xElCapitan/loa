@@ -509,6 +509,52 @@ if [[ "$command" == *"stash"* && ( "$command" == *"drop"* || "$command" == *"cle
 fi
 
 # -----------------------------------------------------------------------------
+# P6b — stash output-swallowing (FR-1.2b, cycle-122, issue #555 shapes)
+# git stash push/pop/apply with its output truncated (| tail / | head),
+# error stream suppressed (2>/dev/null), or exit masked (|| true) hides
+# CONFLICT lines and wrong-slot pops — the exact silent-data-loss chain from
+# #555 (4 NOTES.md edits lost; recovered only because gc hadn't pruned).
+# `[^;&|]*` keeps the swallow-operator in the SAME statement segment as the
+# stash call. `\|\|` (masking) vs `\|` (pipe) are distinguished by the
+# alternation order + explicit true operand.
+# pass-8 pre-filter: `stash` plus one of the swallow literals.
+# -----------------------------------------------------------------------------
+if [[ "$command" == *"stash"* && ( "$command" == *"tail"* || "$command" == *"head"* || "$command" == *"/dev/null"* || "$command" == *"true"* ) ]] \
+   && _match '(^|/|;|&&|\||[[:space:]]|\(|'"'"'|")[[:space:]]*(sudo[[:space:]]+)?git[[:space:]]+stash[[:space:]]+(push|pop|apply)[^;&|]*(\|[[:space:]]*(tail|head)([[:space:]]|$)|\|\|[[:space:]]*true([[:space:]]*([;&|#]|$))|(&|[0-9]*)>>?[[:space:]]*/dev/null)'; then
+  matched=$(echo "$command" | grep -oE 'git[[:space:]]+stash[[:space:]]+(push|pop|apply)[^;&|]*.{0,20}' | head -1)
+  emit_block "FR-1.2b" "$matched" "Output-swallowing (pipe-truncate, exit-mask, or ANY /dev/null redirect) around git stash push/pop/apply hides CONFLICT lines and wrong-slot pops (silent data loss, issue #555). Use stash_with_guard from .claude/scripts/stash-safety.sh, or run the stash bare and read its FULL output. Rules: .claude/rules/stash-safety.md"
+fi
+
+# -----------------------------------------------------------------------------
+# P13 — git tag creation (FR-MERGE-2, cycle-122, C-MERGE-002)
+# Manual tag creation bypasses semver-bump.sh conventional-commit parsing and
+# can mint wrong versions; the post-merge pipeline owns tags. Listing and
+# inspection forms stay allowed: bare `git tag`, -l/--list, -n*, -v/--verify,
+# --contains/--points-at/--sort/--merged, and -d/--delete (separately
+# recoverable; deletion is not version-minting).
+# Creation shapes: first arg is a bare tagname, or a creation flag
+# (-a/-s/-f/-u/-m/-F and long forms).
+# Sanctioned override (audited): LOA_ALLOW_GIT_TAG=1 in the hook environment
+# (operator terminals / release tooling), same posture as FR-SZ's override.
+# pass-8 pre-filter: `tag` mandatory.
+# -----------------------------------------------------------------------------
+if [[ "$command" == *"tag"* ]] \
+   && _match '(^|/|;|&&|\||[[:space:]]|\(|'"'"'|")[[:space:]]*(sudo[[:space:]]+)?git[[:space:]]+tag[[:space:]]+(-[asfumF]|--(annotate|sign|force|local-user|message|file|edit|create-reflog)([=[:space:]]|$)|[^-[:space:]])'; then
+  if [[ "${LOA_ALLOW_GIT_TAG:-}" == "1" ]]; then
+    if [[ -z "${LOA_GIT_TAG_BYPASS_WARNED:-}" ]]; then
+      echo "WARNING: block-destructive-bash: LOA_ALLOW_GIT_TAG=1 — manual git tag guard bypassed this session." >&2
+      export LOA_GIT_TAG_BYPASS_WARNED=1
+    fi
+    jq -cn --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg cwd "$PWD" \
+      '{ts: $ts, tool: "Bash", exit_code: 0, cwd: $cwd, hook: "block-destructive-bash", action: "allow-override", pattern_id: "FR-MERGE-2", override: "LOA_ALLOW_GIT_TAG"}' \
+      >> "${LOA_REPO_ROOT:-.}/.run/audit.jsonl" 2>/dev/null || true
+  else
+    matched=$(echo "$command" | grep -oE 'git[[:space:]]+tag[[:space:]]+[^[:space:]&|;]+([[:space:]]+[^[:space:]&|;]+)?' | head -1)
+    emit_block "FR-MERGE-2" "$matched" "Manual tags bypass semver-bump.sh version computation (C-MERGE-002) — the post-merge pipeline owns tag creation. Listing forms (git tag / git tag -l) are allowed. Sanctioned override: LOA_ALLOW_GIT_TAG=1 (audited)."
+  fi
+fi
+
+# -----------------------------------------------------------------------------
 # P7 — git checkout -- <path>  (FR-1.3) — legacy form, overwrites uncommitted
 # Refined ERE per SDD §5.4 v1.3: path must NOT start with `-` (so --quiet
 # and similar flag-shaped tokens don't trigger).
@@ -767,6 +813,85 @@ if [[ "$command" == *".run/"* || "$command" == *"grimoires/loa/skills"* ]] \
        && echo "$command" | grep -qE "(,[[:space:]]*['\"][wax]|>>?[[:space:]]*['\"]?${_sz_pre}${_sz_file}|write_text|\\.write\\b|O_WRONLY|O_CREAT|write_bytes|copyfile|copy2|shutil.copy)" 2>/dev/null; then
       emit_block "FR-SZ-INTERP" "interpreter-inline" "naive interpreter inline write to a State-Zone executable/lifecycle path. Use the owning generator/skill, or LOA_ALLOW_STATE_ZONE_EXEC_WRITE=1. (Obfuscated interpreter writes are an accepted bypass — fence, not boundary.)"
     fi
+  fi
+fi
+
+# -----------------------------------------------------------------------------
+# FR-SZ2 — System-Zone (.claude/) direct Bash writes (cycle-122)
+# Closes the single-agent gap: zone-write-guard fences Write/Edit tools, the
+# team guards fence teammates, but a plain-shell `echo x > .claude/foo` or
+# `sed -i` on a hook passed every wired fence. Same trust posture as
+# zone-write-guard: the bounded framework-dev marker
+# (.run/zone-guard-authorization.json — scope=framework, RFC3339 expires_at,
+# 24h mtime cap; test override via LOA_ZONE_GUARD_AUTH_FILE) authorizes
+# upstream self-development sessions, audited per-session. Sanctioned paths
+# `.claude/overrides/` and `.claude/cache/` are excluded (they are the
+# documented customization/runtime surfaces). LOA_ALLOW_STATE_ZONE_EXEC_WRITE=1
+# is honored with the same warn+audit semantics as FR-SZ.
+# Shapes: redirect, tee, copy-family dest, sed-in-place, rm. Same accepted
+# bypass classes as FR-SZ (fence, not boundary).
+# -----------------------------------------------------------------------------
+if [[ "$command" == *".."* ]]; then
+  # traversal-looking command: no exclusions (a path like
+  # .claude/overrides/../hooks/x resolves back into protected space)
+  _c2_cmd="$command"
+else
+  _c2_cmd="${command//.claude\/overrides/.EXCLUDED-OVR}"
+  _c2_cmd="${_c2_cmd//.claude\/cache/.EXCLUDED-CACHE}"
+fi
+if [[ "$_c2_cmd" == *".claude/"* ]]; then
+  _c2_file="\\.claude/${_sz_pc}+"
+  _c2_tgt="\\.claude(/${_sz_pc}*)?"
+  _c2_authorized=""
+  # 1) env override (operator terminals) — same var as FR-SZ
+  if [[ "${LOA_ALLOW_STATE_ZONE_EXEC_WRITE:-}" == "1" ]]; then
+    _c2_authorized="env"
+  else
+    # 2) bounded framework-dev marker (mirrors zone-write-guard validation)
+    _c2_auth_file="${LOA_ZONE_GUARD_AUTH_FILE:-${LOA_REPO_ROOT:-.}/.run/zone-guard-authorization.json}"
+    if [[ -f "$_c2_auth_file" ]] && command -v jq >/dev/null 2>&1; then
+      _c2_row="$(jq -r 'select(type=="object" and .scope=="framework"
+                          and (.reason|type=="string") and ((.reason|length)>0)
+                          and (.expires_at|type=="string")
+                          and (.expires_at|test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$")))
+                        | .expires_at' "$_c2_auth_file" 2>/dev/null)" || _c2_row=""
+      if [[ -n "$_c2_row" ]]; then
+        TZ=UTC0 printf -v _c2_now '%(%Y-%m-%dT%H:%M:%SZ)T' -1
+        printf -v _c2_epoch '%(%s)T' -1
+        _c2_mtime="$(stat -Lc '%Y' -- "$_c2_auth_file" 2>/dev/null || stat -Lf '%m' -- "$_c2_auth_file" 2>/dev/null || echo 0)"
+        if [[ "$_c2_mtime" =~ ^[0-9]+$ ]] && (( _c2_epoch - _c2_mtime <= 86400 )) && [[ "$_c2_now" < "$_c2_row" ]]; then
+          _c2_authorized="marker"
+        fi
+      fi
+    fi
+  fi
+  if [[ -z "$_c2_authorized" ]]; then
+    if echo "$_c2_cmd" | grep -qE "([0-9]*|&)?>>?\\|?[[:space:]]*['\"]?${_sz_pre}${_c2_file}${_sz_b}" 2>/dev/null; then
+      matched=$(echo "$_c2_cmd" | grep -oE ">>?[[:space:]]*['\"]?${_sz_pre}${_c2_file}" | head -1)
+      emit_block "FR-SZ2-REDIR" "$matched" "Direct shell write into .claude/ (System Zone — framework-managed). Use .claude/overrides/ or .loa.config.yaml for customization; upstream framework dev uses the bounded marker (.run/zone-guard-authorization.json) or LOA_ALLOW_STATE_ZONE_EXEC_WRITE=1 (audited)."
+    fi
+    if echo "$_c2_cmd" | grep -qE "\\btee\\b[^|;&]*[[:space:]]['\"]?${_sz_pre}${_c2_file}${_sz_b}" 2>/dev/null; then
+      matched=$(echo "$_c2_cmd" | grep -oE "${_c2_file}" | head -1)
+      emit_block "FR-SZ2-TEE" "$matched" "tee-write into .claude/ (System Zone). Use overrides/config, the bounded marker, or LOA_ALLOW_STATE_ZONE_EXEC_WRITE=1."
+    fi
+    if echo "$_c2_cmd" | grep -qE "\\b(cp|mv|install|rsync)\\b[^|;&]+[[:space:]]['\"]?${_sz_pre}${_c2_tgt}['\"]?${_sz_end}" 2>/dev/null \
+       || echo "$_c2_cmd" | grep -qE "\\b(cp|mv|install|ln)\\b[^|;&]*[[:space:]](-t|--target-directory)(=|[[:space:]]+)['\"]?${_sz_pre}${_c2_tgt}${_sz_b}" 2>/dev/null; then
+      matched=$(echo "$_c2_cmd" | grep -oE "${_c2_tgt}" | head -1)
+      emit_block "FR-SZ2-COPY" "$matched" "copy/move into .claude/ (System Zone). Use overrides/config, the bounded marker, or LOA_ALLOW_STATE_ZONE_EXEC_WRITE=1."
+    fi
+    if echo "$_c2_cmd" | grep -qE "\\b(sed|perl)\\b[[:space:]][^|;&]*(-[a-zA-Z]*i[a-zA-Z]*|--in-place(=[^[:space:]]*)?)[^|;&]*[[:space:]]['\"]?${_sz_pre}${_c2_file}['\"]?" 2>/dev/null; then
+      matched=$(echo "$_c2_cmd" | grep -oE "${_c2_file}" | head -1)
+      emit_block "FR-SZ2-INPLACE" "$matched" "in-place edit of a .claude/ file (System Zone — hook/skill tamper shape). Use overrides/config, the bounded marker, or LOA_ALLOW_STATE_ZONE_EXEC_WRITE=1."
+    fi
+    if echo "$_c2_cmd" | grep -qE "\\brm\\b[^|;&]*[[:space:]]['\"]?${_sz_pre}${_c2_file}${_sz_b}" 2>/dev/null; then
+      matched=$(echo "$_c2_cmd" | grep -oE "rm\\b[^|;&]*${_c2_file}" | head -1 | cut -c1-80)
+      emit_block "FR-SZ2-RM" "$matched" "rm of a .claude/ path (System Zone). Framework files are managed by mount/update tooling; use the bounded marker or LOA_ALLOW_STATE_ZONE_EXEC_WRITE=1 for upstream dev."
+    fi
+  elif [[ "$_c2_authorized" == "marker" && -z "${LOA_SZ2_MARKER_NOTED:-}" ]]; then
+    export LOA_SZ2_MARKER_NOTED=1
+    jq -cn --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg cwd "$PWD" \
+      '{ts: $ts, tool: "Bash", exit_code: 0, cwd: $cwd, hook: "block-destructive-bash", action: "allow-marker", pattern_id: "FR-SZ2"}' \
+      >> "${LOA_REPO_ROOT:-.}/.run/audit.jsonl" 2>/dev/null || true
   fi
 fi
 

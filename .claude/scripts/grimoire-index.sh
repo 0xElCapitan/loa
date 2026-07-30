@@ -9,7 +9,6 @@
 #
 # Families (v1): KF (## KF-NNN: headings, enriched from the ## Index table),
 #   vision (visions/entries/), lore (lore/index.yaml), handoff (handoffs/INDEX.md),
-#   obs (memory/observations.jsonl).
 #
 # SECURITY: L5/L6/L7 + observation bodies are UNTRUSTED (CLAUDE.md universal
 #   invariant). This generator extracts ONLY id/status/path/title/tags and
@@ -112,6 +111,14 @@ emit_kf(){
   ' "$f" > "$meta"
   while IFS=$'\t' read -r id status title symptom recurrence; do
     [[ -n "$id" ]] || continue
+    # cycle-121: recurrence >=3 is the load-bearing signal (CLAUDE.md intake
+    # discipline) — an unparseable count silently disarms it, so WARN loudly.
+    if [[ "${recurrence:-?}" == "?" ]]; then
+      echo "grimoire-index: WARN — ${id} Recurrence count is not integer-leading; the >=3 escalation signal cannot fire for it" >&2
+    fi
+    # Status cells are tier-2 index material: truncate resolution prose >120
+    # chars (tier-3 detail belongs in the entry body, not the index row).
+    if [[ "${#status}" -gt 120 ]]; then status="${status:0:117}..."; fi
     printf 'kf\t%s\t%s\t%s\tgrimoires/loa/known-failures.md\t\t%s\t%s\n' \
       "$(san "$id")" "$(san "${status:-}")" "$(san "$title")" "$(san "${symptom:-}")" "$(san "${recurrence:-?}")"
   done < "$meta"
@@ -147,24 +154,23 @@ emit_handoff(){
           "$(san "$hid")" "$(san "$ts")" "$(san "$topic")" "grimoires/loa/handoffs/$(san "$file")"
       done
 }
-emit_obs(){
-  local f="${G}/memory/observations.jsonl"; [[ -f "$f" ]] || return 0
-  local n=0 line ts ty cat title sha id
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    n=$((n+1)); [[ -z "$line" ]] && continue
-    echo "$line" | jq -e . >/dev/null 2>&1 || continue
-    ts="$(echo "$line"   | jq -r '.timestamp // ""')"
-    ty="$(echo "$line"   | jq -r '.type // ""')"
-    cat="$(echo "$line"  | jq -r '.category // ""')"
-    title="$(echo "$line"| jq -r '.title // ""')"
-    sha="$(printf '%s|%s' "$ts" "$title" | sha256_portable | cut -c1-8)"
-    id="obs-${sha}"
-    printf 'obs\t%s\t%s\t%s\t%s\t%s\n' \
-      "$id" "$(san "$ty")" "$(san "$title")" "grimoires/loa/memory/observations.jsonl#L${n}" ""
+# notes family (cycle-121): surfaces NOTES.md's ## headings so sessions can
+# jump to current working state without reading the whole file.
+emit_notes(){
+  local f="${G}/NOTES.md"; [[ -f "$f" ]] || return 0
+  local n=0 line title
+  while IFS= read -r line; do
+    n=$((n+1))
+    [[ "$line" == "## "* ]] || continue
+    title="${line#\#\# }"
+    printf 'notes\t%s\t%s\t%s\t%s\t\n' \
+      "L${n}" "" "$(san "$title")" "grimoires/loa/NOTES.md#L${n}"
   done < "$f"
 }
 
-collect(){ { emit_kf; emit_vision; emit_lore; emit_handoff; emit_obs; } | LC_ALL=C sort -t$'\t' -k1,1 -k2,2; }
+# emit_obs removed cycle-121 (observation store deleted)
+
+collect(){ { emit_kf; emit_vision; emit_lore; emit_handoff; emit_notes; } | LC_ALL=C sort -t$'\t' -k1,1 -k2,2; }
 
 to_json(){
   collect | jq -R -s '
@@ -186,7 +192,7 @@ render_md(){
   echo
   echo "Unified cross-family catalog of the grimoire knowledge corpus (KF · vision · lore · handoff · observation). Generated; do not hand-edit. Total entries: $(echo "$json" | jq -r '.total')."
   echo
-  for fam in handoff kf lore obs vision; do
+  for fam in handoff kf lore notes vision; do
     count="$(echo "$json" | jq -r --arg f "$fam" '.counts[$f] // 0')"
     [[ "$count" == "0" ]] && continue
     echo "## ${fam} (${count})"

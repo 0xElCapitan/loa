@@ -36,35 +36,20 @@ Primary interface: 49+ commands fronted by **5 Golden Path commands** (zero-arg)
 Precedence: **NEVER > MUST > ALWAYS > SHOULD > MAY.** These are mechanically enforced (harness `disallowed-tools` + PreToolUse hooks), not advisory.
 
 **NEVER**
-- NEVER write application code outside of `/implement` skill invocation (OR when a construct with declared `workflow.gates` owns the current workflow)
+- NEVER write application code outside `/implement` (OR a construct with declared `workflow.gates`), and NEVER reach implementation except via `/run sprint-plan`, `/run sprint-N`, or `/bug` against an existing sprint plan (OR when a construct with declared `workflow.gates` owns the current workflow)
 - NEVER use Claude's `TaskCreate`/`TaskUpdate` for sprint task tracking when beads (`br`) is available
-- NEVER skip from sprint plan directly to implementation without `/run sprint-plan`, `/run sprint-N`, or `/bug` triage (OR when a construct with `workflow.gates` declares pipeline composition)
 - NEVER skip `/review-sprint` and `/audit-sprint` quality gates (Yield when construct declares `review: skip` or `audit: skip`)
 - NEVER use `/bug` for feature work that doesn't reference an observed failure
 - NEVER implement code directly when `/spiraling` is invoked with a task — dispatch through the harness pipeline (`/run sprint-plan`, `/simstim`, or `spiral-harness.sh`)
 - NEVER create tags manually — always use semver-bump.sh for version computation
 
 **ALWAYS**
-- ALWAYS use `/run sprint-plan`, `/run sprint-N`, or `/bug` for implementation
+- ALWAYS route implementation through `/run sprint-plan`, `/run sprint-N`, or `/bug`, checking for the existing sprint plan first
 - ALWAYS create beads tasks from sprint plan before implementation (if beads available)
 - ALWAYS complete the full implement → review → audit cycle
-- ALWAYS check for existing sprint plan before writing code (Yield when construct declares `sprint: skip`)
 - ALWAYS validate bug eligibility before `/bug` implementation
 - ALWAYS Read a state artifact (NOTES.md, a2a/ docs, MEMORY.md, contracts/*.yaml — any existing file) before Write/Edit
-- ALWAYS use `/run sprint-plan` (not direct `/implement`) within bridge iterations
-- ALWAYS post Bridgebuilder review as PR comment after each bridge iteration
-- ALWAYS ensure Grounded Truth claims cite `file:line` source references
-- ALWAYS use YAML format for lore entries with `id`, `term`, `short`, `context`, `source`, `tags` fields
-- ALWAYS include source bridge iteration and PR in vision entries
-- ALWAYS load and validate bridgebuilder-persona.md before enriched review iterations
 - ALWAYS use `post-merge-orchestrator.sh` for pipeline execution, not ad-hoc commands
-- ALWAYS check for existing work before acting — all phases must be idempotent
-
-**MAY**
-- MAY question the framing of requirements during `/plan-and-analyze` and bridge reviews when analysis warrants reframing
-- MAY allocate time for Vision Registry exploration when a captured vision is relevant to current work
-- MAY propose alternative architectural approaches during bridge reviews and `/review-sprint`
-- MAY create SPECULATION findings during planning and review skills — excluded from `/implement` and `/audit-sprint`
 
 ### Three-Zone model
 | Zone | Path | Rule |
@@ -74,7 +59,7 @@ Precedence: **NEVER > MUST > ALWAYS > SHOULD > MAY.** These are mechanically enf
 | App | `src/`, `lib/`, `app/` | Confirm writes |
 
 ## Conventions
-- **Default PR reviewer:** @janitooor (always request review).
+- **Default PR reviewer:** @deep-name (always request review).
 - **Branch from `main`**; never commit directly to the default branch.
 - **Commit trailer:** end commit messages with `Co-Authored-By: Claude <noreply@anthropic.com>`.
 - **Beads-first:** task lifecycle is tracked via `br` (beads_rust); it is the source of truth, not ad-hoc TODOs.

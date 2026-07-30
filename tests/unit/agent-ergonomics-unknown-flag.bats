@@ -20,7 +20,6 @@ setup() {
     SEMVER_BUMP="$PROJECT_ROOT/.claude/scripts/semver-bump.sh"
     VALIDATE_SKILLS="$PROJECT_ROOT/.claude/scripts/validate-skill-capabilities.sh"
     CONSTRUCT_RESOLVE="$PROJECT_ROOT/.claude/scripts/construct-resolve.sh"
-    MEMORY_QUERY="$PROJECT_ROOT/.claude/scripts/memory-query.sh"
 }
 
 # =============================================================================
@@ -104,13 +103,5 @@ setup() {
 }
 
 # =============================================================================
-# memory-query.sh (exit 1 preserved)
-# =============================================================================
-
-@test "memory-query.sh: --jsno preserves exit 1, suggests --json, shows Usage" {
-    run timeout 30 bash "$MEMORY_QUERY" --jsno
-    [ "$status" -eq 1 ]
-    [[ "$output" =~ "Unknown option: --jsno" ]]
-    [[ "$output" =~ "Did you mean: --json?" ]]
-    [[ "$output" =~ "Usage: memory-query.sh" ]]
-}
+# memory-query.sh DX test removed cycle-121 (script deleted with the semantic-memory subsystem);
+# the dx_unknown_flag contract stays covered by the four remaining CLI subjects.
