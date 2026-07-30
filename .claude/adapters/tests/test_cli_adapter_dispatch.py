@@ -26,7 +26,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import cheval
 from loa_cheval.providers.claude_headless_adapter import ClaudeHeadlessAdapter
 from loa_cheval.providers.codex_headless_adapter import CodexHeadlessAdapter
-from loa_cheval.providers.gemini_headless_adapter import GeminiHeadlessAdapter
+from loa_cheval.providers.agy_headless_adapter import AgyHeadlessAdapter
 from loa_cheval.types import ConfigError
 
 
@@ -61,7 +61,7 @@ class TestTypedHeadlessProviders:
         [
             ("claude-headless", "claude-headless", "claude-opus-4-7", ClaudeHeadlessAdapter),
             ("my-codex", "codex-headless", "gpt-5.5", CodexHeadlessAdapter),
-            ("gemini-headless", "gemini-headless", "gemini-3.1-pro-preview", GeminiHeadlessAdapter),
+            ("gemini-headless", "gemini-headless", "gemini-3.1-pro-preview", AgyHeadlessAdapter),
         ],
     )
     def test_custom_typed_headless_dispatches_by_type(
