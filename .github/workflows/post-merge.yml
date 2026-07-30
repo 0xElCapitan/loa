@@ -266,7 +266,7 @@ jobs:
           PM_MERGE_SHA: ${{ github.sha }}
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          model: claude-sonnet-4-5-20250929
+          model: claude-sonnet-5
           max_turns: "15"
           allowed_tools: "Bash(bash),Read,Write,Glob,Grep"
           prompt: |
@@ -277,6 +277,14 @@ jobs:
             - PR type is in env var PM_PR_TYPE
             - Merge SHA is in env var PM_MERGE_SHA
 
+            Pipeline constraints (C-MERGE-001..005 — source of truth:
+            .claude/data/constraints.json; keep this list in sync):
+            - ALWAYS use post-merge-orchestrator.sh for pipeline execution, never ad-hoc commands
+            - NEVER create tags manually — semver-bump.sh owns version computation
+            - RTFM gaps MUST be logged but MUST NOT block the pipeline
+            - ALWAYS check for existing work before acting (tag/release/CHANGELOG entry may already exist — every phase is idempotent)
+            - Full pipeline (CHANGELOG, GT, RTFM, Release) runs ONLY for cycle-type PRs
+
             Execute the pipeline:
             ```bash
             .claude/scripts/post-merge-orchestrator.sh \
@@ -285,7 +293,9 @@ jobs:
               --sha "$PM_MERGE_SHA"
             ```
 
-            If any phase fails, continue with the remaining phases.
+            If a phase fails, continue with the remaining phases EXCEPT when
+            continuing would violate a constraint above — then stop and report
+            the violation instead of improvising a workaround.
             Report the final state JSON from .run/post-merge-state.json.
 
   # =============================================================================

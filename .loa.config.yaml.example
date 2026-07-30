@@ -1054,56 +1054,6 @@ hounfour:
 #             output_per_mtok: 30000000
 #   aliases:
 #     reviewer: "azure-openai:gpt-5-azure"
-
-# -----------------------------------------------------------------------------
-# Persistent Memory (v1.28.0)
-# -----------------------------------------------------------------------------
-# Session-spanning observation storage with progressive disclosure.
-# Captures learnings, discoveries, and decisions for cross-session recall.
-# See: grimoires/loa/memory/README.md
-memory:
-  # Master toggle
-  enabled: true
-
-  # Capture settings
-  capture:
-    discoveries: true       # Capture code discoveries
-    errors: true           # Capture error-solution pairs
-    decisions: true        # Capture architecture decisions
-    patterns: true         # Capture recurring patterns
-
-  # Storage limits
-  max_observations: 10000  # Maximum observations before archiving oldest
-  retention_days: 90       # Archive observations older than this
-
-  # Progressive disclosure levels
-  disclosure:
-    index_tokens: 50       # Tokens per entry in index mode
-    summary_tokens: 200    # Tokens per entry in summary mode
-    full_tokens: 500       # Tokens for full observation
-
-  # Hook configuration
-  hooks:
-    post_tool: true        # Capture from PostToolUse hook
-    learning_signals:      # Patterns that trigger capture
-      - "discovered"
-      - "learned"
-      - "fixed"
-      - "resolved"
-      - "pattern"
-      - "insight"
-
-  # Privacy
-  privacy:
-    redact_sensitive: true # Redact content with <private> tags
-    exclude_tools:         # Tools to never capture from
-      - Read
-      - Glob
-      - Grep
-
-# -----------------------------------------------------------------------------
-# Trajectory Archive (v2.0.0 / cycle-038)
-# -----------------------------------------------------------------------------
 trajectory:
   archive:
     # Maximum export size in MB before LFS warning
@@ -2830,3 +2780,16 @@ karpathy_principles:
   # avoid surprise breaking changes during initial rollout. Even with
   # `enforce: block` set, the v1 hook returns 0 (informational only).
   enforce: warn
+
+# -----------------------------------------------------------------------------
+# Structured Handoffs (L6) — surfacing controls
+# -----------------------------------------------------------------------------
+structured_handoff:
+  # Master toggle for the L6 SessionStart surfacing hook.
+  enabled: false
+  # Per-handoff body byte cap at surfacing.
+  surface_max_chars: 4000
+  # cycle-121: skip UNREAD handoffs older than N days at surfacing (0 = never
+  # skip). Read-path only — INDEX.md and read_by are untouched; old handoffs
+  # stay recoverable via the structured-handoff skill.
+  surface_max_age_days: 30

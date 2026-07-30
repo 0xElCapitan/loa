@@ -128,7 +128,7 @@ _curl_fallback_log_429_quota_hint() {
     # agent) that aren't actually configured in the repo. Point at the
     # canonical config + protocol doc for actionable remediation.
     echo "[gpt-review-api] HINT: 'insufficient_quota' indicates the configured tier has hit its billing limit." >&2
-    echo "[gpt-review-api] HINT: configure a smaller fallback model in .gpt_review.models.{documents,code} (.loa.config.yaml) OR see grimoires/loa/protocols/gpt-review-integration.md for alternative routing options." >&2
+    echo "[gpt-review-api] HINT: configure a smaller fallback model in .gpt_review.models.{documents,code} (.loa.config.yaml) — see .loa.config.yaml.example gpt_review section for routing options." >&2
   fi
 }
 

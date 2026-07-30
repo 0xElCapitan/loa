@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Pre-flight check functions for command validation
 # Also includes integrity checks for ck semantic search integration
-# Protocol: .claude/protocols/preflight-integrity.md
 #
 # Usage:
 #   source preflight.sh          # Load helper functions

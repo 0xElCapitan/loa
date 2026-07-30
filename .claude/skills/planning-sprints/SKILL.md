@@ -37,20 +37,11 @@ Transform PRD and SDD into actionable sprint plan with right-sized sprints, incl
 <zone_constraints>
 ## Zone Constraints
 
-This skill operates under **Managed Scaffolding**:
-
-| Zone | Permission | Notes |
-|------|------------|-------|
-| `.claude/` | NONE | System zone - never suggest edits |
-| `grimoires/loa/`, `.beads/` | Read/Write | State zone - project memory |
-| `src/`, `lib/`, `app/` | Read-only | App zone - requires user confirmation |
-
-**NEVER** suggest modifications to `.claude/`. Direct users to `.claude/overrides/` or `.loa.config.yaml`.
-
-Agents MAY proactively run read-only CLI tools (e.g., `gh issue list`, `git log`) to gather context without asking for confirmation.
+Zones per CLAUDE.loa.md Three-Zone Model (`.claude/` system = never edit — use `.claude/overrides/` or `.loa.config.yaml`; `grimoires/loa/`, `.beads/` state = read/write). This skill's app zone (`src/`, `lib/`, `app/`): **Read-only**.
 </zone_constraints>
 
 <integrity_precheck>
+<!-- @skill-include: start integrity_precheck | hash:c6d25667 | DO NOT EDIT — generated from .claude/data/skill-includes/integrity_precheck.md -->
 ## Integrity Pre-Check (MANDATORY)
 
 Before ANY operation, verify System Zone integrity:
@@ -58,9 +49,11 @@ Before ANY operation, verify System Zone integrity:
 1. Check config: `yq eval '.integrity_enforcement' .loa.config.yaml`
 2. If `strict` and drift detected -> **HALT** and report
 3. If `warn` -> Log warning and proceed with caution
+<!-- @skill-include: end integrity_precheck -->
 </integrity_precheck>
 
 <factual_grounding>
+<!-- @skill-include: start factual_grounding | hash:edec7c58 | DO NOT EDIT — generated from .claude/data/skill-includes/factual_grounding.md -->
 ## Factual Grounding (MANDATORY)
 
 Before ANY synthesis, planning, or recommendation:
@@ -78,9 +71,11 @@ The SDD specifies "PostgreSQL 15 with pgvector extension" (sdd.md:L123)
 ```
 [ASSUMPTION] The database likely needs connection pooling
 ```
+<!-- @skill-include: end factual_grounding -->
 </factual_grounding>
 
 <context_discipline>
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
@@ -88,9 +83,11 @@ accumulated >5K / full file >3K / session total >15K → extract findings (≤10
 each, with file:line) to `grimoires/loa/NOTES.md`, then reason from the synthesis, not raw dumps.
 Session start: read NOTES.md "Session Continuity". Session end / pre-compaction: update it
 (decisions → Decision Log, discovered issues → Technical Debt).
+<!-- @skill-include: end context_discipline -->
 </context_discipline>
 
 <trajectory_logging>
+<!-- @skill-include: start trajectory_logging | hash:e809010f | DO NOT EDIT — generated from .claude/data/skill-includes/trajectory_logging.md -->
 ## Trajectory Logging
 
 Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`:
@@ -98,6 +95,7 @@ Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`
 ```json
 {"timestamp": "...", "agent": "...", "action": "...", "reasoning": "...", "grounding": {...}}
 ```
+<!-- @skill-include: end trajectory_logging -->
 </trajectory_logging>
 
 <kernel_framework>
@@ -189,48 +187,7 @@ status=$(echo "$health" | jq -r '.status')
 
 ### If NOT_INSTALLED or NOT_INITIALIZED
 
-1. **Check for valid opt-out**:
-   ```bash
-   opt_out=$(.claude/scripts/beads/update-beads-state.sh --opt-out-check 2>/dev/null || echo "NO_OPT_OUT")
-   ```
-
-2. **If no valid opt-out**, present HITL gate using AskUserQuestion:
-
-   ```
-   Beads Preflight Check
-   ════════════════════════════════════════════════════════════
-
-   Status: {status}
-
-   Beads is not available. Task tracking is the EXPECTED DEFAULT
-   for safe, auditable agent workflows.
-
-   "We're building spaceships. Safety of operators and users is paramount."
-
-   Options:
-   [1] Install beads (Recommended)
-       └─ .claude/scripts/beads/install-br.sh
-       └─ Or: cargo install beads_rust
-
-   [2] Initialize beads
-       └─ br init
-
-   [3] Continue without beads (24h acknowledgment)
-       └─ Requires reason for audit trail
-
-   [4] Abort
-   ```
-
-3. **If "Continue without beads" selected**:
-   - Require reason (configurable via `beads.opt_out.require_reason`)
-   - Record opt-out: `.claude/scripts/beads/update-beads-state.sh --opt-out "Reason"`
-   - Log to trajectory: `grimoires/loa/a2a/trajectory/beads-preflight-{date}.jsonl`
-   - Opt-out expires after 24h (configurable)
-
-4. **Update state after health check**:
-   ```bash
-   .claude/scripts/beads/update-beads-state.sh --health "$status"
-   ```
+Check opt-out via `update-beads-state.sh --opt-out-check`; no valid opt-out → HITL gate per `.claude/protocols/beads-preflight.md` (owns the full opt-out workflow). Detail: → `resources/REFERENCE.md` §Beads NOT_INSTALLED fallback.
 
 ### If DEGRADED
 
@@ -251,53 +208,7 @@ See `.claude/protocols/beads-preflight.md` for full specification.
 
 ### Step 0: Check for Sprint Ledger (NEW in v1.8.0)
 
-Check if `grimoires/loa/ledger.json` exists:
-
-```bash
-[ -f "grimoires/loa/ledger.json" ] && echo "EXISTS" || echo "MISSING"
-```
-
-**If MISSING**, use AskUserQuestion to offer creation:
-
-```
-No Sprint Ledger found at grimoires/loa/ledger.json
-
-A Sprint Ledger provides:
-• Global sprint numbering across development cycles
-• Cycle tracking with PRD/SDD references
-• Sprint history and metrics for retrospectives
-
-Options:
-[1] Create ledger (recommended)
-[2] Continue without ledger
-```
-
-**If user selects "Create ledger":**
-
-Create `grimoires/loa/ledger.json` with initial schema:
-
-```json
-{
-  "version": "1.0.0",
-  "next_sprint_number": 1,
-  "active_cycle": "cycle-001",
-  "cycles": [
-    {
-      "id": "cycle-001",
-      "label": null,
-      "status": "active",
-      "created_at": "<ISO timestamp>",
-      "prd": "grimoires/loa/prd.md",
-      "sdd": "grimoires/loa/sdd.md",
-      "sprints": []
-    }
-  ]
-}
-```
-
-Log creation to trajectory: `{"action": "ledger_created", "path": "grimoires/loa/ledger.json"}`
-
-**If EXISTS**, proceed to Step 1.
+If `grimoires/loa/ledger.json` is missing, offer creation (AskUserQuestion) before planning; if present, register the new sprints in it. Full choreography: → `resources/REFERENCE.md` §Sprint-Ledger Step 0.
 
 ### Step 1: Check for Security Audit Feedback
 
@@ -472,11 +383,35 @@ Use helper scripts for epic and task creation:
 # Create sprint epic
 EPIC_ID=$(.claude/scripts/beads/create-sprint-epic.sh "Sprint N: Theme" 1)
 
-# Create tasks under epic
-.claude/scripts/beads/create-sprint-task.sh "$EPIC_ID" "Task description" 2 task
+# Create tasks under epic — EVERY task declares its dependencies at creation
+TASK_A=$(.claude/scripts/beads/create-sprint-task.sh "$EPIC_ID" "Build auth middleware" 1 task --deps none)
+TASK_B=$(.claude/scripts/beads/create-sprint-task.sh "$EPIC_ID" "Wire login route" 2 task --deps "$TASK_A")
+```
 
-# Add blocking dependencies between tasks
-br dep add <blocked-task-id> <blocker-task-id>
+**Edge-or-none rule (REQUIRED):** every non-epic bead declares either `--deps <id1,id2>`
+(what blocks it) or `--deps none` (an explicit no-blockers assertion, recorded as the
+`deps:none` label). A sprint plan is an ordered list — the ordering knowledge exists NOW
+and is captured in one flag; retrofitting edges later costs O(n²) review. A task graph
+with edges is schedulable (topological order, parallel tracks, honest unblock counts);
+a flat list silently degrades every downstream consumer (`get-ready-work.sh --graph`,
+`bv --robot-plan` wave dispatch) into priority-only guessing.
+
+### Structural Validation (after creating beads)
+
+Cycles are always checked; the richer checks run when `bv` (beads_viewer) is installed
+and are skipped gracefully when it is not. bv is an OPTIONAL sidecar — Loa does not
+ship or require it; install via `.claude/scripts/beads/install-bv.sh` (or check with
+`--check-only`). Agents: never run bare `bv` (interactive TUI) — `--robot-*` flags only.
+
+```bash
+# HARD check: the dependency graph must be a DAG
+br dep cycles   # must report none
+
+# ADVISORY checks (bv): missing-dep suggestions, duplicates, plan structure
+if command -v bv &>/dev/null; then
+  CI=1 bv --robot-suggest   # review suggested edges/duplicates; apply what is real
+  CI=1 bv --robot-plan      # sanity-check the parallel tracks match plan intent
+fi
 ```
 
 ### Semantic Labels for Relationships

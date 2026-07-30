@@ -186,7 +186,7 @@ Loa uses a **three-zone model** inspired by AWS Projen and Google's ADK:
 | **Cross-Repo Patterns** | 25 reusable patterns in 5 library modules | [Lib](.claude/lib/) |
 | **DRY Constraint Registry** | Single-source constraint generation from JSON | [Data](.claude/data/constraints.json) |
 | **Beads-First Architecture** | Persistent task tracking (recommended; required for `/run` mode, works without for interactive use) | [CLAUDE.md](CLAUDE.md#beads-first-architecture) |
-| **Persistent Memory** | Session-spanning observations with progressive disclosure | [Scripts](.claude/scripts/memory-query.sh) |
+| **Known-Failures Ledger** | Compounding failure memory with recurrence-driven escalation | [Grimoire](grimoires/loa/known-failures.md) |
 | **Input Guardrails** | PII filtering, injection detection, danger levels | [Protocol](.claude/protocols/input-guardrails.md) |
 | **Portable Persistence** | WAL-based persistence with circuit breakers | [Lib](.claude/lib/persistence/) |
 | **Cross-Platform Compat** | Shell scripting protocol for macOS + Linux | [Scripts](.claude/scripts/compat-lib.sh) |

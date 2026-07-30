@@ -1,153 +1,197 @@
-# Sprint Plan: Cycle-115 — Sprint S1 (OKF Follow-up Maintenance)
+# Sprint Plan: Cycle-122 — Mechanical Floor Extensions
 
-> **Cycle**: `cycle-115-okf-followup-mempalace` (NEW — small follow-up cycle; do **NOT** mislabel under the completed cycle-114)
-> **Sprint**: sprint-1 (local) / sprint-226 (global)
-> **Epic**: `bd-okf-followup-mempalace-sjtw` (P1) — tracked residual of OKF epic `bd-mnn6` (closed 2026-06-28)
-> **Ground truth**: `grimoires/loa/proposals/okf-icm-adoption-cycle-plan-2026-06-28.md` + the mempalace-vs-loa comparison / FAANG-PE panel (session 2026-06-29). No fresh PRD/SDD required — all three deliverables are drawn from already-verified, file-grounded specs.
-> **Theme**: Normalize the KF knowledge surface, relabel a dead subsystem honestly, and position the audit moat truthfully. Three GATED deliverables, each test-first.
-> **Beads policy**: Beads ALREADY EXIST (label `okf-followup-mempalace`). This sprint **registers/relates** them — it does **not** duplicate. The three in-sprint beads carry `sprint:226` + `cycle-115-okf-followup`.
+> **Cycle**: `cycle-122-mechanical-floor-extensions` (stacked on cycle-121 / PR #1238 — branch from `feat/cycle-121-context-diet`, PR base = that branch)
+> **Sprints**: 3 (local sprint-1..3; global 232-234)
+> **Ground truth**: cycle-121 SAFE_WITH_MECHANISM backlog (beads `swm-*`, from audit workflow `wf_f9c99bce-302`) + operator decisions 2026-07-29: items 3–6 green-lit; Karpathy trim delegated with the **zero ponytail-parity-degradation condition** (contract: `grimoires/loa/proposals/ponytail-parity-audit-2026-06-16.md` — v1067 doctrine + G1/G2/G6 pinned to CLAUDE.loa.md); Read-before-Write delegated with the **no-quality-degradation condition**.
+> **Theme**: build the mechanisms that let prose shrink — wire the parked gate, close the four documented fence gaps, harden the weakest pipeline consumer, fix post-compaction skill-context loss, then (and only then) take the prose reductions those mechanisms unlock.
+> **Beads policy**: beads exist (`swm-*` + `bd-c122-*` + `bd-a3ks`); mark in-progress/closed per task. KF-005/KF-022 discipline unchanged (DB authoritative; JSONL export split-brain is upstream).
+> **Routing**: `/run sprint-plan` → `/implement` → `/review-sprint` → `/audit-sprint` per sprint. System-Zone writes under cycle authorization (bounded zone-guard marker, delete at run end).
+> **PR review**: maintainer (note: `@janitooor` handle does not resolve via GitHub API — PR author is the maintainer's account `deep-name`).
 
 ---
 
 ## Executive Summary
 
-A single MEDIUM sprint (3 tasks) closing the agent-doable residuals surfaced when loa was compared against memory-palace tools. Each deliverable is independent, low blast radius, and test-first:
+Cycle-121 removed everything judgment-safe; this cycle builds the mechanical replacements the adversarial verifiers demanded before the remaining prose can move — and takes exactly those unlocked reductions, nothing more.
 
-- **D1** (P1, SYSTEM zone) — make the `known-failures.md ## Index` a **generated, drift-proof** artifact + add a default-OFF session-start surfacing hook.
-- **D2** (P2, SYSTEM zone, docs-only) — relabel the dead semantic-memory recall pipeline **EXPERIMENTAL** without reviving it.
-- **D3** (P2, STATE zone) — author an honest two-tier **audit-moat positioning** note.
+- **Sprint 1** (P1) — fences: wire the parked `implement-gate.sh`; add `git tag`, FR-SZ `.claude/` root, and stash-swallow pattern families to the existing hook machinery (each with tests + audited overrides, dual-layer twin discipline).
+- **Sprint 2** (P1) — pipeline hardening: post-merge unattended agent model bump + C-MERGE constraints in its prompt; post-compaction ACTIVE-SKILL re-surfacing (structural fix for all long-running skills); C-BRIDGE registry render into run-bridge + CLAUDE.loa.md bridge-table removal (~1.6KB/turn).
+- **Sprint 3** (P2) — delegated judgment items + E2E: parity-gated conservative Karpathy trim (adversarial parity re-audit is the gate; ANY pinned-clause degradation → NO-CHANGE outcome is a valid completion); Read-before-Write decision record (KEEP + flip-evidence); bd-a3ks template-heading fix; full E2E battery.
 
-**Total Sprints:** 1 (this is a focused follow-up, not a multi-sprint cycle)
-**Task count:** 3 (MEDIUM)
-**Out-of-sprint (track only, do NOT implement here):** `bd-verify-modelinv-signing-cigj` (runtime verification, not `/implement`) and `bd-root-key-offline-n9nf` (OPERATOR-ONLY — agent MUST NOT run). `bd-dead-recall-doc-consistency-xz9b` (P3) is a deferred D2 follow-up, also out of this sprint.
-**Routing:** `/run sprint-1` → `/implement` → `/review-sprint` → `/audit-sprint`. `/bug` is correctly disqualified (D1 adds a config flag + a new hook = feature-shaped). System-Zone (`.claude/`) writes for D1/D2 land **inside `/implement` under cycle authorization** (zone-write-guard blocks Edit/Write; use the Bash-patcher).
-**PR review:** @janitooor (CODEOWNERS).
+## Scope Contract — explicitly OUT
+
+RISKY/KEEP verdicts from the cycle-121 audit stay untouched: Agent Teams section/table (its surfacing mechanism `swm-team-surfacing` is NOT in this cycle — needs design discussion), reviewing-code minimum-quota, Backpressure DO-NOTs, `/spiraling` why-text, Multi-Model/Tiered prose, TaskCreate rows. `swm-runmode-split` deliberately skipped (recovery procedures stay inline). `swm-grounding-ratio` + `swm-bug-eligibility` deferred (small, no urgency). The Karpathy task may NOT touch: the 6-rung ladder, reflex framing, safety floor, runnable-check, `loa:shortcut:` convention, intensity dial (full/ultra, no-lite), G2 output-discipline clause, G6 tie-break + deletion clauses — these are operator-signed parity content; only redundant connective prose may compress.
 
 ---
 
 ## Sprint Overview
 
-| Sprint | Theme | Key Deliverables | Beads | Dependencies |
-|--------|-------|------------------|-------|--------------|
-| 1 | OKF follow-up maintenance | D1 kf-index reframe · D2 dead-recall relabel · D3 audit-moat positioning | `bd-kf-index-reframe-hbya`, `bd-dead-recall-relabel-7hi2`, `bd-audit-moat-positioning-sji4` | None (all 3 independent) |
+| Sprint | Theme | Key Deliverables | Dependencies |
+|--------|-------|------------------|--------------|
+| 1 | Fences | implement-gate wired + 3 new pattern families, all tested, dual-layer where applicable; N1/N3/A1/A4 prose collapse AFTER gate proven | None |
+| 2 | Pipeline hardening | post-merge agent hardened; post-compact active-skill re-surfacing; C-BRIDGE rendered + bridge table removed | None (parallel-safe with 1) |
+| 3 | Delegated judgment + E2E | Parity-gated Karpathy trim (or documented NO-CHANGE); RbW decision record; bd-a3ks; E2E + measurement | Sprints 1–2 (E2E covers all) |
 
 ---
 
-## Sprint 1: OKF Follow-up Maintenance — Index, Relabel, Positioning
+## Sprint 1: Fences — wire the gate, close the four documented gaps
 
-**Duration:** 1 day (D1 ~half-to-full day; D2 ~30–45 min; D3 ~70-line doc)
-**Cycle:** `cycle-115-okf-followup-mempalace`
+**Duration:** ~1 day. **Zone:** System. **Basis:** swm-implement-gate, swm-git-tag-fence, swm-frsz-claude-root, swm-stash-swallow beads; cycle-121 audit mechanical map (11 MECHANICAL / 10 PARTIAL / 7 PROSE-ONLY rows).
 
 ### Sprint Goal
-Land three already-specified OKF residuals — a drift-proof generated KF index (D1), an honest EXPERIMENTAL relabel of the dead recall pipeline (D2), and a truthful audit-moat positioning doc (D3) — each test-first, with zero weakening of any fail-closed gate.
+Every green-lit fence is wired, tested, and fail-safe in the direction its design demands (implement-gate fail-ASK; pattern fences fail-open per hook-guard discipline), with audited overrides, and the prose rows those fences replace are collapsed through the constraint registry only AFTER the fence's tests prove coverage.
 
 ### Deliverables
-- [x] **D1** — `known-failures.md ## Index` table generated FROM the actual `## KF-NNN:` headings (drift structurally impossible), with a Symptom column + numeric recurrence; `grimoire-index.sh --validate` hardened to a fail-on-drift assertion; default-OFF `loa-kf-surface.sh` SessionStart hook (loud-but-nonblocking); hook registered in `settings.json`; flag documented in `.loa.config.yaml.example`. → bead `bd-kf-index-reframe-hbya`
-- [x] **D2** — EXPERIMENTAL banner + corrected ownership table across `memory-reference.md`, `recommended-hooks.md`, `hooks/README.md`; docs-only with a regression guard. → bead `bd-dead-recall-relabel-7hi2`
-- [x] **D3** — new STATE-zone doc `grimoires/loa/proposals/audit-moat-positioning-2026-06-29.md`: Tier-1 integrity TRUE-TODAY (cited), Tier-2 authorship DEFERRED, root-key caveat. → bead `bd-audit-moat-positioning-sji4`
+- [x] **D1.1** — `implement-gate.sh` registered (PreToolUse:Write|Edit via hook-guard wrapper) in BOTH `settings.json` and the `settings.hooks.json` copy-set (KF-021 drift class); its bats suite green; PARKED_HOOK_SCRIPTS lint updated
+- [x] **D1.2** — `git tag` creation fence in `block-destructive-bash.sh` (listing forms `-l`/`-n`/`--list` stay allowed) + `Bash(git tag:*)` allowlist entry REMOVED + audited override env + tests; C-MERGE-002 prose row then collapses to pointer via registry
+- [x] **D1.3** — FR-SZ `_sz_root` gains `.claude/` (write-intent shapes on System Zone via Bash blocked single-agent) + tests + the existing audited override
+- [x] **D1.4** — stash-swallow patterns: `git stash (push|pop)` piped to `tail|head` or with `|| true` in the same segment → BLOCK with remedy naming `stash_with_guard` + tests; `stash-safety.md` then shrinks to interface + origin link
+- [x] **D1.5** — N1/N3/A1/A4 prose collapse (registry edit: four rows → one line + gate reference) ONLY after D1.1's gate tests pass in CI-parity run
 
 ### Acceptance Criteria
-- [x] **D1**: bats `TEST-1..TEST-7` pass; **TEST-5 (loud-but-nonblocking) is load-bearing** — asserts a visible `[KF-SURFACE]` WARNING on enabled+degraded/zero-KF/unreadable, and silence ONLY when the flag is disabled. `--validate` fails (non-zero) when index-row-count ≠ heading-count.
-- [x] **D1**: generated `## Index` lists all 20 `## KF-NNN:` headings (currently 14 rows; **missing KF-009, KF-016, KF-017, KF-018, KF-019, KF-020** — verified drift); KF prose is NOT bot-rewritten.
-- [x] **D1**: hook ships **default-OFF**; with the flag disabled it exits 0 silently and emits nothing.
-- [x] **D2**: grep/doc-lint asserts the EXPERIMENTAL marker is present near the recall/Memory-Writer-Hook section in each of the 3 files; ownership-table cell corrected to "hand-authored, zero hook-generated entries" (NOT "all-null").
-- [x] **D2**: docs-only regression guard — `git diff --name-only` touches **NO** `.claude/hooks/*.sh`, `memory-*.sh`, `settings.hooks.json`, or `.loa*/` (relabel changes ZERO behavior). Version stamps (v1.28.0 / v1.40.0) left as historical provenance.
-- [x] **D3**: every integrity-mechanism claim cites a resolving `file:line`; **NO authorship/non-repudiation verb appears outside the labeled DEFERRED section**; the signed-count statement is reproducible over `.run/model-invoke.jsonl`; root-key-on-disk caveat present; file under `grimoires/loa/proposals/` NOT `.claude/`.
+- [ ] `implement-gate.sh` fires on App-Zone Write/Edit outside `/implement` (bats: authoritative + heuristic modes, fail-ASK posture verified, no hard-block)
+- [ ] `git tag v9.9.9-test` shape BLOCKED with remedy naming `semver-bump.sh`; `git tag -l` ALLOWED; override env logged to `.run/audit.jsonl`
+- [ ] `echo x > .claude/foo` and `sed -i` on `.claude/` paths BLOCKED via Bash (single-agent, no LOA_TEAM_MEMBER); grimoires/ writes unaffected
+- [ ] `git stash push | tail -3` and `git stash pop || true` shapes BLOCKED; plain `git stash push`/`pop` ALLOWED
+- [ ] All existing hook suites (dcg golden tests, zone-guard ZWG-*) remain green; new patterns have their own bats
+- [ ] Registry collapse lands with `generate-constraints.sh` + `validate-constraints.sh` green and AGENTS.md projection still carrying the surviving rules
 
 ### Technical Tasks
 
-<!-- D1/D2/D3 map to the project's deliverable goals; annotated → **[G-Dn]** -->
+#### Task 1.1 — Wire implement-gate (bead swm-implement-gate) → **[G-1]**
+- [ ] Register via hook-guard wrapper in settings.json PreToolUse + settings.hooks.json copy-set; remove from PARKED_HOOK_SCRIPTS in lint-invariants.sh; run its bats; verify THIS run's own /implement flow still writes (gate must recognize run-mode/implement context)
 
-#### Task 1.1 — D1: kf-index reframe (bead `bd-kf-index-reframe-hbya`, P1) → **[G-D1]**
-> From the OKF plan, Sprint 3 R1: *"`--validate` (flag KF Index-vs-heading drift)"* (okf-icm-adoption-cycle-plan-2026-06-28.md:35).
-> Verified reality: `grimoire-index.sh:69-76` already reads `## KF-NNN:` headings as source of truth; `:178` already emits an **informational** stale-Index `::warning::` — D1 promotes this to a generated Index + a fail assertion.
+#### Task 1.2 — git-tag fence (bead swm-git-tag-fence) → **[G-1]**
+- [ ] New pattern family in block-destructive-bash.sh with listing-form carve-out; remove allowlist entry; tests incl. FP guard (commit messages MENTIONING git tag must not trip — inert-carrier scrub applies)
 
-- [ ] **TEST-FIRST**: author bats `TEST-1..TEST-7` (in `tests/unit/`) per the verified spec **before** code. TEST-5 (loud-but-nonblocking hook contract) is load-bearing: assert visible `[KF-SURFACE]` WARNING on enabled+degraded, silence only when disabled, and **exit 0 in all enabled paths**.
-- [ ] Extend `emit_kf` in `.claude/scripts/grimoire-index.sh` to emit a **Symptom column + numeric recurrence** for each KF (parsed from the entry body), and generate the `## Index` table content FROM the headings so the hand-table can no longer drift.
-- [ ] Harden `grimoire-index.sh --validate`: change the index-row-count vs heading-count check from `::warning::` (currently `:174-178`) to a **machine-checkable assertion** that exits non-zero on drift.
-- [ ] Add `.claude/hooks/loa-kf-surface.sh` — SessionStart hook, **default-OFF**, surfaces a compact symptom→KF table. MUST exit 0 always; emits a visible `[KF-SURFACE]` WARNING on any enabled-but-degraded / zero-KF / unreadable path; silent only when the flag is disabled.
-- [ ] Register the hook in `.claude/settings.json` under the existing `SessionStart` array (present at `:475`).
-- [ ] Document the flag `known_failures.surface_at_session_start` (default `false`) in `.loa.config.yaml.example` (no such key exists today — additive).
-- [ ] Do **NOT** bot-rewrite `known-failures.md` prose; the derived `## Index` becomes authoritative. The hand-table repair stays human-edit scope of `bd-2fy3` (already related, not duplicated).
+#### Task 1.3 — FR-SZ .claude/ root (bead swm-frsz-claude-root) → **[G-1]**
+- [ ] Add root + tests; confirm zone-guard marker path (.run/) unaffected; document accepted-bypass deltas in hooks-reference.md
 
-#### Task 1.2 — D2: dead-recall docs relabel (bead `bd-dead-recall-relabel-7hi2`, P2, docs-only) → **[G-D2]**
-> Verified reality: `observations.jsonl` holds exactly **1** record (a hand-authored 2026-04-24 cycle-093 "pattern" entry, well-formed JSON — NOT "all-null"); memory hooks unregistered; vector DB empty; sentence-transformers in the wrong venv → recall is dead.
+#### Task 1.4 — stash-swallow (bead swm-stash-swallow) → **[G-1]**
+- [ ] Pattern + tests + stash-safety.md shrink (MUST rows → interface pointer + origin, rule preserved via fence)
 
-- [ ] **TEST-FIRST**: author the grep/doc-lint assertions (EXPERIMENTAL marker present near the recall section in each of the 3 files) and the docs-only regression guard (`git diff --name-only` touches none of `.claude/hooks/*.sh`, `memory-*.sh`, `settings.hooks.json`, `.loa*/`) **before** editing.
-- [ ] `.claude/loa/reference/memory-reference.md`: add an `EXPERIMENTAL — not wired, do not rely on` banner near the recall / Memory-Writer-Hook / progressive-disclosure sections; correct the ownership-boundary table cell to describe `observations.jsonl` as **hand-authored, zero hook-generated entries** (NOT "all-null"). Leave the v1.28.0 / v1.40.0 stamps as historical provenance — do NOT bump.
-- [ ] `.claude/protocols/recommended-hooks.md`: mark the `memory-inject.sh` / `memory-writer.sh` wiring as dead/optional/experimental.
-- [ ] `.claude/hooks/README.md`: add the same EXPERIMENTAL marker.
-- [ ] Do **NOT** revive the subsystem. Zero runtime change; trade no false claim for another.
-
-#### Task 1.3 — D3: audit-moat positioning doc (bead `bd-audit-moat-positioning-sji4`, P2, STATE zone) → **[G-D3]**
-> Verified citations (all resolve in `.claude/scripts/audit-envelope.sh`): JCS source `:72-74`; `_audit_sha256` `:150-167`; strip `signature`+`signing_key_id` before hash `:169-177`; GENESIS + prev_hash continuity `:184-203`; verify-walk fails on first break `:939-943`.
-
-- [ ] Author `grimoires/loa/proposals/audit-moat-positioning-2026-06-29.md` (STATE zone — written directly, no `/implement` gate needed for the file itself; the reviewer greps are the acceptance check).
-- [ ] **Tier 1 (TRUE TODAY, claim now)**: SHA-256 hash chain over RFC 8785 JCS canonical chain-input with `signature`/`signing_key_id` stripped before hashing; GENESIS anchor + prev_hash continuity; verify walk fails on first break ⇒ any edit/reorder/deletion of a past entry is DETECTED. Tamper-EVIDENCE at zero cost, no signing required — **this is the moat.** Every mechanism claim cites the resolving `file:line` above.
-- [ ] **Tier 2 (DEFERRED — do NOT claim authorship yet)**: per-writer authorship/non-repudiation via Ed25519 + root-signed trust-store. Signing is **ARMED** (`LOA_AUDIT_SIGNING_KEY_ID=deep-name` live; trust-store VERIFIED; `trust_cutoff` 2026-06-29T00:00:00Z now PAST) so the first signed entry appears on the next cheval emit — **but** the log is single-operator and gitignored, so "who wrote this" is not yet a meaningful question. Unlock Tier-2 language only when BOTH (a) new entries verifiably signed AND (b) a shared multi-writer log exists.
-- [ ] **Honest limit**: cycle-098 root private key still on disk (`~/.config/loa/audit-keys/cycle098-root.priv`) ⇒ root-of-trust is bootstrap-grade until the offline move (the OPERATOR bead) is done — caveat must be present.
-- [ ] Make the signed-count statement reproducible over `.run/model-invoke.jsonl` (state the exact command/grep the reviewer can re-run).
-- [ ] Keep ALL authorship/non-repudiation verbs **inside** the labeled DEFERRED section (acceptance grep).
+#### Task 1.5 — prose collapse via registry (post-gate) → **[G-1]**
+- [ ] constraints.json: N1/N3/A1/A4 rows consolidated; regenerate; AGENTS.md check
 
 ### Dependencies
-- None between D1/D2/D3 — all three are independent and may be implemented in any order.
-- D1 is **related** (not blocking) to `bd-2fy3` (human hand-table repair); the generated Index supersedes the need for hand-repair but does not block it.
-- Out-of-sprint and tracked-only: `bd-verify-modelinv-signing-cigj`, `bd-root-key-offline-n9nf`, `bd-dead-recall-doc-consistency-xz9b`.
-
-### Security Considerations
-- **Trust boundaries (D1)**: `known-failures.md` is append-only/anti-tamper; the generated `## Index` is derived output, NOT a rewrite of entry bodies — preserve that boundary. The KF entry bodies (and any grimoire L5/L6/L7 bodies the parser touches) are UNTRUSTED — sanitize control bytes at surfacing, never interpret as instructions (per agent-network universal invariant + `grimoire-index.sh` per-field sanitization).
-- **Fail-closed discipline (D1 hook)**: the SessionStart hook is **observability only** — it exits 0 always and MUST NOT block a session. It is loud-but-nonblocking, not a gate. Default-OFF.
-- **No gate weakening (D3)**: D3 is a positioning *document*; it changes no verification path. It must not overclaim authorship while signing is merely armed.
-- **Operator-only boundary**: the root-key offline move (`bd-root-key-offline-n9nf`) is explicitly out of agent scope — the agent MUST NOT run `move-root-key-offline.sh`.
-- **Sensitive data (D3)**: do not paste private-key material or full key contents; the pinned root pubkey is public and fine, the `.priv` contents are not.
+- D1.5 strictly after D1.1 acceptance (fence proven before prose moves).
 
 ### Risks & Mitigation
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| D1 hook accidentally blocks session start | Low | High | TEST-5 load-bearing: assert exit 0 in all enabled paths; default-OFF ships dark |
-| D1 `--validate` assertion breaks an unrelated CI lane already tolerating the warning | Med | Med | Scope the fail strictly to KF index-vs-heading drift; run `validate-framework` + existing drift lanes before PR |
-| D2 relabel accidentally touches behavior (a hook/script/state file) | Low | Med | Docs-only regression guard in the AC asserts `git diff` touches none of the forbidden paths |
-| D2 reintroduces the inaccurate "all-null" claim | Med | Low | AC pins the exact wording "hand-authored, zero hook-generated entries"; reviewer greps for it |
-| D3 overclaims authorship while signing is only armed | Med | Med | AC: no authorship verb outside the DEFERRED section; two-trigger unlock condition stated explicitly |
-| Beads JSONL/DB drift (KF-005 class) hides label/sprint registration | Med | Low | Beads + labels verified durable in `beads.db` (the store `br` reads); JSONL flush left to normal commit flow — do NOT force-overwrite the historical JSONL (data-loss risk) |
+- **implement-gate false-positives block THIS run** → fail-ASK posture (never hard-block) + verify against the live run before commit; hook-guard wrapper means a broken script fails open
+- **git-tag fence FP on prose mentioning tags** → inert-carrier scrub already handles carrier values; explicit FP tests
+- **Copy-set drift (KF-021)** → both settings files in the same commit; drift check in acceptance
 
 ### Success Metrics
-- D1: `grimoire-index.sh --validate` exits non-zero on a planted index/heading mismatch; generated Index lists 20/20 KF headings; `bats tests/unit/<kf-surface>.bats` green (TEST-1..7).
-- D2: 3/3 files carry the EXPERIMENTAL marker; regression-guard test green (0 forbidden paths in the diff).
-- D3: reviewer grep finds 0 authorship verbs outside DEFERRED; 5/5 integrity claims cite a resolving `file:line`; signed-count command reproduces.
-- Cycle: `/review-sprint` + `/audit-sprint` both pass; PR reviewed by @janitooor.
+- 4 documented gaps closed with tests; 0 regressions across hook suites; ≥4 prose rows collapsed registry-clean
+
+### Security Considerations
+- Every new fence ships with an AUDITED override (never a silent bypass) and follows fail-open-on-parse-error via hook-guard (a broken fence must not brick the harness — #1180). The implement-gate is fail-ASK by design: it prompts, never silently blocks.
 
 ---
 
-## Appendix C: Goal Traceability
+## Sprint 2: Pipeline Hardening — weakest consumer, compaction gap, bridge render
 
-PRD goals are substituted by the three deliverable goals (no PRD; grounded in the OKF plan + verified specs).
+**Duration:** ~1 day. **Zone:** System + .github. **Basis:** swm-postmerge-agent, swm-bridge-render beads; cycle-121 verifier findings (post-compact-reminder re-reads CLAUDE.md only; post-merge agent = Sonnet 4.5, no Skill tool, "continue on failure").
 
-| Goal ID | Goal | Contributing Task(s) | Bead | Validation Method |
-|---------|------|----------------------|------|-------------------|
-| G-D1 | KF `## Index` is generated & drift-proof; symptoms surfaced; optional default-OFF session hook | Task 1.1 | `bd-kf-index-reframe-hbya` | bats TEST-1..7 (TEST-5 load-bearing); `--validate` fails on planted drift |
-| G-D2 | Dead recall pipeline honestly relabeled EXPERIMENTAL, zero behavior change | Task 1.2 | `bd-dead-recall-relabel-7hi2` | grep/doc-lint for marker + docs-only regression guard |
-| G-D3 | Audit moat positioned two-tier honestly (integrity true, authorship deferred) | Task 1.3 | `bd-audit-moat-positioning-sji4` | reviewer greps: cited file:line per integrity claim; no authorship verb outside DEFERRED |
+### Sprint Goal
+The three structural reliability gaps close: the post-merge failure-recovery agent runs a current model with the pipeline constraints in its own prompt; a mid-loop compaction re-surfaces the ACTIVE skill's contract (all skills, not just run-mode); and the bridge constraints render at point of use so the always-loaded table can go.
 
-**E2E validation** is folded into each task's acceptance (the sprint is 3 independent maintenance deliverables, not a build with a single integrated path). No separate Task N.E2E is warranted; each deliverable's AC is its own end-to-end check.
+### Deliverables
+- [x] **D2.1** — `.github/workflows/post-merge.yml`: agent model bumped `claude-sonnet-4-5-20250929` → `claude-sonnet-5`; the five C-MERGE constraint lines added to its prompt (with a registry-source comment); "continue with remaining phases" softened to "continue EXCEPT when a constraint above would be violated — then stop and report"
+- [x] **D2.2** — post-compaction active-skill re-surfacing: `pre-compact-marker.sh` snapshots the active flow (RUNNING states in `.run/*.json` → active skill name); `post-compact-reminder.sh` adds "re-read `<active skill>/SKILL.md`" to its injected recovery sequence; bats for both (marker present/absent, multiple flows, fail-open)
+- [x] **D2.3** — C-BRIDGE-001..008 rendered into `run-bridge/SKILL.md` via registry (explicit-ID SECTIONS entries in both scripts; fixes C-BRIDGE-006's declared-but-unrendered skill layer; replaces the drifted hand-written list at run-bridge/SKILL.md:320-326); CLAUDE.loa.md bridge table removed, keeping the `.run/bridge-state.json` recovery pointer + a MUST-read routing row (post-compaction re-surfacing from D2.2 covers the mid-loop case)
 
-**Coverage check:** every goal (G-D1/G-D2/G-D3) maps to exactly one task and one bead. No goal is task-less.
+### Acceptance Criteria
+- [ ] post-merge.yml: model id updated; prompt contains all five C-MERGE rule texts verbatim-in-substance; YAML valid (`yq`)
+- [ ] After a simulated compaction with `.run/sprint-plan-state.json` RUNNING, the injected reminder names the run-mode skill; with a bridge state active, names run-bridge; with nothing active, unchanged behavior (bats)
+- [ ] `run-bridge/SKILL.md` carries the generated block with all 8 C-BRIDGE rules; CLAUDE.loa.md table gone; routing row present; `generate/validate-constraints` green; AGENTS.md loses only the bridge ALWAYS rows (bridge flows are Claude-skill-only — accepted per verifier)
+- [ ] Always-loaded byte count re-measured and recorded (expect ~24.3KB)
+
+### Technical Tasks
+
+#### Task 2.1 — post-merge agent hardening (bead swm-postmerge-agent) → **[G-2]**
+- [ ] Model bump + prompt constraints + failure-handling scoping; yq validation
+
+#### Task 2.2 — post-compact active-skill re-surfacing → **[G-2]**
+- [ ] Marker snapshot + reminder injection + bats (fail-open preserved)
+
+#### Task 2.3 — C-BRIDGE render + table removal (bead swm-bridge-render) → **[G-2]**
+- [ ] Registry retarget + both SECTIONS arrays + marker block in run-bridge + CLAUDE.loa.md table removal + routing row
+
+### Dependencies
+- D2.3's table removal only after D2.2 lands (the compaction re-surfacing is the verifier's named routing condition) and the generated block is verified in run-bridge/SKILL.md.
+
+### Risks & Mitigation
+- **Workflow YAML breakage** → yq validation; no permission/tool changes, only model + prompt
+- **Reminder hook grows noisy** → one line added, only when a flow is RUNNING; fail-open preserved
+- **C-BRIDGE text_variants missing for skill-md render** → add variants in constraints.json as needed; validator drift-fails if wrong
+
+### Success Metrics
+- Weakest-consumer gap closed; compaction contract covers every long-running skill; ~1.6KB/turn further reduction
+
+### Security Considerations
+- post-merge.yml prompt change constrains (never widens) the unattended agent; model bump changes capability, not permissions (same allowed_tools).
 
 ---
 
-## Appendix D: Bead Registration (relate, do not duplicate)
+## Sprint 3: Delegated Judgment Items + E2E
 
-The beads already exist (created session 2026-06-29, label `okf-followup-mempalace`). This sprint registered them — it did NOT create duplicates.
+**Duration:** ~0.5 day. **Zone:** System + State. **Basis:** operator delegations 2026-07-29 (items 1–2); bd-c122-karpathy-parity, bd-c122-rbw-decision, bd-a3ks.
 
-| Bead | Role | Priority | Sprint membership | In this sprint? |
-|------|------|----------|-------------------|-----------------|
-| `bd-okf-followup-mempalace-sjtw` | Epic (umbrella) | P1 | — (epic) | Tracks all 6 |
-| `bd-kf-index-reframe-hbya` | D1 | P1 | `sprint:226`, `cycle-115-okf-followup` | ✅ in sprint |
-| `bd-dead-recall-relabel-7hi2` | D2 | P2 | `sprint:226`, `cycle-115-okf-followup` | ✅ in sprint |
-| `bd-audit-moat-positioning-sji4` | D3 | P2 | `sprint:226`, `cycle-115-okf-followup` | ✅ in sprint |
-| `bd-verify-modelinv-signing-cigj` | Runtime verify (NOT `/implement`) | P1 | — | ❌ track only |
-| `bd-root-key-offline-n9nf` | OPERATOR-ONLY (agent MUST NOT run) | P1 | — | ❌ track only |
-| `bd-dead-recall-doc-consistency-xz9b` | Deferred D2 follow-up | P3 | — | ❌ out of sprint (do after D2) |
-| `bd-2fy3` | Hand-table repair (human edit) | P3 | — | Related to D1 (not duplicate) |
+### Sprint Goal
+The two operator-delegated judgment items resolve with their conditions honored and documented — the Karpathy trim happens ONLY if an adversarial parity re-audit confirms zero degradation of the ponytail-pinned content (a documented NO-CHANGE is a valid outcome); the Read-before-Write row is kept with the flip-evidence enumerated — and the whole stacked cycle passes the E2E battery.
 
-Ledger: cycle `cycle-115-okf-followup-mempalace` registered as **active**; sprint-1 = global sprint-226; `next_sprint_number` advanced to 227.
+### Deliverables
+- [x] **D3.1** — Karpathy conservative trim, parity-gated: (a) pinned-clause checklist extracted from `ponytail-parity-audit-2026-06-16.md` (v1067 doctrine items + G1/G2/G6 texts); (b) draft trim that preserves every pinned clause VERBATIM and compresses only connective/duplicated prose (target ~0.8–1.1KB of the 4.7KB section; the original audit's ~3KB cut is PROHIBITED — it moved pinned content out); (c) adversarial parity re-audit: independent multi-judge comparison of before/after against the checklist; (d) apply ONLY on unanimous no-degradation verdict, else record NO-CHANGE with the failing clause cited
+- [x] **D3.2** — Read-before-Write decision record in NOTES.md Decision Log + `swm-rbw-remeasure` bead note: row KEPT (error class already loss-proof via harness rejection; removal condition requires fleet telemetry showing the ~570/month class collapsed under Claude-5 models — the evidence that flips this)
+- [x] **D3.3** — bd-a3ks: `NOTES.md.template` `## Decisions` → `## Decision Log`; `check-loa.sh check_notes_template` + `notes-template.bats` aligned in the same commit
+- [x] **D3.4** — E2E: full unit + script bats suites; all validators; fresh-mount simulation; always-loaded measurement; cycle report appendix updated
+
+### Acceptance Criteria
+- [ ] Parity gate artifact exists (judge verdicts recorded under `grimoires/loa/a2a/sprint-3/parity-audit/`); every pinned clause byte-findable in the post-trim section (mechanical grep list); NO-CHANGE path equally documented if taken
+- [ ] NOTES.md Decision Log carries the RbW decision with flip-evidence; bead updated
+- [ ] `notes-template.bats` green with the renamed heading; fresh-mount NOTES.md passes `check_notes_template` without the WARN
+- [ ] **E2E (end-to-end)**: full `tests/unit/` + `.claude/scripts/tests/` green; `validate-constraints` 0 errors; `validate-skill-capabilities` green; include drift green; `grimoire-index --validate` green; fresh-mount cycle-owned checks green; final always-loaded bytes recorded
+
+### Technical Tasks
+
+#### Task 3.1 — parity-gated Karpathy trim (bead bd-c122-karpathy-parity) → **[G-3]**
+- [ ] Checklist → draft → multi-judge parity re-audit → apply-or-NO-CHANGE
+
+#### Task 3.2 — RbW decision record (bead bd-c122-rbw-decision) → **[G-3]**
+- [ ] Decision Log entry + bead note
+
+#### Task 3.3 — template heading fix (bead bd-a3ks) → **[G-3]**
+- [ ] Template + validator + tests in one commit
+
+#### Task 3.4 — E2E battery + measurement → **[G-1] [G-2] [G-3]**
+- [ ] Full battery; record; update report appendix
+
+### Dependencies
+- Sprints 1–2 merged into the stacked branch before T3.4.
+
+### Risks & Mitigation
+- **Parity judges disagree** → unanimity required for change; any dissent = NO-CHANGE (the operator's condition is absolute)
+- **Trim touches a pinned clause by accident** → mechanical grep checklist in acceptance, not judgment alone
+
+### Success Metrics
+- Both delegated items resolved with conditions demonstrably honored; suite green; final measurement recorded
+
+### Security Considerations
+- The Karpathy floor ("never simplify away", runnable-check) is pinned content — the gate makes weakening it mechanically detectable before merge.
+
+---
+
+## Appendix
+
+### Goal Mapping
+
+| Goal | Statement | Sprints | Verification |
+|------|-----------|---------|--------------|
+| G-1 | All green-lit fences wired + tested with audited overrides; dependent prose collapsed registry-clean only after proof | 1 | new + existing hook bats; validate-constraints; AGENTS.md grep |
+| G-2 | Pipeline reliability gaps closed (weakest consumer, compaction skill-context, bridge point-of-use) | 2 | yq + hook bats + generated-block verification + byte measurement |
+| G-3 | Operator-delegated items resolved with conditions honored and auditable | 3 | parity-gate artifact / decision records / suite green |
+
+### Provenance
+
+Operator decisions (this session, 2026-07-29): "1. defer to you… only change if there is not degradation of the pony-tail parity. 2. defer to you… if we can find a way to remove this error type without degrading quality. 3-6 defer to you happy to proceed." Cycle-121 verdicts: workflow `wf_f9c99bce-302` journal + `grimoires/loa/reports/context-diet-cycle-121.md`.

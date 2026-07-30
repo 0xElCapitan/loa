@@ -551,9 +551,7 @@ grep '"root_span_id":"span-abc"' grimoires/loa/a2a/trajectory/*.jsonl
 
 ## Delta Sync Phase (v0.9.0)
 
-> **Protocol**: See `.claude/protocols/attention-budget.md`
-
-The `delta_sync` phase is logged at Yellow threshold (5,000 tokens) for partial persistence.
+The `delta_sync` phase is logged at the 5,000-token accumulated threshold (see the context_discipline blocks in SKILL.md files / `.claude/protocols/tool-result-clearing.md`) for partial persistence.
 
 ### Delta Sync Log Format
 

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "active_cycle": "cycle-115-okf-followup-mempalace",
+  "active_cycle": "cycle-122-mechanical-floor-extensions",
   "cycles": [
     {
       "id": "cycle-036",
@@ -1914,7 +1914,7 @@
     {
       "id": "cycle-115-okf-followup-mempalace",
       "label": "OKF Follow-up — mempalace-comparison residuals (kf-index reframe + dead-recall relabel + audit-positioning)",
-      "status": "active",
+      "status": "completed",
       "created_at": "2026-06-29T05:50:00Z",
       "prd": null,
       "sdd": null,
@@ -1954,9 +1954,159 @@
       ],
       "triage": "grimoires/loa/a2a/bug-20260718-i1227-cf7ca4/triage.md",
       "sprint_plan": "grimoires/loa/a2a/bug-20260718-i1227-cf7ca4/sprint.md"
+    },
+    {
+      "id": "cycle-121-claude5-context-diet",
+      "label": "Claude-5 Context Diet — verified-SAFE tier of the 2026-07-29 context-engineering audit (dead-weight deletion, shrink-in-place, memory consolidation, skills dedup, always-loaded diet)",
+      "status": "active",
+      "created_at": "2026-07-29T05:18:16Z",
+      "prd": null,
+      "sdd": null,
+      "epic": "bd-cycle121-context-diet-cara",
+      "source_plan": "grimoires/loa/sprint.md",
+      "note": "No fresh PRD/SDD — grounded in the adversarially-verified audit (workflow wf_f9c99bce-302, 41 verdicts). Cycles 116-120 ran unregistered; ledger reconciled at this kickoff. RISKY/KEEP/SAFE_WITH_MECHANISM findings are OUT of scope (see sprint.md Scope Contract).",
+      "sprints": [
+        {
+          "id": "sprint-227",
+          "local_id": "sprint-1",
+          "global_id": 227,
+          "cycle": "cycle-121-claude5-context-diet",
+          "theme": "Dead-weight deletion",
+          "scope": "MEDIUM",
+          "task_count": 5,
+          "status": "completed",
+          "created": "2026-07-29T05:18:16Z",
+          "beads": [
+            "bd-c121-s1-dead-protocols-6y5z",
+            "bd-c121-s1-oldmodel-family-pqm0",
+            "bd-c121-s1-indexyaml-blocks-u91f",
+            "bd-c121-s1-ck-merge-7fuw",
+            "bd-c121-s1-stale-artifacts-z0k4"
+          ],
+          "completed_at": "2026-07-29T07:56:49Z"
+        },
+        {
+          "id": "sprint-228",
+          "local_id": "sprint-2",
+          "global_id": 228,
+          "cycle": "cycle-121-claude5-context-diet",
+          "theme": "Shrink-in-place rewrites",
+          "scope": "MEDIUM",
+          "task_count": 6,
+          "status": "completed",
+          "created": "2026-07-29T05:18:16Z",
+          "beads": [
+            "bd-c121-s2-trc-shrink-3ifv",
+            "bd-c121-s2-karpathy-stub-cz67",
+            "bd-c121-s2-ctxeng-rewrite-r9ka",
+            "bd-c121-s2-structmem-shrink-lk7y",
+            "bd-c121-s2-karpathy-wording-vm53",
+            "bd-c121-s2-protosummary-660w"
+          ],
+          "completed_at": "2026-07-29T07:56:49Z"
+        },
+        {
+          "id": "sprint-229",
+          "local_id": "sprint-3",
+          "global_id": 229,
+          "cycle": "cycle-121-claude5-context-diet",
+          "theme": "Memory consolidation",
+          "scope": "MEDIUM",
+          "task_count": 5,
+          "status": "completed",
+          "created": "2026-07-29T05:18:16Z",
+          "beads": [
+            "bd-c121-s3-memory-delete-yvbo",
+            "bd-c121-s3-cache-junk-2pkd",
+            "bd-c121-s3-notes-kf-o0cv",
+            "bd-c121-s3-kf-signal-bcsl",
+            "bd-c121-s3-bak-staleness-bht0"
+          ],
+          "completed_at": "2026-07-29T07:56:49Z"
+        },
+        {
+          "id": "sprint-230",
+          "local_id": "sprint-4",
+          "global_id": 230,
+          "cycle": "cycle-121-claude5-context-diet",
+          "theme": "Skills dedup + splits",
+          "scope": "MEDIUM",
+          "task_count": 4,
+          "status": "completed",
+          "created": "2026-07-29T05:18:16Z",
+          "beads": [
+            "bd-c121-s4-gen-includes-27iy",
+            "bd-c121-s4-resources-split-8j5t",
+            "bd-c121-s4-filler-4v5c",
+            "bd-c121-s4-frontmatter-dyx9"
+          ],
+          "completed_at": "2026-07-29T07:56:49Z"
+        },
+        {
+          "id": "sprint-231",
+          "local_id": "sprint-5",
+          "global_id": 231,
+          "cycle": "cycle-121-claude5-context-diet",
+          "theme": "Always-loaded diet + E2E",
+          "scope": "MEDIUM",
+          "task_count": 4,
+          "status": "completed",
+          "created": "2026-07-29T05:18:16Z",
+          "beads": [
+            "bd-c121-s5-postpr-hooks-50t2",
+            "bd-c121-s5-merge-m3m5-ih4d",
+            "bd-c121-s5-claudemd-trim-4pb1",
+            "bd-c121-s5-e2e-vvz8"
+          ],
+          "completed_at": "2026-07-29T07:56:49Z"
+        }
+      ]
+    },
+    {
+      "id": "cycle-122-mechanical-floor-extensions",
+      "label": "Mechanical floor extensions — wire parked gate, close fence gaps, pipeline hardening, parity-gated Karpathy trim",
+      "status": "active",
+      "created_at": "2026-07-29T08:31:36Z",
+      "prd": null,
+      "sdd": null,
+      "epic": null,
+      "source_plan": "grimoires/loa/sprint.md",
+      "note": "Stacked on cycle-121 (PR #1238). Operator delegations recorded in sprint.md Provenance.",
+      "sprints": [
+        {
+          "id": "sprint-232",
+          "local_id": "sprint-1",
+          "global_id": 232,
+          "cycle": "cycle-122-mechanical-floor-extensions",
+          "theme": "Fences",
+          "status": "completed",
+          "created": "2026-07-29T08:31:36Z",
+          "completed_at": "2026-07-29T09:13:04Z"
+        },
+        {
+          "id": "sprint-233",
+          "local_id": "sprint-2",
+          "global_id": 233,
+          "cycle": "cycle-122-mechanical-floor-extensions",
+          "theme": "Pipeline hardening",
+          "status": "completed",
+          "created": "2026-07-29T08:31:36Z",
+          "completed_at": "2026-07-29T09:13:04Z"
+        },
+        {
+          "id": "sprint-234",
+          "local_id": "sprint-3",
+          "global_id": 234,
+          "cycle": "cycle-122-mechanical-floor-extensions",
+          "theme": "Delegated judgment + E2E",
+          "status": "completed",
+          "created": "2026-07-29T08:31:36Z",
+          "completed_at": "2026-07-29T09:13:04Z"
+        }
+      ]
     }
   ],
-  "global_sprint_counter": 227,
+  "global_sprint_counter": 235,
   "bugfix_cycles": [
     {
       "id": "cycle-bug-20260418-i554-00a529",
@@ -2296,5 +2446,5 @@
       "sprint_plan": "grimoires/loa/a2a/bug-20260428-i640-1cc190/sprint.md"
     }
   ],
-  "next_sprint_number": 227
+  "next_sprint_number": 235
 }

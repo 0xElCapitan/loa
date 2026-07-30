@@ -2,7 +2,7 @@
 # =============================================================================
 # tests/unit/agent-ergonomics-color-guard.bats
 # agent-ergonomics pass 1 (bd-m1o6) R-011 — NO_COLOR/TTY color guard for
-# 5 scripts (composability): validate-skill-capabilities.sh, memory-query.sh,
+# scripts (composability): validate-skill-capabilities.sh,
 # grimoire-index.sh, construct-resolve.sh, repo-map-gen.sh.
 #
 # Guarded against regression: raw ANSI escapes leaking into piped/non-TTY
@@ -13,7 +13,6 @@
 setup() {
     PROJECT_ROOT="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
     VALIDATOR="$PROJECT_ROOT/.claude/scripts/validate-skill-capabilities.sh"
-    MEMORY_QUERY="$PROJECT_ROOT/.claude/scripts/memory-query.sh"
     GRIMOIRE_INDEX="$PROJECT_ROOT/.claude/scripts/grimoire-index.sh"
     CONSTRUCT_RESOLVE="$PROJECT_ROOT/.claude/scripts/construct-resolve.sh"
     REPO_MAP_GEN="$PROJECT_ROOT/.claude/scripts/repo-map-gen.sh"
@@ -59,19 +58,7 @@ teardown() {
     [[ "$output" != *$'\033'* ]]
 }
 
-# --- memory-query.sh ---
-
-@test "R-011: memory-query.sh --help has no ESC byte" {
-    run timeout 30 bash "$MEMORY_QUERY" --help
-    [ "$status" -eq 0 ]
-    [[ "$output" != *$'\033'* ]]
-}
-
-@test "R-011: memory-query.sh --help NO_COLOR=1 has no ESC byte" {
-    NO_COLOR=1 run timeout 30 bash "$MEMORY_QUERY" --help
-    [ "$status" -eq 0 ]
-    [[ "$output" != *$'\033'* ]]
-}
+# --- memory-query.sh tests removed cycle-121 (script deleted) ---
 
 # --- grimoire-index.sh ---
 

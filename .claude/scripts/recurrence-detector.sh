@@ -59,14 +59,13 @@ parse_args(){
   esac; shift; done
 }
 
-# Resolve the JSONL sources to scan (default: trajectory corpus + observations).
+# Resolve the JSONL sources to scan (default: trajectory corpus).
 resolve_sources(){
   if [[ -n "$SOURCES_CSV" ]]; then
     printf '%s\n' "${SOURCES_CSV//,/$'\n'}"
     return
   fi
   find "${G}/a2a/trajectory" -name '*.jsonl' -type f 2>/dev/null || true
-  [[ -f "${G}/memory/observations.jsonl" ]] && printf '%s\n' "${G}/memory/observations.jsonl"
 }
 
 # Emit "session<TAB>finding-text" for every record carrying a textual finding.
