@@ -30,7 +30,7 @@ from loa_cheval.types import (
 
 # (module-seam, provider-type, model-id, extra) — ARGV-prompt adapters only.
 _ARGV_ADAPTERS = [
-    ("gemini_headless_adapter", "gemini-headless", "gemini-3-pro", {"cli_model": "gemini-3.1-pro-preview"}),
+    ("agy_headless_adapter", "gemini-headless", "gemini-3-pro", {"cli_model": "Gemini 3.1 Pro (High)"}),
     ("claude_headless_adapter", "claude-headless", "sonnet", {"cli_model": "sonnet"}),
 ]
 
