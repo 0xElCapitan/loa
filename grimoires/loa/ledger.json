@@ -1943,6 +1943,19 @@
       ]
     },
     {
+      "id": "cycle-bug-20260718-i1227-cf7ca4",
+      "label": "Bug Fix — Flatline content-qualified quorum (#1227)",
+      "type": "bugfix",
+      "status": "active",
+      "source_issue": "https://github.com/0xHoneyJar/loa/issues/1227",
+      "created_at": "2026-07-19T00:14:49Z",
+      "sprints": [
+        "sprint-bug-227"
+      ],
+      "triage": "grimoires/loa/a2a/bug-20260718-i1227-cf7ca4/triage.md",
+      "sprint_plan": "grimoires/loa/a2a/bug-20260718-i1227-cf7ca4/sprint.md"
+    },
+    {
       "id": "cycle-121-claude5-context-diet",
       "label": "Claude-5 Context Diet — verified-SAFE tier of the 2026-07-29 context-engineering audit (dead-weight deletion, shrink-in-place, memory consolidation, skills dedup, always-loaded diet)",
       "status": "active",
@@ -2093,7 +2106,7 @@
       ]
     }
   ],
-  "global_sprint_counter": 234,
+  "global_sprint_counter": 235,
   "bugfix_cycles": [
     {
       "id": "cycle-bug-20260418-i554-00a529",
