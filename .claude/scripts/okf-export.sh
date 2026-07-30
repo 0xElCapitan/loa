@@ -3,7 +3,7 @@
 # okf-export.sh — read-only OKF v0.1 export skin over the grimoire corpus
 #
 # OKF/ICM adoption cycle, Sprint 4 (rec #4). Projects already-typed knowledge
-# families (v1: handoffs + observations) into a conformant Open Knowledge Format
+# families (v1: handoffs) into a conformant Open Knowledge Format
 # v0.1 bundle at .run/okf-bundle/ (State zone, gitignored). The grimoire stays
 # the SOURCE OF TRUTH; this is a DERIVED projection downstream of every gate.
 #
@@ -121,42 +121,7 @@ build_handoffs(){
       done || true
 }
 
-build_observations(){
-  local target="$1" used="$2" man="$3" src="${GRIMOIRE}/memory/observations.jsonl"
-  [[ -f "$src" ]] || return 0
-  local n=0 line
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    n=$((n+1)); [[ -z "$line" ]] && continue
-    printf '%s' "$line" | jq -e . >/dev/null 2>&1 || continue
-    local ts ty cat title detail impl sha rel fpath
-    ts="$(okf_redact "$(printf '%s' "$line" | jq -r '.timestamp // ""')")"
-    ty="$(okf_redact "$(printf '%s' "$line"  | jq -r '.type // ""')")"
-    cat="$(okf_redact "$(printf '%s' "$line" | jq -r '.category // ""')")"
-    title="$(okf_redact "$(printf '%s' "$line"| jq -r '.title // ""')")"
-    detail="$(okf_redact "$(printf '%s' "$line"| jq -r '.detail // ""')")"
-    impl="$(okf_redact "$(printf '%s' "$line" | jq -r '.implication // ""')")"
-    # hash the FULL source line → distinct rows get distinct ids; identical rows collapse (correct)
-    sha="$(printf '%s' "$line" | sha256_portable | cut -c1-12)"
-    rel="$(uniq_rel "$used" "observations/obs-${sha}")"
-    fpath="${target}/${rel}.md"; mkdir -p "$(dirname "$fpath")"
-    {
-      echo "---"
-      echo "type: $(yaml_str "Observation")"
-      echo "title: $(yaml_str "${title:-obs-${sha}}")"
-      echo "description: $(yaml_str "$(san "$ty") observation — $(san "$cat")")"
-      echo "tags: [$(yaml_str "observation"), $(yaml_str "$(san "$ty")"), $(yaml_str "$(san "$cat")")]"
-      echo "timestamp: $(yaml_str "$ts")"
-      echo "resource: $(yaml_str "grimoires/loa/memory/observations.jsonl#L${n}")"
-      echo "---"
-      echo
-      echo "# $(san "${title:-obs-${sha}}")"
-      echo
-      [[ -n "$detail" ]] && { san_body "$detail"; echo; }
-      [[ -n "$impl" ]] && { printf '**Implication:** %s\n\n' "$(san_body "$impl")"; }
-    } > "$fpath"
-    printf '%s\t%s\t%s\n' "$rel" "Observation" "$(san "${title:-obs-${sha}}")" >> "$man"
-  done < "$src"
-}
+# build_observations removed cycle-121 (observation store deleted with the semantic-memory subsystem)
 
 render_subindex(){ # heading, manifest, subdir-prefix
   local heading="$1" man="$2" prefix="$3"
@@ -176,7 +141,7 @@ render_root_index(){ # manifest
   echo
   echo "# Loa Grimoire — OKF Export"
   echo
-  echo "Derived OKF v0.1 projection of the loa grimoire corpus (v1: handoffs + observations)."
+  echo "Derived OKF v0.1 projection of the loa grimoire corpus (v1: handoffs)."
   echo "Source of truth: \`grimoires/loa/\`. Regenerate: \`bash .claude/scripts/okf-export.sh\`."
   echo
   if [[ "$hc" -gt 0 ]]; then
@@ -196,7 +161,6 @@ build_bundle(){
   local target="$1" man used
   man="$(mktemp)"; used="$(mktemp)"; : > "$man"; : > "$used"
   build_handoffs "$target" "$used" "$man"
-  build_observations "$target" "$used" "$man"
   if LC_ALL=C grep -q '^handoffs/' "$man"; then render_subindex "Handoffs" "$man" "handoffs" > "${target}/handoffs/index.md"; fi
   if LC_ALL=C grep -q '^observations/' "$man"; then render_subindex "Observations" "$man" "observations" > "${target}/observations/index.md"; fi
   render_root_index "$man" > "${target}/index.md"

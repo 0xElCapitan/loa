@@ -108,6 +108,6 @@ In `/run sprint-plan`, the completion lifecycle runs autonomously:
 | Resource | Purpose |
 |----------|---------|
 | `.claude/scripts/golden-path.sh` | State detection functions |
-| `.claude/protocols/run-mode.md` | Autonomous execution lifecycle |
+| `.claude/skills/run-mode/SKILL.md` | Autonomous execution lifecycle |
 | `skills/reviewing-code/SKILL.md` | Review gate details |
 | `skills/auditing-security/SKILL.md` | Audit gate details |

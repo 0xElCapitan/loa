@@ -96,3 +96,165 @@
 5. **Undefined Personas**
    - BAD: "Users will appreciate this feature"
    - GOOD: "Power users (>10 sessions/week) will save 15 minutes daily"
+
+## Edge Cases
+
+| Scenario | Behavior |
+|----------|----------|
+| No context directory | Create it, add README.md, proceed to full interview |
+| Empty context directory | Note it, proceed to full interview |
+| Only README.md exists | Treat as empty, proceed to full interview |
+| Contradictory information | List contradictions, ask developer to clarify |
+| Outdated information | Ask "Is this still accurate?" before using |
+| Very large files (>1000 lines) | Summarize key sections, note full file available |
+| Non-markdown files | Note existence, explain can't parse |
+| Partial coverage | Conduct mini-interviews for gaps only |
+| Developer disagrees with synthesis | Allow corrections, update understanding |
+| Reality conflicts with context | Reality wins, flag conflict for user review |
+| Stale reality (>7 days) | Prompt user to refresh or proceed with cached |
+| /ride failed | Log blocker, proceed without grounding (with warning) |
+| Brownfield detected but no reality | Present 3-option AskUserQuestion: Run /ride, Run /ride --enriched, Skip grounding |
+| Greenfield project | Skip codebase grounding entirely, no message |
+
+## Visual Communication (Optional)
+
+Follow `.claude/protocols/visual-communication.md` for diagram standards.
+
+### When to Include Diagrams
+
+PRDs may benefit from visual aids for:
+- **User Journeys** (flowchart) - Show user flows through the product
+- **Process Flows** (flowchart) - Illustrate business processes
+- **Stakeholder Maps** (flowchart) - Show stakeholder relationships
+
+### Output Format
+
+If including diagrams, use Mermaid with preview URLs:
+
+```markdown
+### User Registration Journey
+
+```mermaid
+graph LR
+    A[Landing Page] --> B{Has Account?}
+    B -->|No| C[Sign Up Form]
+    B -->|Yes| D[Login]
+    C --> E[Email Verification]
+    E --> F[Onboarding]
+    F --> G[Dashboard]
+```
+
+> **Preview**: [View diagram](https://agents.craft.do/mermaid?code=...&theme=github)
+```
+
+### Theme Configuration
+
+Read theme from `.loa.config.yaml` visual_communication.theme setting.
+
+Diagram inclusion is **optional** for PRDs - use agent discretion based on complexity.
+
+## Phase Transition Protocol
+
+Applied after each discovery phase (see SKILL.md "### Phase Transitions" for the
+per-phase value table). Substitute `{THIS}` = current phase name, `{NEXT}` = next
+phase name, `{NEXT_NUM}` = next phase number.
+
+When `gate_between` is true:
+1. Summarize what was learned in this phase (3-5 bullets, cited)
+2. State what carries forward to the next phase
+3. Present transition:
+   - If `routing_style` == "structured": Use AskUserQuestion:
+     question: "Phase {N} complete. Ready for Phase {NEXT_NUM}: {NEXT}?"
+     header: "Phase {N}"
+     options:
+       - label: "Continue"
+         description: "Move to {NEXT}"
+       - label: "Go back"
+         description: "Revisit this phase — I have corrections"
+       - label: "Skip ahead"
+         description: "Jump to PRD generation — enough context gathered"
+   - If `routing_style` == "plain":
+     "Phase {N}: {THIS} complete. Moving to Phase {NEXT_NUM}: {NEXT}. Continue, go back, or skip ahead?"
+4. WAIT for response. DO NOT auto-continue.
+
+When `gate_between` is false:
+One-line transition: "Moving to Phase {NEXT_NUM}: {NEXT}."
+
+Phase 7 is terminal — it moves to pre-generation review, not a next phase: carry
+forward to PRD generation, omit the "Skip ahead" option, and use "Moving to
+pre-generation review." (plain) / "Moving to PRD generation." (gate off). The
+Phase 7 structured option description is "Move to pre-generation summary".
+
+
+# Codebase-grounding error recovery (cycle-121 split from SKILL.md Phase -0.5)
+
+Execute EXACTLY as written when /ride fails or times out during grounding.
+
+### Error Recovery
+
+If /ride fails or times out:
+
+1. **Capture error** in NOTES.md Decision Log:
+   ```markdown
+   | Date | Decision | Rationale | Source |
+   |------|----------|-----------|--------|
+   | YYYY-MM-DD | /ride failed during codebase grounding | [error message] | Phase -0.5 |
+   ```
+
+2. **Check config for auto-skip**:
+   ```bash
+   skip_on_error=$(yq eval '.plan_and_analyze.codebase_grounding.skip_on_ride_error // false' .loa.config.yaml)
+   ```
+   If `skip_on_error: true`, automatically skip to Phase -1 with warning.
+
+3. **Otherwise prompt user** with AskUserQuestion:
+   ```yaml
+   questions:
+     - question: "/ride analysis failed. How would you like to proceed?"
+       header: "Recovery"
+       options:
+         - label: "Retry /ride analysis"
+           description: "Re-run codebase analysis (recommended)"
+         - label: "Skip codebase grounding"
+           description: "Proceed without code-based requirements (not recommended)"
+         - label: "Abort"
+           description: "Cancel /plan-and-analyze entirely"
+       multiSelect: false
+   ```
+
+4. **Handle user response**:
+
+   **If "Retry"**:
+   - Re-run /ride with fresh attempt
+   - If fails again, return to step 3 (max 2 retries)
+
+   **If "Skip"**:
+   - Log warning to NOTES.md blockers:
+     ```markdown
+     - [ ] [BLOCKER] PRD created without codebase grounding - /ride failed: [error]
+     ```
+   - Proceed to Phase -1 without reality context
+   - Add warning banner to generated PRD:
+     ```markdown
+     > ⚠️ **WARNING**: This PRD was created without codebase grounding.
+     > Run `/ride` and `/plan-and-analyze --fresh` for accurate requirements.
+     ```
+
+   **If "Abort"**:
+   - Log abort decision to trajectory
+   - Exit cleanly with message: "Aborting /plan-and-analyze. Run /ride manually and retry."
+
+5. **Preserve partial results** if available:
+   - If /ride produced any output files before failing, keep them
+   - Use whatever reality context exists for Phase 0
+
+### Timeout Handling
+
+Default timeout: 20 minutes (configurable in `.loa.config.yaml`)
+
+```yaml
+plan_and_analyze:
+  codebase_grounding:
+    ride_timeout_minutes: 20
+```
+

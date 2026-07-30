@@ -17,8 +17,9 @@ The State Zone (`grimoires/`, `.beads/`, `.ck/`, `.run/`) stores session-spannin
 - **Beads**: Task tracking state (managed by `br` CLI)
 - **Run**: Autonomous execution state (sprint-plan-state, bridge-state, simstim-state)
 - Configurable paths via `.loa.config.yaml`: `LOA_GRIMOIRE_DIR`, `LOA_BEADS_DIR`
-- Memory observations: `grimoires/loa/memory/observations.jsonl` — queried via `.claude/scripts/memory-query.sh`
 - In Agent Teams mode, only the lead writes to `.run/*.json` (teammates report via SendMessage)
+- **NEVER store secrets in git-tracked state**: no API keys, tokens, passwords, credentials, private keys, or PII in grimoires/ (NOTES.md, known-failures.md, memory, handoffs, lore) — these files ship in every clone; secret-scanning catches known patterns only, not the general rule
+- Gitignore drift check: `.claude/scripts/validate-gitignore-state.sh` WARNs when a state path that should stay tracked (zones.yaml, ledger.json, known-failures.md, …) is swallowed by a `.gitignore` pattern (cycle-119; 168 failed-`git add` events/quarter fleet-wide)
 
 ## OKF interop boundary (cycle: OKF/ICM adoption, 2026-06-28)
 

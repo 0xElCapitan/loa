@@ -1,4 +1,4 @@
-<!-- @loa-managed: true | version: 1.180.0 | hash: b15c8bfa9c4804c12808e4c99800526425777eb130f36ae659929a65ac3433c3 -->
+<!-- @loa-managed: true | version: 1.196.0 | hash: 9723740d13b31af3b4b760b7ca79c65701565299f01bb864b3dffc579ff702a7 -->
 <!-- WARNING: This file is managed by the Loa Framework. Do not edit directly. -->
 
 # Loa Framework Instructions
@@ -16,7 +16,6 @@ Agent-driven development framework. Skills auto-load their SKILL.md when invoked
 | Beads | `.claude/loa/reference/beads-reference.md` |
 | Run Bridge | `.claude/loa/reference/run-bridge-reference.md` |
 | Flatline | `.claude/loa/reference/flatline-reference.md` |
-| Memory | `.claude/loa/reference/memory-reference.md` |
 | Guardrails | `.claude/loa/reference/guardrails-reference.md` |
 | Hooks | `.claude/loa/reference/hooks-reference.md` |
 | Agent Teams | `.claude/loa/reference/agent-teams-reference.md` |
@@ -89,30 +88,24 @@ Grimoire and state file locations configurable via `.loa.config.yaml`. Overrides
 - **Feedback**: Check audit feedback FIRST, then engineer feedback
 - **Git Safety**: 4-layer upstream detection with soft block
 
-## Karpathy Principles (applies on EVERY turn, not just /implement)
+## Karpathy Principles (applies on every code-touching turn, not just /implement)
 
 Adapted from [Andrej Karpathy's LLM coding observations](https://x.com/karpathy/status/2015883857489522876).
-The four principles apply to every code-touching turn in Loa — not just the
-two skills that embed `<karpathy_principles>` (`implementing-tasks`,
-`reviewing-code`). Detailed protocol: `.claude/protocols/karpathy-principles.md`.
+This is the canonical in-context statement — skills reference it, never restate it (cycle-119).
+Enforcement map: `.claude/protocols/karpathy-principles.md`. Mechanical agent hygiene: `.claude/protocols/agent-ergonomics.md`.
 
 ### 1. Think Before Coding
 
 Surface assumptions explicitly. When multiple interpretations exist, present
 them rather than choosing silently. When requirements are unclear, ask before
-implementing. Use `AskUserQuestion` for clarifications rather than inferring
-beyond what was stated.
+implementing — in interactive sessions via `AskUserQuestion`; in unattended
+runs (Run Mode state RUNNING), record the open question and your chosen
+interpretation in NOTES.md Decision Log and proceed on the documented
+assumption instead of halting to ask.
 
 ### 2. Simplicity First
 
-Write minimum code that solves the request — nothing speculative.
-- No features beyond what was asked
-- No abstractions for single-use code
-- No "flexibility" or "configurability" that wasn't requested
-- No error handling for impossible scenarios
-- If 200 lines could be 50, rewrite simpler
-
-The test: would a senior engineer call this overcomplicated?
+Write the minimum code that solves the request — nothing speculative: no unasked features, no single-use abstractions, no unrequested "flexibility" or "configurability", no error handling for impossible scenarios. If 200 lines could be 50, rewrite simpler. The test: would a senior engineer call this overcomplicated?
 
 Before writing code, walk the ladder — stop at the first rung that holds:
 1. Does this need to be built at all? (YAGNI — speculative need: say so and skip)
@@ -149,15 +142,7 @@ is no advise-only level — the floor above is never softened.
 
 ### 3. Surgical Changes
 
-Touch only what the request requires. When editing existing code:
-- Match existing style, even if you'd do it differently
-- Don't "improve" adjacent code, comments, or formatting
-- Don't refactor things that aren't broken
-- Only remove imports/variables that YOUR changes made unused
-- Leave pre-existing dead code alone (mention separately if noticed)
-
-Every changed line should trace directly to the user's request. No
-"while I'm here" changes — note them in the PR description instead.
+Touch only what the request requires: match existing style (even if you'd do it differently), never "improve" adjacent code, comments, or formatting, don't refactor the unbroken, remove only imports/variables YOUR change orphaned, and leave pre-existing dead code alone (mention it separately). Every changed line traces to the request — "while I'm here" changes go in the PR description, not the diff.
 
 Mark deliberate simplifications in-code so they read as intent, not ignorance:
 `// loa:shortcut: <what>`. When the shortcut has a known ceiling, name both the
@@ -167,15 +152,7 @@ trigger rots silently — don't leave one.
 
 ### 4. Goal-Driven Execution
 
-Transform tasks into verifiable goals before starting:
-- "Add validation" → "write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "write a test that reproduces it, then make it pass"
-- "Refactor X" → "ensure tests pass before and after"
-
-For multi-step tasks, state the plan + per-step verification before
-implementing. Vague success criteria ("make it robust", "improve quality")
-get replaced with concrete checks ("returns 401 on invalid creds", "test
-file X passes").
+Transform tasks into verifiable goals before starting — "add validation" → "write tests for invalid inputs, then make them pass"; "fix the bug" → "write a failing repro test first, then make it pass"; "refactor X" → "tests green before AND after (behavior preserved)". Multi-step work states the plan + per-step verification up front; vague criteria ("make it robust") become concrete checks ("returns 401 on invalid creds").
 
 Non-trivial logic (a branch, loop, parser, money or security path) MUST leave at
 least one runnable check that fails if the logic breaks — satisfied by the
@@ -190,11 +167,10 @@ applies to tests too) — but never skip the check on logic that can break.
 
 | Rule | Why |
 |------|-----|
-<!-- @constraint-generated: start process_compliance_never | hash:05ba770e1e3535ec -->
+<!-- @constraint-generated: start process_compliance_never | hash:e8fd568124a0fac4 -->
 <!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
-| NEVER write application code outside of `/implement` skill invocation (OR when a construct with declared `workflow.gates` owns the current workflow) | Code written outside `/implement` bypasses review and audit gates |
+| NEVER write application code outside `/implement` (OR a construct with declared `workflow.gates`), and NEVER reach implementation except via `/run sprint-plan`, `/run sprint-N`, or `/bug` against an existing sprint plan (OR when a construct with declared `workflow.gates` owns the current workflow) | Code outside /implement bypasses review+audit; /run wraps the cycle with a circuit breaker. Mechanical stack (cycle-122): implement-gate.sh fail-asks Write/Edit-tool App-Zone writes outside /implement//bug; disallowed-tools strips write tools from pure-review skills; the adversarial gates catch the rest. Bash-path App-Zone writes remain review-territory (accepted fence gap, same class as the spiral guard's). |
 | NEVER use Claude's `TaskCreate`/`TaskUpdate` for sprint task tracking when beads (`br`) is available | Beads is the single source of truth for task lifecycle; TaskCreate is for session progress display only |
-| NEVER skip from sprint plan directly to implementation without `/run sprint-plan`, `/run sprint-N`, or `/bug` triage (OR when a construct with `workflow.gates` declares pipeline composition) | `/run` wraps implement+review+audit in a cycle loop with circuit breaker. `/bug` produces a triage handoff that feeds directly into `/implement`. |
 | NEVER skip `/review-sprint` and `/audit-sprint` quality gates (Yield when construct declares `review: skip` or `audit: skip`) | These are the only validation that code meets acceptance criteria and security standards |
 | NEVER use `/bug` for feature work that doesn't reference an observed failure | `/bug` bypasses PRD/SDD gates; feature work must go through `/plan` |
 | NEVER implement code directly when `/spiraling` is invoked with a task — dispatch through the harness pipeline (`/run sprint-plan`, `/simstim`, or `spiral-harness.sh`) | `/spiraling` loads as context, not as an orchestrator. Without mechanical dispatch, the agent bypasses all quality gates (Flatline, Review, Audit, Bridgebuilder) — the fox-guarding-the-henhouse antipattern that the harness was built to prevent. |
@@ -203,27 +179,18 @@ applies to tests too) — but never skip the check on logic that can break.
 
 | Rule | Why |
 |------|-----|
-<!-- @constraint-generated: start process_compliance_always | hash:345d40b9155bfc9c -->
+<!-- @constraint-generated: start process_compliance_always | hash:d73891bbe4600f60 -->
 <!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
-| ALWAYS use `/run sprint-plan`, `/run sprint-N`, or `/bug` for implementation | Ensures review+audit cycle with circuit breaker protection. `/bug` enforces the same cycle for bug fixes. |
+| ALWAYS route implementation through `/run sprint-plan`, `/run sprint-N`, or `/bug`, checking for the existing sprint plan first | Ensures the implement→review→audit cycle with circuit-breaker protection and requirements traceability (absorbs the former separate check-sprint-plan row; implement-gate.sh asks on ungated App-Zone writes). |
 | ALWAYS create beads tasks from sprint plan before implementation (if beads available) | Tasks without beads tracking are invisible to cross-session recovery |
 | ALWAYS complete the full implement → review → audit cycle | Partial cycles leave unreviewed code in the codebase |
-| ALWAYS check for existing sprint plan before writing code (Yield when construct declares `sprint: skip`) | Prevents ad-hoc implementation without requirements traceability |
 | ALWAYS validate bug eligibility before `/bug` implementation | Prevents feature work from bypassing PRD/SDD gates via `/bug`. Must reference observed failure, regression, or stack trace. |
+| ALWAYS Read a state artifact (NOTES.md, a2a/ docs, MEMORY.md, contracts/*.yaml — any existing file) before Write/Edit | The Write tool rejects writes to un-Read existing files (~570 errors/month fleet-wide, issue #1177 item F) and blind writes clobber cross-session state. |
 <!-- @constraint-generated: end process_compliance_always -->
 ### Permission Grants (MAY Rules)
 
-Positive rights that agents may exercise at their discretion. Precedence: `NEVER > MUST > ALWAYS > SHOULD > MAY`. When exercising a MAY permission, cite the constraint ID.
+Precedence: `NEVER > MUST > ALWAYS > SHOULD > MAY`. The four MAY grants (question-the-framing, vision exploration, alternative architectures, SPECULATION findings) are rendered into the SKILL.md of the skills where they apply — discovering-requirements, reviewing-code, bridgebuilder-review, implementing-tasks — and are exercised there, citing the constraint ID. C-PERM-004's exclusion from `/implement` and `/audit-sprint` is now structural (the grant is absent from those skills' context).
 
-| Rule | Why |
-|------|-----|
-<!-- @constraint-generated: start permission_grants | hash:d9c73e5a5b716954 -->
-<!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
-| MAY question the framing of requirements during `/plan-and-analyze` and bridge reviews when analysis warrants reframing | The deepest architectural insights come from questioning the frame, not just analyzing within it. Permission to ask 'is this the right problem?' enables the level of inquiry that produced findings like lot_invariant-as-social-contract and Ostrom-as-governance. |
-| MAY allocate time for Vision Registry exploration when a captured vision is relevant to current work | The Vision Registry captures speculative insights but none have ever been explored. Permission to allocate effort enables the 20% creative exploration that transforms captured ideas into actionable proposals. |
-| MAY propose alternative architectural approaches during bridge reviews and `/review-sprint` | Architectural evolution requires the ability to propose alternatives. Reviews that only check conformance to existing patterns cannot discover when the pattern itself should change. |
-| MAY create SPECULATION findings during planning and review skills — excluded from `/implement` and `/audit-sprint` | SPECULATION is currently scoped to bridge reviews only. Extending to planning and review skills enables creative architectural thinking at the stages where it has the most impact, while excluding implementation and audit where it could rationalize unsafe changes. |
-<!-- @constraint-generated: end permission_grants -->
 ### Task Tracking Hierarchy
 
 | Tool | Use For | Do NOT Use For |
@@ -256,25 +223,21 @@ Automatic context recovery after compaction. PreCompact saves state, UserPromptS
 
 **Reference**: `.claude/loa/reference/hooks-reference.md`
 
+## Session-Limit Recovery
+
+Recovery after a Claude session/usage cap resets. The capture CLI snapshots the reset time + live run state into `.run/session-limit-state.json`; a UserPromptSubmit hook stays silent until the reset passes, then injects a one-shot resume reminder.
+
+**When you see `hit your session limit` or `out of extra usage` in a tool/subagent result**, run `.claude/scripts/session-limit-capture.sh --raw '<full error text>'` to arm the resume reminder.
+
+**Reference**: `.claude/loa/reference/hooks-reference.md`
+
 ## Run Bridge — Autonomous Excellence Loop
 
 Iterative improvement loop with kaironic termination. Check `.run/bridge-state.json` for state recovery.
 
 ### Bridge Constraints
 
-| Rule | Why |
-|------|-----|
-<!-- @constraint-generated: start bridge_constraints | hash:b275e2abcc060ceb -->
-<!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
-| ALWAYS use `/run sprint-plan` (not direct `/implement`) within bridge iterations | Bridge iterations must inherit the implement→review→audit cycle with circuit breaker protection |
-| ALWAYS post Bridgebuilder review as PR comment after each bridge iteration | GitHub trail provides auditable history of iterative improvement decisions |
-| ALWAYS ensure Grounded Truth claims cite `file:line` source references | Ungrounded claims in GT files propagate misinformation across sessions and agents |
-| ALWAYS use YAML format for lore entries with `id`, `term`, `short`, `context`, `source`, `tags` fields | Consistent schema enables programmatic lore queries and cross-skill integration |
-| ALWAYS include source bridge iteration and PR in vision entries | Vision entries without provenance cannot be traced back to the context that inspired them |
-| ALWAYS load and validate bridgebuilder-persona.md before enriched review iterations | Persona-less reviews produce convergence-only output without educational depth |
-| SHOULD include PRAISE findings only when warranted by genuinely good engineering decisions | Forced praise dilutes the signal; authentic recognition of quality reinforces good patterns |
-| SHOULD populate educational fields (faang_parallel, metaphor, teachable_moment) only with confident, specific insights | Generic educational content wastes reviewer attention; depth over coverage |
-<!-- @constraint-generated: end bridge_constraints -->
+C-BRIDGE-001..008 are rendered in `run-bridge/SKILL.md` (registry-generated) — the skill auto-loads them at invocation, and post-compaction recovery re-reads the ACTIVE skill contract (cycle-122 Step 1b), so mid-bridge compaction re-surfaces them. State recovery: check `.run/bridge-state.json`; MUST re-read `run-bridge/SKILL.md` before resuming a bridge iteration.
 
 **Reference**: `.claude/loa/reference/run-bridge-reference.md`
 
@@ -296,6 +259,10 @@ The cheval Python substrate is the **unconditional** dispatch path for all multi
 
 **Reference**: `.claude/loa/reference/multi-model-reference.md`
 
+## Tiered Subagent Dispatch (cycle-119)
+
+Evidence-gathering fan-outs MAY dispatch `loa-scout` (`.claude/agents/loa-scout.md` — Haiku, read-only). Verdict-bearing work (review/audit/red-team/BB) NEVER runs on a pinned cheaper model: `validate-skill-capabilities.sh` rejects `model:`/`agent:` frontmatter on `role: review|audit` skills (Claude-harness twin of NFR-Sec1). Review/audit feedback files end with a machine `LOA-VERDICT` trailer; `verdict-derive.sh` enforces prose/trailer consistency and the one-way rule (critical+high>0 ⇒ CHANGES_REQUIRED — zero counts never force approval). Methodology: `grimoires/loa/reports/mechanical-floor-methodology-2026-07-07.md`.
+
 ## Invisible Prompt Enhancement
 
 Prompts automatically enhanced before skill execution. Silent, logged to trajectory.
@@ -310,24 +277,9 @@ Pre-execution validation. PII filtering (blocking), injection detection (blockin
 
 **Reference**: `.claude/loa/reference/guardrails-reference.md`
 
-## Persistent Memory
-
-Session-spanning observations in `grimoires/loa/memory/observations.jsonl`. Query via `.claude/scripts/memory-query.sh`. Ownership boundary: auto-memory owns user preferences/working style; observations.jsonl owns framework patterns/debugging discoveries. See reference for full table.
-
-**Reference**: `.claude/loa/reference/memory-reference.md`
-
 ## Post-PR Bridgebuilder Loop
 
-When `post_pr_validation.phases.bridgebuilder_review.enabled: true` (default off), the post-PR orchestrator runs the multi-model Bridgebuilder against the current PR after `FLATLINE_PR`. Findings are classified by `post-pr-triage.sh`:
-
-- **CRITICAL/BLOCKER** → queued to `.run/bridge-pending-bugs.jsonl` for next `/bug` invocation to consume
-- **HIGH** → logged to `grimoires/loa/a2a/trajectory/bridge-triage-*.jsonl` (no gate in autonomous mode per HITL design decision #1)
-- **PRAISE** → queued to `.run/bridge-lore-candidates.jsonl` for pattern mining
-- Every decision carries a **mandatory reasoning field** per schema `.claude/data/trajectory-schemas/bridge-triage.schema.json`
-
-Full phase sequence: `POST_PR_AUDIT → CONTEXT_CLEAR → E2E_TESTING → FLATLINE_PR → BRIDGEBUILDER_REVIEW → READY_FOR_HITL`
-
-**Reference**: `grimoires/loa/proposals/close-bridgebuilder-loop.md`
+When `post_pr_validation.phases.bridgebuilder_review.enabled: true` (default off), the post-PR orchestrator runs a Bridgebuilder pass whose CRITICAL/BLOCKER findings queue to `.run/bridge-pending-bugs.jsonl` — consumed by the next `/bug` invocation. Detail: `grimoires/loa/proposals/close-bridgebuilder-loop.md`.
 
 ## Post-Merge Automation
 
@@ -337,29 +289,15 @@ Automated pipeline on merge to main: classify → semver → changelog → GT �
 
 | Rule | Why |
 |------|-----|
-<!-- @constraint-generated: start merge_constraints | hash:a4e518ce81f64b8d -->
+<!-- @constraint-generated: start merge_constraints | hash:b390840d5b72c072 -->
 <!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
 | ALWAYS use `post-merge-orchestrator.sh` for pipeline execution, not ad-hoc commands | Orchestrator provides state tracking, idempotency, and audit trail |
 | NEVER create tags manually — always use semver-bump.sh for version computation | Manual tags bypass conventional commit parsing and may produce incorrect versions |
-| RTFM gaps MUST be logged but MUST NOT block the pipeline | Documentation drift is informational, not a release blocker |
-| ALWAYS check for existing work before acting — all phases must be idempotent | Retries and re-runs must not produce duplicate tags, releases, or CHANGELOG entries |
-| Full pipeline (CHANGELOG, GT, RTFM, Release) MUST only run for cycle-type PRs | Bugfix and other PRs get patch bump + tag only to avoid unnecessary processing |
 <!-- @constraint-generated: end merge_constraints -->
 
 ## Safety Hooks
 
-Defense-in-depth via Claude Code hooks. Active in ALL modes (interactive, autonomous, simstim).
-
-| Hook | Event | Purpose |
-|------|-------|---------|
-| `block-destructive-bash.sh` | PreToolUse:Bash | Block destructive shapes (`rm -rf` on dangerous paths, force-push, hard reset, SQL DROP/TRUNCATE/no-WHERE DELETE, `kubectl delete` namespace/all). Audit trail to `.run/audit.jsonl`. |
-| `team-role-guard.sh` / `-write` / `team-skill-guard.sh` | PreToolUse | Enforce lead-only ops, System-Zone writes, and skill invocations in Agent Teams |
-| `run-mode-stop-guard.sh` | Stop | Guard against premature exit during autonomous runs |
-| `mutation-logger.sh` / `write-mutation-logger.sh` | PostToolUse | Log mutating commands and file modifications to `.run/audit.jsonl` |
-
-**Deny Rules**: `.claude/hooks/settings.deny.json` — blocks access to `~/.ssh/`, `~/.aws/`, `~/.kube/`, `~/.gnupg/`, credential stores.
-
-`block-destructive-bash.sh` is a fence against routine mistakes, NOT a hardened security boundary — accepted bypass classes and pattern details: `.claude/loa/reference/hooks-reference.md`.
+Defense-in-depth hooks active in ALL modes (destructive-bash fence, team guards, zone guard, stop guard, audit loggers); deny rules block credential stores. These are fences against routine mistakes, NOT a hardened security boundary — blocked calls self-describe the remedy via stderr. Inventory + accepted bypass classes: `.claude/loa/reference/hooks-reference.md`.
 
 ## Agent Teams Compatibility
 
@@ -406,6 +344,4 @@ Universal invariants (apply per turn): mutate these primitives ONLY through thei
 
 ## Conventions
 
-- Never skip phases - each builds on previous
-- Never edit `.claude/` directly
-- Security first
+Security first. (Phase-skipping and `.claude/` edits are governed by the Process Compliance tables and the Three-Zone Model above — stated once, enforced there.)
