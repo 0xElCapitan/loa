@@ -37,20 +37,11 @@ Transform PRD and SDD into actionable sprint plan with right-sized sprints, incl
 <zone_constraints>
 ## Zone Constraints
 
-This skill operates under **Managed Scaffolding**:
-
-| Zone | Permission | Notes |
-|------|------------|-------|
-| `.claude/` | NONE | System zone - never suggest edits |
-| `grimoires/loa/`, `.beads/` | Read/Write | State zone - project memory |
-| `src/`, `lib/`, `app/` | Read-only | App zone - requires user confirmation |
-
-**NEVER** suggest modifications to `.claude/`. Direct users to `.claude/overrides/` or `.loa.config.yaml`.
-
-Agents MAY proactively run read-only CLI tools (e.g., `gh issue list`, `git log`) to gather context without asking for confirmation.
+Zones per CLAUDE.loa.md Three-Zone Model (`.claude/` system = never edit — use `.claude/overrides/` or `.loa.config.yaml`; `grimoires/loa/`, `.beads/` state = read/write). This skill's app zone (`src/`, `lib/`, `app/`): **Read-only**.
 </zone_constraints>
 
 <integrity_precheck>
+<!-- @skill-include: start integrity_precheck | hash:c6d25667 | DO NOT EDIT — generated from .claude/data/skill-includes/integrity_precheck.md -->
 ## Integrity Pre-Check (MANDATORY)
 
 Before ANY operation, verify System Zone integrity:
@@ -58,9 +49,11 @@ Before ANY operation, verify System Zone integrity:
 1. Check config: `yq eval '.integrity_enforcement' .loa.config.yaml`
 2. If `strict` and drift detected -> **HALT** and report
 3. If `warn` -> Log warning and proceed with caution
+<!-- @skill-include: end integrity_precheck -->
 </integrity_precheck>
 
 <factual_grounding>
+<!-- @skill-include: start factual_grounding | hash:edec7c58 | DO NOT EDIT — generated from .claude/data/skill-includes/factual_grounding.md -->
 ## Factual Grounding (MANDATORY)
 
 Before ANY synthesis, planning, or recommendation:
@@ -78,73 +71,23 @@ The SDD specifies "PostgreSQL 15 with pgvector extension" (sdd.md:L123)
 ```
 [ASSUMPTION] The database likely needs connection pooling
 ```
+<!-- @skill-include: end factual_grounding -->
 </factual_grounding>
 
-<structured_memory_protocol>
-## Structured Memory Protocol
+<context_discipline>
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
+## Context Discipline
 
-### On Session Start
-1. Read `grimoires/loa/NOTES.md`
-2. Restore context from "Session Continuity" section
-3. Check for resolved blockers
-
-### During Execution
-1. Log decisions to "Decision Log"
-2. Add discovered issues to "Technical Debt"
-3. Update sub-goal status
-4. **Apply Tool Result Clearing** after each tool-heavy operation
-
-### Before Compaction / Session End
-1. Summarize session in "Session Continuity"
-2. Ensure all blockers documented
-3. Verify all raw tool outputs have been decayed
-</structured_memory_protocol>
-
-<tool_result_clearing>
-## Tool Result Clearing
-
-After tool-heavy operations (grep, cat, tree, API calls):
-1. **Synthesize**: Extract key info to NOTES.md or discovery/
-2. **Summarize**: Replace raw output with one-line summary
-3. **Clear**: Release raw data from active reasoning
-
-Example:
-```
-# Raw grep: 500 tokens -> After decay: 30 tokens
-"Found 47 AuthService refs across 12 files. Key locations in NOTES.md."
-```
-</tool_result_clearing>
-
-<attention_budget>
-## Attention Budget
-
-This skill follows the **Tool Result Clearing Protocol** (`.claude/protocols/tool-result-clearing.md`).
-
-### Token Thresholds
-
-| Context Type | Limit | Action |
-|--------------|-------|--------|
-| Single search result | 2,000 tokens | Apply 4-step clearing |
-| Accumulated results | 5,000 tokens | MANDATORY clearing |
-| Full file load | 3,000 tokens | Single file, synthesize immediately |
-| Session total | 15,000 tokens | STOP, synthesize to NOTES.md |
-
-### Clearing Triggers for Sprint Planning
-
-- [ ] PRD/SDD combined >3K tokens
-- [ ] Task breakdown search >10 matches
-- [ ] Dependency mapping >20 items
-- [ ] Any analysis exceeding 2K tokens
-
-### 4-Step Clearing
-
-1. **Extract**: Max 10 files, 20 words per finding
-2. **Synthesize**: Write to `grimoires/loa/NOTES.md`
-3. **Clear**: Remove raw output from context
-4. **Summary**: `"Planning: N requirements → M tasks → sprint.md"`
-</attention_budget>
+Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
+accumulated >5K / full file >3K / session total >15K → extract findings (≤10 files, ≤20 words
+each, with file:line) to `grimoires/loa/NOTES.md`, then reason from the synthesis, not raw dumps.
+Session start: read NOTES.md "Session Continuity". Session end / pre-compaction: update it
+(decisions → Decision Log, discovered issues → Technical Debt).
+<!-- @skill-include: end context_discipline -->
+</context_discipline>
 
 <trajectory_logging>
+<!-- @skill-include: start trajectory_logging | hash:e809010f | DO NOT EDIT — generated from .claude/data/skill-includes/trajectory_logging.md -->
 ## Trajectory Logging
 
 Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`:
@@ -152,6 +95,7 @@ Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`
 ```json
 {"timestamp": "...", "agent": "...", "action": "...", "reasoning": "...", "grounding": {...}}
 ```
+<!-- @skill-include: end trajectory_logging -->
 </trajectory_logging>
 
 <kernel_framework>
@@ -243,48 +187,7 @@ status=$(echo "$health" | jq -r '.status')
 
 ### If NOT_INSTALLED or NOT_INITIALIZED
 
-1. **Check for valid opt-out**:
-   ```bash
-   opt_out=$(.claude/scripts/beads/update-beads-state.sh --opt-out-check 2>/dev/null || echo "NO_OPT_OUT")
-   ```
-
-2. **If no valid opt-out**, present HITL gate using AskUserQuestion:
-
-   ```
-   Beads Preflight Check
-   ════════════════════════════════════════════════════════════
-
-   Status: {status}
-
-   Beads is not available. Task tracking is the EXPECTED DEFAULT
-   for safe, auditable agent workflows.
-
-   "We're building spaceships. Safety of operators and users is paramount."
-
-   Options:
-   [1] Install beads (Recommended)
-       └─ .claude/scripts/beads/install-br.sh
-       └─ Or: cargo install beads_rust
-
-   [2] Initialize beads
-       └─ br init
-
-   [3] Continue without beads (24h acknowledgment)
-       └─ Requires reason for audit trail
-
-   [4] Abort
-   ```
-
-3. **If "Continue without beads" selected**:
-   - Require reason (configurable via `beads.opt_out.require_reason`)
-   - Record opt-out: `.claude/scripts/beads/update-beads-state.sh --opt-out "Reason"`
-   - Log to trajectory: `grimoires/loa/a2a/trajectory/beads-preflight-{date}.jsonl`
-   - Opt-out expires after 24h (configurable)
-
-4. **Update state after health check**:
-   ```bash
-   .claude/scripts/beads/update-beads-state.sh --health "$status"
-   ```
+Check opt-out via `update-beads-state.sh --opt-out-check`; no valid opt-out → HITL gate per `.claude/protocols/beads-preflight.md` (owns the full opt-out workflow). Detail: → `resources/REFERENCE.md` §Beads NOT_INSTALLED fallback.
 
 ### If DEGRADED
 
@@ -305,53 +208,7 @@ See `.claude/protocols/beads-preflight.md` for full specification.
 
 ### Step 0: Check for Sprint Ledger (NEW in v1.8.0)
 
-Check if `grimoires/loa/ledger.json` exists:
-
-```bash
-[ -f "grimoires/loa/ledger.json" ] && echo "EXISTS" || echo "MISSING"
-```
-
-**If MISSING**, use AskUserQuestion to offer creation:
-
-```
-No Sprint Ledger found at grimoires/loa/ledger.json
-
-A Sprint Ledger provides:
-• Global sprint numbering across development cycles
-• Cycle tracking with PRD/SDD references
-• Sprint history and metrics for retrospectives
-
-Options:
-[1] Create ledger (recommended)
-[2] Continue without ledger
-```
-
-**If user selects "Create ledger":**
-
-Create `grimoires/loa/ledger.json` with initial schema:
-
-```json
-{
-  "version": "1.0.0",
-  "next_sprint_number": 1,
-  "active_cycle": "cycle-001",
-  "cycles": [
-    {
-      "id": "cycle-001",
-      "label": null,
-      "status": "active",
-      "created_at": "<ISO timestamp>",
-      "prd": "grimoires/loa/prd.md",
-      "sdd": "grimoires/loa/sdd.md",
-      "sprints": []
-    }
-  ]
-}
-```
-
-Log creation to trajectory: `{"action": "ledger_created", "path": "grimoires/loa/ledger.json"}`
-
-**If EXISTS**, proceed to Step 1.
+If `grimoires/loa/ledger.json` is missing, offer creation (AskUserQuestion) before planning; if present, register the new sprints in it. Full choreography: → `resources/REFERENCE.md` §Sprint-Ledger Step 0.
 
 ### Step 1: Check for Security Audit Feedback
 
@@ -362,7 +219,7 @@ Check if `grimoires/loa/a2a/auditor-sprint-feedback.md` exists:
 - Engineers must address feedback before new work
 - STOP: "The previous sprint has unresolved security issues. Engineers should run /implement to address grimoires/loa/a2a/auditor-sprint-feedback.md before planning new sprints."
 
-**If exists + "APPROVED - LETS FUCKING GO":**
+**If exists + "APPROVED - LET'S FUCKING GO":**
 - Previous sprint passed security audit
 - Safe to proceed with next sprint planning
 
@@ -618,7 +475,7 @@ Diagram inclusion is **optional** for sprint plans - use agent discretion.
 <post_completion>
 ## Post-Completion Debrief
 
-After saving the Sprint Plan to `grimoires/loa/sprint.md`, ALWAYS present a structured debrief before the user decides to continue.
+After saving the Sprint Plan to `grimoires/loa/sprint.md`, MUST run `.claude/scripts/validate-artifact.sh --type sprint --file grimoires/loa/sprint.md` before the debrief; repair per its output on exit 1; exit 2 (usage/file-not-found) is a validator FAILURE — fix the path and re-run, do not proceed. ALWAYS present a structured debrief before the user decides to continue.
 
 ### Debrief Structure
 

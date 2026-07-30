@@ -103,10 +103,10 @@ teardown() {
     run stash_with_guard "will-be-dropped" -- git stash drop
     [ "$status" -eq 11 ]
     [[ "$output" == *"STASH_SAFETY_VIOLATION"* ]]
-    # When callback drops the helper's own stash, pop fails (no entries
-    # found). Count delta happens to match (0 → 0), so the violation
-    # surfaces via the pop-failed branch.
-    [[ "$output" == *"stash pop failed"* ]]
+    # When the callback drops the helper's own stash, the guard catches it via
+    # the identity check ("top stash is not ours") before the pop — the count
+    # delta happens to match (0 → 0), so the earlier identity branch fires.
+    [[ "$output" == *"top stash is not ours"* ]]
 }
 
 # =========================================================================
@@ -197,13 +197,16 @@ teardown() {
 
 @test "invariant: no 'git stash pop ... || true' in .claude/scripts/" {
     cd "$PROJECT_ROOT"
-    run bash -c "grep -rE 'stash[[:space:]]+pop[^|]*\|\|[[:space:]]*true' .claude/scripts/ 2>/dev/null || true"
+    # test-safety-hooks.sh carries the hazard strings as FR-1.2b fixtures
+    # (data the hook must block), not as live invocations.
+    run bash -c "grep -rE 'stash[[:space:]]+pop[^|]*\|\|[[:space:]]*true' .claude/scripts/ --exclude=test-safety-hooks.sh 2>/dev/null || true"
     [ -z "$output" ]
 }
 
 @test "invariant: no '2>/dev/null' on git stash in .claude/scripts/ (excluding helper)" {
     cd "$PROJECT_ROOT"
-    # Helper itself is allowed to reference `2>/dev/null` in comments/docs.
-    run bash -c "grep -rE 'git[[:space:]]+stash[[:space:]]+(push|pop)[^#]*2>/dev/null' .claude/scripts/ --exclude=stash-safety.sh 2>/dev/null || true"
+    # Helper itself is allowed to reference `2>/dev/null` in comments/docs;
+    # test-safety-hooks.sh carries the strings as FR-1.2b blocked-command fixtures.
+    run bash -c "grep -rE 'git[[:space:]]+stash[[:space:]]+(push|pop)[^#]*2>/dev/null' .claude/scripts/ --exclude=stash-safety.sh --exclude=test-safety-hooks.sh 2>/dev/null || true"
     [ -z "$output" ]
 }
