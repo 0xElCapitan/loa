@@ -110,16 +110,54 @@ BEGIN {
     in_heredoc = 0
     hd_term = ""
     hd_dash = 0
+    hd_exec = 0
+    # Interpreters whose heredoc BODY executes: violations inside are real
+    # and must stay scanned (fail-closed direction of the tripwire).
+    split("sh bash zsh ksh dash ash python python2 python3 perl ruby node deno php", _il, " ")
+    for (_i in _il) INTERP[_il[_i]] = 1
 }
 
 function _line_has_swallowed_jq(line) {
     return (line ~ /(^|[^[:alnum:]_])jq[[:space:]].*\|\|[[:space:]]*(echo|printf)([^[:alnum:]_]|$)/)
 }
 
-function _start_heredoc(line,    rest, term) {
-    if (match(line, /<<-?[[:space:]]*['"]?[A-Za-z_][A-Za-z0-9_]*['"]?/)) {
-        hd_dash = (substr(line, RSTART, 3) == "<<-")
-        rest = substr(line, RSTART + (hd_dash ? 3 : 2), RLENGTH - (hd_dash ? 3 : 2))
+# The command word governing a heredoc whose << starts at pos rs — used to
+# classify the body as inert data (cat, tee, assignments) vs executed code.
+function _hd_command(line, rs,    prefix, n, w, i, words) {
+    prefix = substr(line, 1, rs - 1)
+    # Only the simple command directly feeding the heredoc matters.
+    sub(/.*[|;&(`]/, "", prefix)
+    n = split(prefix, words, /[[:space:]]+/)
+    for (i = 1; i <= n; i++) {
+        w = words[i]
+        if (w == "" || w ~ /^-/) continue                    # options / bare `-`
+        if (w ~ /^[A-Za-z_][A-Za-z0-9_]*=/) continue         # env assignments
+        if (w == "env" || w == "sudo" || w == "command" || w == "exec" || w == "nohup" || w == "time") continue
+        sub(/.*\//, "", w)                                   # strip path prefix
+        return w
+    }
+    return ""
+}
+
+function _start_heredoc(line,    scan, pre, sq, dq, rest, term, rs, rl, cmd, post) {
+    scan = line
+    # `<<` inside arithmetic is a bit-shift, not a heredoc (the
+    # flatline-error-handler.sh:202 false-negative class — a bogus
+    # terminator silently skipped the rest of the file).
+    gsub(/\$\(\(.*\)\)/, "", scan)
+    gsub(/\(\(.*\)\)/, "", scan)
+    # `<<<` here-strings never open a body.
+    gsub(/<<<[[:space:]]*("[^"]*"|'[^']*'|[^[:space:]]+)/, "", scan)
+    if (match(scan, /<<-?[[:space:]]*['"]?[A-Za-z_][A-Za-z0-9_]*['"]?/)) {
+        rs = RSTART; rl = RLENGTH
+        # Quote-parity guard: a << inside an open string literal is a
+        # mention (`echo "use <<EOF here"`), not an opener.
+        pre = substr(scan, 1, rs - 1)
+        sq = gsub(/\047/, "", pre)
+        dq = gsub(/"/, "", pre)
+        if (sq % 2 == 1 || dq % 2 == 1) return
+        hd_dash = (substr(scan, rs, 3) == "<<-")
+        rest = substr(scan, rs + (hd_dash ? 3 : 2), rl - (hd_dash ? 3 : 2))
         gsub(/^[[:space:]]+/, "", rest)
         term = rest
         if (substr(term, 1, 1) == "\047" || substr(term, 1, 1) == "\"") term = substr(term, 2)
@@ -128,29 +166,46 @@ function _start_heredoc(line,    rest, term) {
         if (term != "") {
             hd_term = term
             in_heredoc = 1
+            # A body is only truly inert when the terminator is QUOTED
+            # (<<'EOF' — no expansion) AND nothing executes it. Unquoted
+            # heredocs still run $() substitutions in their body, and
+            # interpreter-fed bodies (bash <<EOF …, cat <<EOF | bash) run
+            # verbatim — both stay scanned.
+            hd_quoted = (substr(rest, 1, 1) == "\047" || substr(rest, 1, 1) == "\"")
+            cmd = _hd_command(scan, rs)
+            post = substr(scan, rs + rl)
+            hd_exec = (cmd in INTERP) || !hd_quoted || \
+                (post ~ /\|[[:space:]]*([^[:space:]|;&]*\/)?(sh|bash|zsh|ksh|dash|ash|python[0-9.]*|perl|ruby|node|deno|php)([[:space:]]|$)/)
         }
     }
 }
 
-# Step 1: when in a heredoc body, skip fixture/documentation text until the
-# terminator. Without this, --root scans of bats tests can flag planted bad
-# examples instead of executable scanner code.
+# Step 1: inside a heredoc body. Inert bodies (cat/tee/assignment fixtures,
+# documentation) are skipped until the terminator — the false-positive class
+# this state machine exists for. Executed bodies (bash <<EOF …) keep being
+# scanned: their contents run, so a swallow shape there is a real violation.
 in_heredoc {
-    if ($0 == hd_term) { in_heredoc = 0; next }
+    if ($0 == hd_term) { in_heredoc = 0; hd_exec = 0; next }
     if (hd_dash) {
         no_tabs = $0
         gsub(/^\t+/, "", no_tabs)
-        if (no_tabs == hd_term) { in_heredoc = 0; next }
+        if (no_tabs == hd_term) { in_heredoc = 0; hd_exec = 0; next }
+    }
+    if (hd_exec) {
+        if ($0 ~ /^[[:space:]]*#/) next
+        if ($0 ~ /#[^\n]*check-no-swallowed-jq:[[:space:]]*ok/) next
+        if (_line_has_swallowed_jq($0)) print FILENAME ":" NR ":" $0
     }
     next
 }
 
-# Step 2: skip line-leading comments.
+# Step 2: skip line-leading comments (a << in a comment opens nothing).
 /^[[:space:]]*#/ { next }
 
-# Step 3: skip lines with the suppression marker. Requires `#` leader so
-# string-literal mentions don't silence real invocations.
-/#[^\n]*check-no-swallowed-jq:[[:space:]]*ok/ { next }
+# Step 3: skip lines with the suppression marker — but still register a
+# heredoc opener on the marker line, else `cat <<EOF  # …: ok` leaks its
+# body into the scan.
+/#[^\n]*check-no-swallowed-jq:[[:space:]]*ok/ { _start_heredoc($0); next }
 
 # Step 4: match a jq invocation followed by `|| echo` / `|| printf` on the
 # same line. LHS word-boundary so identifiers like `dijq` don't match; jq
