@@ -231,6 +231,37 @@ _parse_construct_manifest() {
   done
 }
 
+_path_has_traversal() {
+  local path="$1"
+  [[ "$path" == ".." || "$path" == ../* || "$path" == */../* || "$path" == */.. ]]
+}
+
+# Lexically resolve `.` / `..` segments without touching the filesystem —
+# targets may not exist at validation time, and raw `realpath -m` is broken
+# on macOS (#1197). Escaping `..` segments survive at the front so callers
+# can test for them.
+_normalize_rel_path() {
+  local path="$1"
+  local -a out=()
+  local seg
+  local IFS='/'
+  # shellcheck disable=SC2086
+  for seg in $path; do
+    case "$seg" in
+      ''|'.') continue ;;
+      '..')
+        if [[ ${#out[@]} -gt 0 && "${out[${#out[@]}-1]}" != ".." ]]; then
+          out=(${out[@]+"${out[@]:0:${#out[@]}-1}"})
+        else
+          out+=("..")
+        fi
+        ;;
+      *) out+=("$seg") ;;
+    esac
+  done
+  printf '%s\n' "${out[*]:-.}"
+}
+
 # Validate a single construct symlink entry and add if valid
 _validate_and_add_construct_entry() {
   local link="$1"
@@ -238,17 +269,36 @@ _validate_and_add_construct_entry() {
   local pack_name="$3"
   local repo_root="$4"
 
+  # Validation 0: Require explicit link and target values.
+  if [[ -z "$link" || -z "$target" || "$link" == "null" || "$target" == "null" ]]; then
+    echo "[symlink-manifest] REJECTED: Construct '$pack_name' declares an empty link or target" >&2
+    return 0
+  fi
+
   # Validation 1: Boundary enforcement — link must be under .claude/
   if [[ "$link" != .claude/* ]]; then
     echo "[symlink-manifest] REJECTED: Construct '$pack_name' declares link '$link' outside .claude/ boundary" >&2
     return 0
   fi
 
-  # Validation 2: Path sanitization — reject .. traversals in link path
-  # Covers: leading ../, mid-path /../, and trailing /.. (F-001)
-  if [[ "$link" == *../* ]] || [[ "$link" == */../* ]] || [[ "$link" == *.. ]]; then
+  # Validation 2a: link must be a clean, traversal-free .claude/ path (F-001).
+  if _path_has_traversal "$link"; then
     echo "[symlink-manifest] REJECTED: Construct '$pack_name' link '$link' contains path traversal" >&2
     return 0
+  fi
+
+  # Validation 2b: target resolves relative to the link's parent directory.
+  # Bounded '..' segments are legitimate (installed constructs point back
+  # into .loa/, e.g. '../../.loa/.claude/constructs/<pack>/data'); what is
+  # forbidden is ESCAPING the repo root after lexical normalization.
+  if [[ "$target" != /* ]]; then
+    local _link_parent _resolved
+    _link_parent=$(dirname "$link")
+    _resolved=$(_normalize_rel_path "$_link_parent/$target")
+    if [[ "$_resolved" == ".." || "$_resolved" == ../* ]]; then
+      echo "[symlink-manifest] REJECTED: Construct '$pack_name' target '$target' escapes the repo root (resolves to '$_resolved')" >&2
+      return 0
+    fi
   fi
 
   # Validation 3: Reject absolute paths
