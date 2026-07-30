@@ -36,6 +36,7 @@ inputs:
 ---
 
 <input_guardrails>
+<!-- @skill-include: start input_guardrails | hash:a96d9dc0 | DO NOT EDIT — generated from .claude/data/skill-includes/input_guardrails.md -->
 ## Pre-Execution Guardrails (mechanized — cycle-119)
 
 Skip this section entirely when `.loa.config.yaml` has `guardrails.input.enabled: false` or env
@@ -51,14 +52,17 @@ Otherwise: write the user's invocation prompt/args to a temp file (Write tool), 
 | Script missing, non-zero exit, or unparseable output | Continue — fail-open, preserving pre-cycle-119 semantics |
 
 Never pass prompt text as a bash argv (quote-blindness FP class) — always via `--file`.
+<!-- @skill-include: end input_guardrails -->
 </input_guardrails>
 
 <prompt_enhancement_prelude>
+<!-- @skill-include: start prompt_enhancement_prelude | hash:73faa7b3 | DO NOT EDIT — generated from .claude/data/skill-includes/prompt_enhancement_prelude.md -->
 If `.loa.config.yaml` sets `prompt_enhancement.invisible_mode.enabled: true` and this command's
 frontmatter does not set `enhance: false`, silently apply the PTCF scoring + template flow from
 `.claude/skills/enhancing-prompts/SKILL.md` to the user's request before main logic (log per that
 skill; never show enhancement output). On any error, or when disabled: proceed with the original
 prompt unchanged.
+<!-- @skill-include: end prompt_enhancement_prelude -->
 </prompt_enhancement_prelude>
 
 # Bug Triage Skill
@@ -313,54 +317,7 @@ Analyze the codebase to identify suspected files, existing tests, and test infra
 
 ### Analysis Steps
 
-```
-1. Parse stack traces → extract file:line references
-   - Use Grep to verify file:line references exist
-   - Extract function/method names from stack frames
-
-2. Keyword search: search codebase for function/module names from error
-   - Use Grep with function names, error messages, class names
-   - Limit to relevant source directories (src/, lib/, app/)
-
-3. Dependency mapping: trace imports/requires from affected files
-   - Read suspected files
-   - Follow import chains 1-2 levels deep
-   - Note shared dependencies
-
-4. Test discovery: find test files matching affected modules
-   - Glob for test files: **/*.test.*, **/*.spec.*, **/test_*.*, **/*_test.*
-   - Match test files to suspected source files by name/path
-
-5. Test infrastructure detection:
-   - Search for test runners:
-     | Runner | Detection |
-     |--------|-----------|
-     | jest | package.json "jest" or jest.config.* |
-     | vitest | vitest.config.* or package.json "vitest" |
-     | pytest | pytest.ini, pyproject.toml [tool.pytest], conftest.py |
-     | cargo test | Cargo.toml |
-     | go test | *_test.go files |
-     | mocha | .mocharc.*, package.json "mocha" |
-   - If NO test runner found: HALT
-     "No test runner detected. Set up test infrastructure before using /bug."
-
-6. Determine test_type based on bug classification:
-   | Classification | Test Type |
-   |---------------|-----------|
-   | runtime_error, logic_bug | unit |
-   | integration_issue | integration |
-   | edge_case (user-facing) | e2e |
-   | schema/contract violation | contract |
-
-7. Check high-risk patterns in suspected files:
-   | Pattern | Risk |
-   |---------|------|
-   | auth, authentication, login, password, token, jwt, oauth | high |
-   | payment, billing, charge, stripe, checkout | high |
-   | migration, schema, database, db | high |
-   | encrypt, decrypt, secret, credential, key | high |
-   | All other files | low/medium |
-```
+Trace the reported failure through the codebase (reproduce → isolate → identify suspected files → assess risk class). Full step-by-step choreography: → `resources/analysis-steps.md`.
 
 ### Output: Suspected Files List
 

@@ -150,6 +150,7 @@ During drift analysis, if `.claude/scripts/qmd-context-query.sh` exists and `qmd
 ---
 
 <context_discipline>
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
@@ -157,6 +158,7 @@ accumulated >5K / full file >3K / session total >15K → extract findings (≤10
 each, with file:line) to `grimoires/loa/NOTES.md`, then reason from the synthesis, not raw dumps.
 Session start: read NOTES.md "Session Continuity". Session end / pre-compaction: update it
 (decisions → Decision Log, discovered issues → Technical Debt).
+<!-- @skill-include: end context_discipline -->
 </context_discipline>
 
 ---

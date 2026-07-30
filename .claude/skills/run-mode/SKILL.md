@@ -1,6 +1,6 @@
 ---
 name: run
-description: "Autonomous sprint execution mode"
+description: "Autonomous sprint execution: /run sprint-N and /run sprint-plan wrap implement->review->audit cycles with circuit breaker, ICE git safety, and draft-PR completion. Use for UNATTENDED execution of an existing sprint plan. (Contrast: autonomous-agent orchestrates the FULL lifecycle from requirements; simstim keeps a human driving the planning phases.)"
 role: review
 primary_role: review
 capabilities:
@@ -102,57 +102,9 @@ Once pre-flight passes, initialize the run:
    independently): `--local` flag → `run-mode-ice.sh should-push local`; `--confirm-push` flag →
    `run-mode-ice.sh should-push prompt`; neither → `run-mode-ice.sh should-push`.
 4. Write `.run/state.json` with this exact schema (fill in the resolved values):
-   ```json
-   {
-     "run_id": "run-20260119-abc123",
-     "target": "sprint-1",
-     "branch": "feature/sprint-1",
-     "state": "JACK_IN",
-     "phase": "INIT",
-     "timestamps": {
-       "started": "2026-01-19T10:00:00Z",
-       "last_activity": "2026-01-19T11:30:00Z"
-     },
-     "cycles": {
-       "current": 0,
-       "limit": 20,
-       "history": []
-     },
-     "metrics": {
-       "files_changed": 0,
-       "files_deleted": 0,
-       "commits": 0,
-       "findings_fixed": 0
-     },
-     "options": {
-       "max_cycles": 20,
-       "timeout_hours": 8,
-       "dry_run": false,
-       "local_mode": false,
-       "confirm_push": false,
-       "push_mode": "AUTO"
-     },
-     "completion": {
-       "pushed": false,
-       "pr_created": false,
-       "pr_url": null,
-       "skipped_reason": null
-     }
-   }
-   ```
+   → verbatim block: `resources/state-schemas.md` §run-state-schema
 5. Write `.run/circuit-breaker.json` with this exact schema:
-   ```json
-   {
-     "state": "CLOSED",
-     "triggers": {
-       "same_issue": {"count": 0, "threshold": 3, "last_hash": null},
-       "no_progress": {"count": 0, "threshold": 5},
-       "cycle_count": {"current": 0, "limit": 20},
-       "timeout": {"started": "2026-01-19T10:00:00Z", "limit_hours": 8}
-     },
-     "history": []
-   }
-   ```
+   → verbatim block: `resources/state-schemas.md` §circuit-breaker-schema
 6. `touch .run/deleted-files.log` (empty).
 7. Create/checkout the feature branch via `.claude/scripts/run-mode-ice.sh ensure-branch "$target"`.
 
@@ -213,17 +165,7 @@ Call `check_rate_limit` (see "Rate Limiting" below) before each of steps 1, 4, a
 | `skip_if_no_sdd: false` | — | No SDD → error and HALT |
 
 State tracked in `.run/state.json`:
-```json
-{
-  "red_team_code": {
-    "cycles": 0,
-    "max_cycles": 2,
-    "findings_total": 0,
-    "divergences_found": 0,
-    "last_findings_hash": null
-  }
-}
-```
+→ verbatim block: `resources/state-schemas.md` §red-team-code-state
 
 ### Post-PR Validation (v1.25.0)
 
@@ -302,27 +244,7 @@ update_state(state: JACKED_OUT)
 ```
 
 State file `.run/sprint-plan-state.json` schema:
-```json
-{
-  "plan_id": "plan-20260119-abc123",
-  "branch": "feature/release",
-  "state": "RUNNING",
-  "timestamps": {"started": "2026-01-19T10:00:00Z", "last_activity": "2026-01-19T14:30:00Z"},
-  "sprints": {
-    "total": 4,
-    "completed": 2,
-    "current": "sprint-3",
-    "list": [
-      {"id": "sprint-1", "status": "completed", "cycles": 2},
-      {"id": "sprint-2", "status": "completed", "cycles": 3},
-      {"id": "sprint-3", "status": "in_progress", "cycles": 1},
-      {"id": "sprint-4", "status": "pending"}
-    ]
-  },
-  "options": {"from": 1, "to": 4, "max_cycles": 20, "timeout_hours": 8},
-  "metrics": {"total_cycles": 6, "total_files_changed": 45, "total_findings_fixed": 12}
-}
-```
+→ verbatim block: `resources/state-schemas.md` §sprint-plan-state-schema
 
 ### Sprint Failure Handling
 
@@ -335,36 +257,7 @@ On a HALTED sprint inside the plan loop:
    from this point."
 
 Incomplete PR body template:
-```
-## Run Mode Sprint Plan - INCOMPLETE
-
-### Status: HALTED
-
-Sprint plan execution stopped at **{failed_sprint}**.
-
-**Reason:** {reason}
-
-### Completed Sprints
-{list_completed_sprints}
-
-### Remaining Sprints
-{list_remaining_sprints}
-
-### Metrics
-- Total cycles: {jq '.metrics.total_cycles' .run/sprint-plan-state.json}
-- Files changed: {jq '.metrics.total_files_changed' .run/sprint-plan-state.json}
-- Findings fixed: {jq '.metrics.total_findings_fixed' .run/sprint-plan-state.json}
-
-### Flatline Review Summary (v1.22.0)
-{generate_flatline_summary — see below}
-
-{generate_deleted_tree — see "Deleted Files Tracking"}
-
----
-:warning: **INCOMPLETE** - Use `/run-resume` to continue
-
-:robot: Generated autonomously with Run Mode
-```
+→ verbatim block: `resources/render-templates.md` §sprint-plan-incomplete-pr-body
 
 ### Completion PR (Consolidated, default v1.15.1)
 
@@ -378,59 +271,11 @@ Sprint plan execution stopped at **{failed_sprint}**.
    `git log --oneline --grep="({sprint_id})"` reformatted as `- \`{hash}\` {message}` bullets.
 4. Build the Flatline summary (see below).
 5. Assemble the PR body:
-   ```
-   ## 🚀 Run Mode: Sprint Plan Complete
-
-   ### Summary
-
-   | Metric | Value |
-   |--------|-------|
-   | **Sprints Completed** | {sprints.completed} |
-   | **Total Cycles** | {metrics.total_cycles} |
-   | **Files Changed** | {metrics.total_files_changed} |
-   | **Findings Fixed** | {metrics.total_findings_fixed} |
-
-   ### Sprint Breakdown
-
-   | Sprint | Status | Cycles | Files Changed |
-   |--------|--------|--------|---------------|
-   {sprint table from step 2}
-
-   {deleted files tree — see "Deleted Files Tracking"}
-
-   ### Commits by Sprint
-
-   {commits-by-sprint from step 3}
-
-   ### Flatline Review Summary (v1.22.0)
-   {flatline summary from step 4}
-
-   ### Test Results
-   All tests passing (verified by /audit-sprint for each sprint).
-
-   ### Context Cleanup
-   Discovery context cleaned and ready for next cycle.
-
-   ---
-   🤖 Generated autonomously with Run Mode
-   ```
+   → verbatim block: `resources/render-templates.md` §completion-pr-body
 6. Create the draft PR: `.claude/scripts/run-mode-ice.sh pr-create "Run Mode: Sprint Plan implementation" "$body" --draft`.
 
 ### Flatline Summary Generation
-
-1. If `.flatline/runs/` doesn't exist: emit `_No Flatline reviews executed during this run._` and
-   stop.
-2. Find manifests newer than the state file:
-   `find .flatline/runs -name "*.json" -newer .run/sprint-plan-state.json`. If none: same as step 1.
-3. For each manifest, read `.phase`, `.metrics.high_consensus`, `.metrics.disputed`,
-   `.metrics.blockers`, `.status` via `jq -r`. Accumulate totals; build a row
-   `| PHASE | high | disputed | blockers | ✅ or ⚠️ |`.
-4. Emit the table (`| Phase | HIGH | DISPUTED | BLOCKER | Status |` header) then
-   `**Totals:** {total_high} integrated, {total_disputed} disputed (logged), {total_blockers} blockers`.
-5. If `total_disputed > 0`: emit a `<details>` block listing each disputed item from
-   `.flatline/runs/{run_id}-disputed.json` (`.[] | "- **{id}**: {description} (delta: {delta})"`).
-6. If `total_high > 0`: append the rollback hint:
-   `` `.claude/scripts/flatline-rollback.sh run --run-id <run_id> --dry-run` ``.
+→ verbatim block: `resources/render-templates.md` §flatline-summary-steps
 
 ## Deleted Files Tracking
 
@@ -467,21 +312,7 @@ Record the resolved mode: `jq --arg mode "$push_mode" '.options.push_mode = $mod
 1. Atomically set on `.run/state.json`:
    `.completion = {"pushed": false, "pr_created": false, "pr_url": null, "skipped_reason": "local_mode"} | .state = "JACKED_OUT"`.
 2. Report:
-   ```
-   [COMPLETE] Sprint implementation finished (LOCAL MODE)
-
-   Changes committed to local branch: {branch}
-   Total commits: {commits}
-   Files changed: {files}
-
-   ⚠️  LOCAL MODE: No push or PR created.
-
-   To push manually when ready:
-     git push -u origin {branch}
-
-   To create PR:
-     gh pr create --draft
-   ```
+   → verbatim block: `resources/render-templates.md` §local-mode-report
 
 ### PROMPT mode
 
@@ -490,44 +321,13 @@ Record the resolved mode: `jq --arg mode "$push_mode" '.options.push_mode = $mod
    flow). `AskUserQuestion` is invoked by Claude directly — no bash equivalent.
 2. Declined flow: same atomic update as LOCAL mode but `skipped_reason: "user_declined"`, and
    report:
-   ```
-   [COMPLETE] Sprint implementation finished
-
-   Changes committed to local branch: {branch}
-   Total commits: {commits}
-   Files changed: {files}
-
-   ℹ️  Push skipped at your request.
-
-   To push when ready:
-     git push -u origin {branch}
-
-   To create PR:
-     gh pr create --draft
-   ```
+   → verbatim block: `resources/render-templates.md` §prompt-declined-report
 
 ### AUTO mode
 
 1. Push: `.claude/scripts/run-mode-ice.sh push origin "$branch"`.
 2. Build the PR body:
-   ```
-   ## Run Mode Autonomous Implementation
-
-   ### Summary
-   - **Target:** {target}
-   - **Cycles:** {cycles.current}
-   - **Files Changed:** {metrics.files_changed}
-   - **Commits:** {metrics.commits}
-   - **Findings Fixed:** {metrics.findings_fixed}
-
-   {deleted files tree}
-
-   ### Test Results
-   All tests passing (verified by /audit-sprint).
-
-   ---
-   🤖 Generated autonomously with Run Mode
-   ```
+   → verbatim block: `resources/render-templates.md` §auto-mode-pr-body
 3. Create the draft PR: `pr_url=$(.claude/scripts/run-mode-ice.sh pr-create "Run Mode: $target implementation" "$body")`.
 4. Atomically set: `.completion = {"pushed": true, "pr_created": true, "pr_url": $url, "skipped_reason": null} | .state = "JACKED_OUT"`.
 5. Report: "[COMPLETE] All checks passed! ✓ PR created: $pr_url" then "[JACKED_OUT] Run complete."
@@ -579,36 +379,7 @@ preserved in `.run/`, and after the limit resets they should resume with `/run-r
    circuit-breaker counts/thresholds from `.run/circuit-breaker.json`; read metrics
    (`files_changed`, `files_deleted`, `commits`, `findings_fixed`) from `.run/state.json`.
 3. Render the standard box report:
-   ```
-   ╔══════════════════════════════════════════════════════════════╗
-   ║                    RUN MODE STATUS                            ║
-   ╠══════════════════════════════════════════════════════════════╣
-   ║ Run ID:    {run_id}
-   ║ State:     {state}
-   ║ Target:    {target}
-   ║ Branch:    {branch}
-   ╠══════════════════════════════════════════════════════════════╣
-   ║ PROGRESS
-   ║ ─────────────────────────────────────────────────────────────
-   ║ Cycle:     {current} / {limit}
-   ║ Phase:     {phase}
-   ║ Runtime:   {runtime} / {timeout_hours}h 00m
-   ╠══════════════════════════════════════════════════════════════╣
-   ║ METRICS
-   ║ ─────────────────────────────────────────────────────────────
-   ║ Files changed:   {files_changed}
-   ║ Files deleted:   {files_deleted}
-   ║ Commits:         {commits}
-   ║ Findings fixed:  {findings_fixed}
-   ╠══════════════════════════════════════════════════════════════╣
-   ║ CIRCUIT BREAKER: {cb_state}
-   ║ ─────────────────────────────────────────────────────────────
-   ║ Same issue:      {same}/{same_threshold}
-   ║ No progress:     {no_progress}/{no_progress_threshold}
-   ║ Cycle count:     {current}/{limit}
-   ║ Timeout:         {runtime} / {timeout_hours}h 00m
-   ╚══════════════════════════════════════════════════════════════╝
-   ```
+   → verbatim block: `resources/render-templates.md` §run-status-box
 4. `--json`: emit
    `jq -s '{"run": .[0], "circuit_breaker": .[1], "computed": {"runtime_seconds": (now - (.[0].timestamps.started | fromdateiso8601)), "timeout_remaining_seconds": ((.[0].options.timeout_hours * 3600) - (now - (.[0].timestamps.started | fromdateiso8601)))}}' .run/state.json .run/circuit-breaker.json`.
    If no state file: emit `{"status": "no_run_in_progress"}`.
@@ -663,66 +434,10 @@ Reference tables — state indicators (`JACK_IN`→Initializing, `RUNNING`→Run
    --title "[INCOMPLETE] Run Mode: $target" --body "$body"`; else
    `.claude/scripts/run-mode-ice.sh pr-create "[INCOMPLETE] Run Mode: $target" "$body" --draft`.
    PR body template:
-   ```
-   ## Run Mode Implementation - INCOMPLETE
-
-   ### Status: HALTED
-
-   **Run ID:** {run_id}
-   **Target:** {target}
-   **Halt Reason:** {reason}
-
-   ### Progress at Halt
-   - Cycles completed: {cycles.current}
-   - Files changed: {metrics.files_changed}
-   - Findings fixed: {metrics.findings_fixed}
-
-   ### Cycle History
-   ```
-   {jq -r '.cycles.history[] | "Cycle \(.cycle): \(.phase) - \(.findings) findings"' .run/state.json}
-   ```
-
-   {deleted files tree}
-
-   ---
-   :warning: **INCOMPLETE** - This PR represents partial work.
-
-   ### To Resume
-   ```
-   /run-resume
-   ```
-
-   ### To Abandon
-   ```
-   rm -rf .run/
-   git branch -D {branch}
-   ```
-
-   :robot: Generated autonomously with Run Mode
-   ```
+   → verbatim block: `resources/render-templates.md` §halt-incomplete-pr-body
 7. Update state atomically: `jq --arg r "$reason" --arg ts "$timestamp" '.state = "HALTED" | .halt = {"reason": $r, "timestamp": $ts} | .timestamps.last_activity = $ts'`.
 8. Report the halt summary box:
-   ```
-   ╔══════════════════════════════════════════════════════════════╗
-   ║                    RUN HALTED                                 ║
-   ╠══════════════════════════════════════════════════════════════╣
-   ║ Run ID:    {run_id}
-   ║ Target:    {target}
-   ║ Branch:    {branch}
-   ║ Reason:    {reason}
-   ╠══════════════════════════════════════════════════════════════╣
-   ║ State preserved in .run/
-   ║
-   ║ To resume:
-   ║   /run-resume
-   ║
-   ║ To reset circuit breaker and resume:
-   ║   /run-resume --reset-ice
-   ║
-   ║ To abandon:
-   ║   rm -rf .run/
-   ╚══════════════════════════════════════════════════════════════╝
-   ```
+   → verbatim block: `resources/render-templates.md` §halt-summary-box
 
 ## `/run-resume` — Continue From Checkpoint
 
@@ -836,82 +551,17 @@ Tighter limits (bug scope is smaller), stored in `.run/bugs/{bug_id}/circuit-bre
 ### Bug State File
 
 Per-bug namespaced state in `.run/bugs/{bug_id}/state.json`:
-```json
-{
-  "schema_version": 1,
-  "bug_id": "20260211-a3f2b1",
-  "bug_title": "Login fails with + in email",
-  "sprint_id": "sprint-bug-3",
-  "state": "IMPLEMENTING",
-  "mode": "autonomous",
-  "created_at": "2026-02-11T10:00:00Z",
-  "updated_at": "2026-02-11T10:30:00Z",
-  "circuit_breaker": {
-    "cycle_count": 1,
-    "same_issue_count": 0,
-    "no_progress_count": 0,
-    "last_finding_hash": null
-  },
-  "confidence": {
-    "reproduction_strength": "strong",
-    "test_type": "unit",
-    "risk_level": "low",
-    "files_changed": 3,
-    "lines_changed": 42
-  }
-}
-```
-
-Allowed state transitions (reject anything else):
-```
-TRIAGE → IMPLEMENTING       (triage complete)
-IMPLEMENTING → REVIEWING    (implementation complete)
-REVIEWING → IMPLEMENTING    (review found issues)
-REVIEWING → AUDITING        (review passed)
-AUDITING → IMPLEMENTING     (audit found issues)
-AUDITING → COMPLETED        (audit passed)
-ANY → HALTED                (circuit breaker or manual halt)
-```
+→ verbatim block: `resources/state-schemas.md` §bug-state-schema
 
 ### Bug PR Creation (Confidence Signals)
 
 On completion, create a draft PR via ICE:
-```
-## Bug Fix: {bug_title}
-
-**Bug ID**: {bug_id}
-**Source**: /run --bug
-
-### Confidence Signals
-- Reproduction: {strong/weak/manual_only}
-- Test type: {unit/integration/e2e/contract}
-- Files changed: {N}
-- Lines changed: {N}
-- Risk level: {low/medium/high}
-
-### Artifacts
-- Triage: grimoires/loa/a2a/bug-{id}/triage.md
-- Review: grimoires/loa/a2a/bug-{id}/reviewer.md
-- Audit: grimoires/loa/a2a/bug-{id}/auditor-sprint-feedback.md
-
-### Status: READY FOR HUMAN REVIEW
-This PR was created by `/run --bug` autonomous mode.
-Please review before merging.
-```
+→ verbatim block: `resources/render-templates.md` §bug-pr-body
 **CRITICAL**: Bug PRs are ALWAYS draft. Never auto-merged. Human approval required.
 
 ### High-Risk Area Detection
 
-Checked against suspected files during triage (Phase 3): `auth, authentication, login, password,
-token, jwt, oauth, payment, billing, charge, stripe, checkout, migration, schema, database, db,
-encrypt, decrypt, secret, credential, key`.
-
-| Mode | Risk Level | Behavior |
-|------|-----------|----------|
-| Interactive | high | WARN: display risk, ask confirmation |
-| Autonomous | high (no `--allow-high`) | **HALT**: require `--allow-high` |
-| Autonomous | high (`--allow-high`) | Proceed with `risk_level: high` in PR |
-| Any | low/medium | Proceed normally |
+Triage checks suspected files against the high-risk keyword list (auth/payment/migration/secrets classes); autonomous mode HALTs on `high` without `--allow-high`; interactive mode warns and asks. Full keyword list + mode table: → `resources/render-templates.md` §high-risk-area-detection.
 
 ## Safety Model
 
@@ -926,30 +576,7 @@ deleted files prominently displayed, clear audit trail in cycle history.
 
 ## Configuration
 
-```yaml
-run_mode:
-  enabled: true  # Required to use /run
-  defaults:
-    max_cycles: 20
-    timeout_hours: 8
-  rate_limiting:
-    calls_per_hour: 100
-  circuit_breaker:
-    same_issue_threshold: 3
-    no_progress_threshold: 5
-  git:
-    branch_prefix: "feature/"
-    create_draft_pr: true
-    auto_push: true    # true | false | prompt
-    base_branch: "main"                     # Branch to diff against (git-aware sync fallback)
-    sprint_commit_pattern: '^feat\(sprint-' # grep -E pattern for sprint commits
-  sprint_plan:
-    branch_prefix: "feature/"
-    default_branch_name: "release"
-    consolidate_pr: true           # Create single PR for all sprints (default)
-    commit_prefix: "feat"          # Prefix for sprint commits
-    include_commits_by_sprint: true  # Group commits by sprint in PR
-```
+→ verbatim block: `resources/state-schemas.md` §configuration-yaml
 
 | Setting | Behavior |
 |---------|----------|
@@ -967,32 +594,8 @@ fresh.
 
 ### Git-Aware State Sync (cycle-056, Issue #474)
 
-When context compaction or session loss leaves `.run/sprint-plan-state.json` stuck at
-`state: "RUNNING"` with `0` completed sprints — even though git history shows all sprint commits
-already landed — `simstim-orchestrator.sh --sync-run-mode` cross-references git as a secondary
-source of truth before returning `still_running`.
+→ verbatim block: `resources/state-schemas.md` §git-aware-state-sync (recovery for RUNNING-but-actually-done sprint-plan state via `simstim-orchestrator.sh --sync-run-mode`)
 
-**When the fallback fires** (all three must hold):
-1. `sprint-plan-state.json` shows `state: "RUNNING"` (the normal trigger)
-2. `sprints.total` (or `sprints.list` length) resolves to a positive integer
-3. `git log ${base_branch}..HEAD` shows at least `sprints.total` commits matching
-   `run_mode.git.sprint_commit_pattern`
-
-When satisfied: updates `.run/sprint-plan-state.json` to `state: "JACKED_OUT"` with
-`git_inferred: true` and an ISO-8601 `git_inferred_at` timestamp; returns
-`{ "synced": true, "reason": "git_inferred_completion", "commits_found": N, "commits_expected": M, "base_branch": "main" }`.
-
-**When it does NOT fire**: in-flight runs with no commits yet, or partial runs
-(`commits_found < commits_expected`) → existing `still_running` preserved; state already
-`JACKED_OUT`/`HALTED` → existing validation flow.
-
-**Known limitation**: counts matching commits, so a sprint that produced multiple matching commits
-(e.g. review-feedback fix commits with the same prefix) can cause early satisfaction. Empirically
-rare — squash-merge workflows produce one commit per sprint. Consider `br list --status closed`
-as an authoritative alternative if this becomes a problem.
-
-Replaces the previous requirement to use `--force-phase complete --yes` as a last-resort escape
-hatch after session loss.
 
 ## Related
 

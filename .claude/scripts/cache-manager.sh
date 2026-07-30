@@ -603,15 +603,25 @@ cmd_set() {
 
 #######################################
 # Check if auto-synthesize is enabled
+# cycle-121: default flipped true -> false. The default-ON writer appended a
+# "Cache: result stored" Decisions row on EVERY cache set (including bats
+# runs), polluting NOTES.md's decision surface with 127 junk rows. Explicit
+# --message synthesis (a caller with a real decision) is unaffected. Test
+# runs never write NOTES.md regardless of config (BATS guard below).
 #######################################
 is_auto_synthesize_enabled() {
+    # Never auto-write NOTES.md from test harnesses
+    if [[ -n "${BATS_TEST_FILENAME:-}" || "${LOA_TEST_MODE:-}" == "1" ]]; then
+        return 1
+    fi
+
     if [[ ! -f "$CONFIG_FILE" ]]; then
         return 1
     fi
 
     if command -v yq &>/dev/null; then
         local enabled
-        enabled=$(yq '.recursive_jit.continuous_synthesis.on_cache_set // true' "$CONFIG_FILE" 2>/dev/null)
+        enabled=$(yq '.recursive_jit.continuous_synthesis.on_cache_set // false' "$CONFIG_FILE" 2>/dev/null)
         [[ "$enabled" == "true" ]]
     else
         return 1

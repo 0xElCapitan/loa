@@ -638,3 +638,22 @@
     - operator-gift-as-mechanism
     - vision-chain
     - kaironic-plateau
+
+- id: tertiary-skeptic-load-bearing
+  term: Tertiary Skeptic Is Load-Bearing
+  short: >-
+    In 3-model Flatline runs, 19/19 BLOCKER findings across three cycle-093
+    planning documents came from the tertiary skeptic (Gemini 2.5 Pro) while
+    primary (Opus) and secondary (GPT-5.3-codex) approved directionally.
+  context: >-
+    Empirical evidence from cycle-093-stabilization planning (2026-04-24):
+    Flatline Protocol 3-model mode run against PRD (6 blockers), SDD (5
+    blockers), and Sprint Plan (8 blockers) — all 19 emitted by the
+    tertiary_skeptic voice, zero by primary/secondary. Implication: the
+    tertiary leg is load-bearing, not nice-to-have; prefer 3-model mode as
+    the standard when all three providers have keys, and treat 2-model as
+    the degraded fallback. Migrated from grimoires/loa/memory/
+    observations.jsonl (obs-b8d5ce7d) at cycle-121 when the dead
+    semantic-memory subsystem was deleted.
+  source: cycle-093-stabilization planning (framework v1.99.2); flatline-{prd,sdd,sprint}-integration.md in cycles/cycle-093-stabilization/
+  tags: [flatline, multi-model, consensus, empirical]

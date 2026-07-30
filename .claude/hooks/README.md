@@ -154,16 +154,8 @@ Install: `bash .claude/scripts/install-deny-rules.sh --auto`
 
 ### Optional (separate installation)
 
-> **EXPERIMENTAL — not wired, do not rely on.** As of cycle-115 the memory
-> hooks below are **dead**: they are not registered in `settings.hooks.json`,
-> the vector DB is empty, and `observations.jsonl` holds a single
-> hand-authored entry (zero hook-generated entries). Installing them does
-> nothing useful until the semantic-memory subsystem is revived.
-
 | Path | Event | Purpose |
 |------|-------|---------|
-| `memory-writer.sh` | PostToolUse | Memory observation capture (requires memory config) — EXPERIMENTAL, unregistered |
-| `memory-inject.sh` | UserPromptSubmit | Memory injection on prompt (requires memory config) — EXPERIMENTAL, unregistered |
 | `safety/stop-input-probe.sh` | Stop | DIAGNOSTIC: dumps raw Stop input to `.run/stop-input-probe.jsonl`. Gated by `LOA_STOP_INPUT_PROBE=1`; merge into `settings.local.json` for ONE cap-hitting session to answer whether Stop input carries the session-limit text, then remove. Never in `settings.hooks.json`. |
 
 ### Configuration

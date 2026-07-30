@@ -16,7 +16,9 @@
         "enabled": true,
         "condition": "construct with workflow.gates is active",
         "yield_text": "OR when a construct with declared `workflow.gates` owns the current workflow",
-        "yield_on_gates": ["implement"]
+        "yield_on_gates": [
+          "implement"
+        ]
       },
       "order": 0,
       "layers": [
@@ -59,7 +61,10 @@
         },
         {
           "target": "skill-md",
-          "skills": ["autonomous-agent", "simstim-workflow"],
+          "skills": [
+            "autonomous-agent",
+            "simstim-workflow"
+          ],
           "render_as": "constraint_rule"
         },
         {
@@ -85,7 +90,9 @@
         "enabled": true,
         "condition": "construct with workflow.gates is active",
         "yield_text": "OR when a construct with `workflow.gates` declares pipeline composition",
-        "yield_on_gates": ["implement"]
+        "yield_on_gates": [
+          "implement"
+        ]
       },
       "order": 2,
       "layers": [
@@ -96,7 +103,10 @@
         },
         {
           "target": "skill-md",
-          "skills": ["autonomous-agent", "simstim-workflow"],
+          "skills": [
+            "autonomous-agent",
+            "simstim-workflow"
+          ],
           "render_as": "constraint_rule"
         },
         {
@@ -123,7 +133,10 @@
         "enabled": true,
         "condition": "construct declares review: skip or audit: skip",
         "yield_text": "Yield when construct declares `review: skip` or `audit: skip`",
-        "yield_on_gates": ["review", "audit"]
+        "yield_on_gates": [
+          "review",
+          "audit"
+        ]
       },
       "order": 3,
       "layers": [
@@ -134,7 +147,9 @@
         },
         {
           "target": "skill-md",
-          "skills": ["autonomous-agent"],
+          "skills": [
+            "autonomous-agent"
+          ],
           "render_as": "constraint_rule"
         },
         {
@@ -166,7 +181,9 @@
         },
         {
           "target": "skill-md",
-          "skills": ["simstim-workflow"],
+          "skills": [
+            "simstim-workflow"
+          ],
           "render_as": "constraint_rule"
         },
         {
@@ -198,7 +215,10 @@
         },
         {
           "target": "skill-md",
-          "skills": ["autonomous-agent", "simstim-workflow"],
+          "skills": [
+            "autonomous-agent",
+            "simstim-workflow"
+          ],
           "render_as": "constraint_rule"
         },
         {
@@ -254,7 +274,9 @@
         "enabled": true,
         "condition": "construct declares sprint: skip",
         "yield_text": "Yield when construct declares `sprint: skip`",
-        "yield_on_gates": ["sprint"]
+        "yield_on_gates": [
+          "sprint"
+        ]
       },
       "order": 3,
       "layers": [
@@ -410,7 +432,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["autonomous-agent"],
+          "skills": [
+            "autonomous-agent"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -431,7 +455,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["simstim-workflow"],
+          "skills": [
+            "simstim-workflow"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -452,7 +478,10 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["autonomous-agent", "simstim-workflow"],
+          "skills": [
+            "autonomous-agent",
+            "simstim-workflow"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -472,7 +501,10 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["autonomous-agent", "simstim-workflow"],
+          "skills": [
+            "autonomous-agent",
+            "simstim-workflow"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -492,7 +524,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["autonomous-agent"],
+          "skills": [
+            "autonomous-agent"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -512,7 +546,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["simstim-workflow"],
+          "skills": [
+            "simstim-workflow"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -532,7 +568,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["simstim-workflow"],
+          "skills": [
+            "simstim-workflow"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -552,7 +590,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["simstim-workflow"],
+          "skills": [
+            "simstim-workflow"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -579,7 +619,9 @@
         },
         {
           "target": "skill-md",
-          "skills": ["bug-triaging"],
+          "skills": [
+            "bug-triaging"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -626,7 +668,9 @@
         },
         {
           "target": "skill-md",
-          "skills": ["bug-triaging"],
+          "skills": [
+            "bug-triaging"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -647,7 +691,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["eval-running"],
+          "skills": [
+            "eval-running"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -668,7 +714,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["eval-running"],
+          "skills": [
+            "eval-running"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -688,7 +736,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["implementing-tasks"],
+          "skills": [
+            "implementing-tasks"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -708,7 +758,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["implementing-tasks"],
+          "skills": [
+            "implementing-tasks"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -728,7 +780,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["implementing-tasks"],
+          "skills": [
+            "implementing-tasks"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -748,7 +802,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["implementing-tasks"],
+          "skills": [
+            "implementing-tasks"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -768,7 +824,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["implementing-tasks"],
+          "skills": [
+            "implementing-tasks"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -788,7 +846,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["implementing-tasks"],
+          "skills": [
+            "implementing-tasks"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -808,7 +868,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["implementing-tasks"],
+          "skills": [
+            "implementing-tasks"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -828,7 +890,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["implementing-tasks"],
+          "skills": [
+            "implementing-tasks"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -848,7 +912,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["implementing-tasks"],
+          "skills": [
+            "implementing-tasks"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -868,7 +934,9 @@
       "layers": [
         {
           "target": "skill-md",
-          "skills": ["implementing-tasks"],
+          "skills": [
+            "implementing-tasks"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -894,7 +962,9 @@
         },
         {
           "target": "skill-md",
-          "skills": ["run-bridge"],
+          "skills": [
+            "run-bridge"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -920,7 +990,9 @@
         },
         {
           "target": "skill-md",
-          "skills": ["run-bridge"],
+          "skills": [
+            "run-bridge"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -946,7 +1018,10 @@
         },
         {
           "target": "skill-md",
-          "skills": ["run-bridge", "riding-codebase"],
+          "skills": [
+            "run-bridge",
+            "riding-codebase"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -993,7 +1068,9 @@
         },
         {
           "target": "skill-md",
-          "skills": ["run-bridge"],
+          "skills": [
+            "run-bridge"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -1019,7 +1096,9 @@
         },
         {
           "target": "skill-md",
-          "skills": ["run-bridge"],
+          "skills": [
+            "run-bridge"
+          ],
           "render_as": "constraint_rule"
         }
       ],
@@ -1120,9 +1199,11 @@
       "order": 2,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "merge_constraints",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "deploying-infrastructure"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "medium"
@@ -1140,9 +1221,11 @@
       "order": 3,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "merge_constraints",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "deploying-infrastructure"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "high"
@@ -1160,9 +1243,11 @@
       "order": 4,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "merge_constraints",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "deploying-infrastructure"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "medium"
@@ -1285,9 +1370,12 @@
       "order": 0,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "permission_grants",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "discovering-requirements",
+            "bridgebuilder-review"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "low"
@@ -1305,9 +1393,11 @@
       "order": 1,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "permission_grants",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "implementing-tasks"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "low"
@@ -1325,9 +1415,12 @@
       "order": 2,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "permission_grants",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "reviewing-code",
+            "bridgebuilder-review"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "low"
@@ -1345,9 +1438,13 @@
       "order": 3,
       "layers": [
         {
-          "target": "claude-loa-md",
-          "section": "permission_grants",
-          "render_as": "table_row"
+          "target": "skill-md",
+          "skills": [
+            "discovering-requirements",
+            "reviewing-code",
+            "bridgebuilder-review"
+          ],
+          "render_as": "constraint_rule"
         }
       ],
       "severity": "low"
@@ -1371,7 +1468,9 @@
         },
         {
           "target": "skill-md",
-          "skills": ["spiraling"],
+          "skills": [
+            "spiraling"
+          ],
           "render_as": "constraint_rule"
         }
       ],

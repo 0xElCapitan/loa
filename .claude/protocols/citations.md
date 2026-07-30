@@ -403,12 +403,52 @@ actual_line=$(sed -n '45p' "$citation_path")
 
 ---
 
+## Self-Audit Checkpoint (merged from self-audit-checkpoint.md, cycle-121)
+
+Before marking grounded work complete, verify against the trajectory log:
+
+```bash
+total_claims=$(grep '"phase":"cite"' trajectory.jsonl | wc -l)
+grounded_claims=$(grep '"grounding":"citation"' trajectory.jsonl | wc -l)
+# ratio = grounded/total — target >= 0.95
+```
+
+**Claim classification**: GROUNDED (word-for-word citation with file:line) · ASSUMPTION (explicitly `[ASSUMPTION]`-flagged) · GHOST (documented feature with zero code evidence) · SHADOW (code with zero documentation).
+
+**DO NOT complete the task if**: grounding ratio < 0.95 · any unflagged assumption · relative paths in citations · citations without code quotes · Ghost Features untracked (Beads) · Shadow Systems missing from drift-report.md · incomplete evidence chains. Remediate, then re-audit.
+
+---
+
+## Negative Grounding — claims of absence (merged from negative-grounding.md, cycle-121)
+
+A claim that a feature does NOT exist requires **two-query verification** (KF-019 class: confabulated absence):
+
+1. **Query 1** — the feature's functional description from docs
+2. **Query 2** — architectural/technical synonyms (different semantic angle)
+
+Exactly two queries (one under-tests, three over-fit). Classification:
+
+| Code results | Doc mentions | Classification | Action |
+|--------------|--------------|----------------|--------|
+| 0 | 0-2 | CONFIRMED GHOST | Track in Beads, remove from docs, drift-report entry |
+| 0 | 3+ | HIGH AMBIGUITY | Flag for human audit — never assert absence unilaterally |
+| 1+ | any | NOT GHOST | Feature exists; verify doc alignment |
+
+Ghost findings never count as grounded claims; log to trajectory with both query strings as evidence.
+
+---
+
+## Evidence-Driven Decisions (merged from edd-verification.md, cycle-121)
+
+Non-trivial implementation decisions carry an **evidence chain** (citations for each input to the decision) plus **three test scenarios** — happy path, edge case, error handling — each with specific assertions. A decision with unflagged `[ASSUMPTION]`s outstanding is not complete.
+
+---
+
 ## Related Protocols
 
 - **Trajectory Evaluation** (`.claude/protocols/trajectory-evaluation.md`) - Log citations to trajectory
-- **Self-Audit Checkpoint** (`.claude/protocols/self-audit-checkpoint.md`) - Verify citation compliance
 - **Tool Result Clearing** (`.claude/protocols/tool-result-clearing.md`) - Extract citations during synthesis
-- **EDD Verification** (`.claude/protocols/edd-verification.md`) - Require citations for test scenarios
+- **Grounding Enforcement** (`.claude/protocols/grounding-enforcement.md`) - Ratio rule and enforcement detail
 
 ---
 
@@ -417,6 +457,7 @@ actual_line=$(sed -n '45p' "$citation_path")
 | Version | Date | Changes |
 |---------|------|---------|
 | 1.0 | 2025-12-27 | Initial protocol creation (Sprint 3) |
+| 1.1 | 2026-07-29 | cycle-121: merged unique content of negative-grounding.md, self-audit-checkpoint.md, edd-verification.md (files deleted) |
 
 ---
 

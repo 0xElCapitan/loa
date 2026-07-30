@@ -16,6 +16,7 @@ cost-profile: heavy
 ---
 
 <input_guardrails>
+<!-- @skill-include: start input_guardrails | hash:f6e0cb9d | DO NOT EDIT — generated from .claude/data/skill-includes/input_guardrails.md -->
 ## Pre-Execution Guardrails (mechanized — cycle-119)
 
 Skip this section entirely when `.loa.config.yaml` has `guardrails.input.enabled: false` or env
@@ -31,6 +32,7 @@ Otherwise: write the user's invocation prompt/args to a temp file (Write tool), 
 | Script missing, non-zero exit, or unparseable output | Continue — fail-open, preserving pre-cycle-119 semantics |
 
 Never pass prompt text as a bash argv (quote-blindness FP class) — always via `--file`.
+<!-- @skill-include: end input_guardrails -->
 </input_guardrails>
 
 # DevOps Crypto Architect Skill
@@ -44,18 +46,11 @@ Design and deploy production-grade infrastructure for crypto/blockchain projects
 <zone_constraints>
 ## Zone Constraints
 
-This skill operates under **Managed Scaffolding**:
-
-| Zone | Permission | Notes |
-|------|------------|-------|
-| `.claude/` | NONE | System zone - never suggest edits |
-| `grimoires/loa/`, `.beads/` | Read/Write | State zone - project memory |
-| `src/`, `lib/`, `app/` | Read-only | App zone - requires user confirmation |
-
-**NEVER** suggest modifications to `.claude/`. Direct users to `.claude/overrides/` or `.loa.config.yaml`.
+Zones per CLAUDE.loa.md Three-Zone Model (`.claude/` system = never edit — use `.claude/overrides/` or `.loa.config.yaml`; `grimoires/loa/`, `.beads/` state = read/write). This skill's app zone (`src/`, `lib/`, `app/`): **Read-only**.
 </zone_constraints>
 
 <integrity_precheck>
+<!-- @skill-include: start integrity_precheck | hash:c6d25667 | DO NOT EDIT — generated from .claude/data/skill-includes/integrity_precheck.md -->
 ## Integrity Pre-Check (MANDATORY)
 
 Before ANY operation, verify System Zone integrity:
@@ -63,9 +58,11 @@ Before ANY operation, verify System Zone integrity:
 1. Check config: `yq eval '.integrity_enforcement' .loa.config.yaml`
 2. If `strict` and drift detected -> **HALT** and report
 3. If `warn` -> Log warning and proceed with caution
+<!-- @skill-include: end integrity_precheck -->
 </integrity_precheck>
 
 <factual_grounding>
+<!-- @skill-include: start factual_grounding | hash:edec7c58 | DO NOT EDIT — generated from .claude/data/skill-includes/factual_grounding.md -->
 ## Factual Grounding (MANDATORY)
 
 Before ANY synthesis, planning, or recommendation:
@@ -83,9 +80,11 @@ The SDD specifies "PostgreSQL 15 with pgvector extension" (sdd.md:L123)
 ```
 [ASSUMPTION] The database likely needs connection pooling
 ```
+<!-- @skill-include: end factual_grounding -->
 </factual_grounding>
 
 <context_discipline>
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
@@ -93,9 +92,11 @@ accumulated >5K / full file >3K / session total >15K → extract findings (≤10
 each, with file:line) to `grimoires/loa/NOTES.md`, then reason from the synthesis, not raw dumps.
 Session start: read NOTES.md "Session Continuity". Session end / pre-compaction: update it
 (decisions → Decision Log, discovered issues → Technical Debt).
+<!-- @skill-include: end context_discipline -->
 </context_discipline>
 
 <trajectory_logging>
+<!-- @skill-include: start trajectory_logging | hash:e809010f | DO NOT EDIT — generated from .claude/data/skill-includes/trajectory_logging.md -->
 ## Trajectory Logging
 
 Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`:
@@ -103,6 +104,7 @@ Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`
 ```json
 {"timestamp": "...", "agent": "...", "action": "...", "reasoning": "...", "grounding": {...}}
 ```
+<!-- @skill-include: end trajectory_logging -->
 </trajectory_logging>
 
 <kernel_framework>
@@ -210,105 +212,16 @@ If it exists, read it to understand:
 
 If the file doesn't exist, proceed with standard workflow.
 
-### Phase 1: Discovery & Analysis
+### Phases 1-5 (Discovery → Design → Implementation → Testing → Documentation)
 
-1. **Understand the Requirement**:
-   - What is the user trying to achieve?
-   - What are the constraints (budget, timeline, compliance)?
-   - What are the security and privacy requirements?
-   - Current state (greenfield vs. brownfield)?
+Standard infra methodology — apply judgment, no ritual walkthrough. The Loa-specific invariants per phase:
 
-2. **Review Existing Infrastructure**:
-   - Examine current architecture and configurations
-   - Identify technical debt and vulnerabilities
-   - Assess performance bottlenecks and cost inefficiencies
-   - Review monitoring and alerting setup
+1. **Discovery**: read `grimoires/loa/a2a/integration-context.md`, `prd.md`, `sdd.md` before designing; note blockchain/crypto-specific requirements.
+2. **Design**: document decisions + tradeoffs in the SDD trail; threat-model key management and secrets handling explicitly.
+3. **Implementation**: IaC only (version-controlled, parameterized, state-managed); least-privilege + audit trails are non-negotiable.
+4. **Testing**: `terraform validate`/`plan` (or stack equivalent) BEFORE staging, staging BEFORE production; test rollback, not just deploy.
+5. **Documentation**: runbooks + rollback steps land where integration-context.md says they must (deployment tracking, alert channels, on-call).
 
-3. **Gather Context**:
-   - Check `grimoires/loa/a2a/integration-context.md`
-   - Check `grimoires/loa/prd.md` for product requirements
-   - Check `grimoires/loa/sdd.md` for system design decisions
-   - Review any existing infrastructure code
-   - Understand blockchain/crypto specific requirements
-
-### Phase 2: Design & Planning
-
-1. **Architecture Design**:
-   - Design with security, scalability, and cost in mind
-   - Create architecture diagrams (text-based or references)
-   - Document design decisions and tradeoffs
-   - Consider multi-region, multi-cloud, or hybrid approaches
-
-2. **Security Threat Modeling**:
-   - Identify potential attack vectors
-   - Design defense-in-depth strategies
-   - Plan key management and secrets handling
-   - Consider privacy implications
-
-3. **Cost Estimation**:
-   - Estimate infrastructure costs
-   - Identify cost optimization opportunities
-   - Plan for scaling costs
-
-4. **Implementation Plan**:
-   - Break down work into phases
-   - Identify dependencies and critical path
-   - Plan testing and validation strategies
-   - Document rollback procedures
-
-### Phase 3: Implementation
-
-1. **Infrastructure as Code**:
-   - Write clean, modular, reusable IaC
-   - Use variables and parameterization
-   - Implement proper state management
-   - Version control all infrastructure code
-
-2. **Security Implementation**:
-   - Implement least privilege access
-   - Configure secrets management
-   - Set up network security controls
-   - Enable logging and audit trails
-
-3. **CI/CD Pipeline Setup**:
-   - Create automated deployment pipelines
-   - Implement testing stages
-   - Configure deployment strategies
-   - Set up notifications and approvals
-
-4. **Monitoring & Observability**:
-   - Deploy monitoring stack
-   - Create dashboards for key metrics
-   - Configure alerting rules
-   - Set up on-call rotation
-
-### Phase 4: Testing & Validation
-
-1. **Infrastructure Testing**:
-   - Validate IaC (`terraform validate`, `terraform plan`)
-   - Test in staging/development first
-   - Perform load testing
-   - Conduct security scanning
-
-2. **Disaster Recovery Testing**:
-   - Test backup and restore procedures
-   - Validate failover mechanisms
-   - Conduct chaos engineering experiments
-   - Document lessons learned
-
-### Phase 5: Documentation & Knowledge Transfer
-
-1. **Technical Documentation**:
-   - Architecture diagrams and decision records
-   - Runbooks for common operations
-   - Deployment procedures and rollback steps
-   - Security policies and compliance documentation
-
-2. **Operational Documentation**:
-   - Monitoring dashboard guides
-   - Alerting runbooks
-   - On-call procedures
-   - Cost allocation strategies
 </workflow>
 
 <parallel_execution>
@@ -822,6 +735,15 @@ Add to deployment report before requesting approval:
 
 <automated_mode>
 ## Automated Mode (v1.36.0) — Post-Merge Pipeline
+
+### Pipeline Constraints (generated)
+
+<!-- @constraint-generated: start deploying_infrastructure_merge | hash:0b5224eb9176596d -->
+<!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
+1. MUST log RTFM gaps but MUST NOT block the pipeline on documentation drift
+2. ALWAYS check for existing work before acting (tag exists, release exists, CHANGELOG version present)
+3. MUST only run full pipeline (CHANGELOG, GT, RTFM, Release) for cycle-type PRs
+<!-- @constraint-generated: end deploying_infrastructure_merge -->
 
 When invoked by claude-code-action via the post-merge GH Actions workflow, the `/ship` command
 operates in automated mode. This suppresses interactive confirmations and delegates to the

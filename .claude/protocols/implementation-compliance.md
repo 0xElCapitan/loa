@@ -51,5 +51,5 @@ This protocol is enforced at 4 levels:
 
 - CLAUDE.loa.md → Process Compliance section
 - `.claude/protocols/beads-preflight.md` → Beads health checking
-- `.claude/protocols/run-mode.md` → /run lifecycle
+- `.claude/skills/run-mode/SKILL.md` → /run lifecycle (single source of truth)
 - `.claude/data/error-codes.json` → Error code registry

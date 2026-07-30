@@ -35,11 +35,13 @@ zones:
 ---
 
 <prompt_enhancement_prelude>
+<!-- @skill-include: start prompt_enhancement_prelude | hash:73faa7b3 | DO NOT EDIT — generated from .claude/data/skill-includes/prompt_enhancement_prelude.md -->
 If `.loa.config.yaml` sets `prompt_enhancement.invisible_mode.enabled: true` and this command's
 frontmatter does not set `enhance: false`, silently apply the PTCF scoring + template flow from
 `.claude/skills/enhancing-prompts/SKILL.md` to the user's request before main logic (log per that
 skill; never show enhancement output). On any error, or when disabled: proceed with the original
 prompt unchanged.
+<!-- @skill-include: end prompt_enhancement_prelude -->
 </prompt_enhancement_prelude>
 
 <interview_config>
@@ -115,6 +117,18 @@ Precedence: Construct (if trust >= BACKTESTED) > per_skill config > global mode 
 
 # Discovering Requirements
 
+<permission_grants>
+## Permission Grants (MAY — registry-rendered)
+
+Precedence: NEVER > MUST > ALWAYS > SHOULD > MAY. Cite the constraint ID when exercising a grant.
+
+<!-- @constraint-generated: start discovering_requirements_grants | hash:926caf91dd268bf8 -->
+<!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
+1. MAY question the framing of requirements during `/plan-and-analyze` and bridge reviews, proposing alternative problem definitions when the analysis warrants reframing
+2. MAY create SPECULATION findings during planning and review skills (`/plan-and-analyze`, `/architect`, `/review-sprint`, bridge reviews) — explicitly excluded from `/implement` and `/audit-sprint`
+<!-- @constraint-generated: end discovering_requirements_grants -->
+</permission_grants>
+
 <objective>
 Synthesize existing project documentation and conduct targeted discovery
 interviews to produce a comprehensive PRD at `grimoires/loa/prd.md`.
@@ -130,20 +144,11 @@ interviews to produce a comprehensive PRD at `grimoires/loa/prd.md`.
 <zone_constraints>
 ## Zone Constraints
 
-This skill operates under **Managed Scaffolding**:
-
-| Zone | Permission | Notes |
-|------|------------|-------|
-| `.claude/` | NONE | System zone - never suggest edits |
-| `grimoires/loa/`, `.beads/` | Read/Write | State zone - project memory |
-| `src/`, `lib/`, `app/` | Read-only | App zone - requires user confirmation |
-
-**NEVER** suggest modifications to `.claude/`. Direct users to `.claude/overrides/` or `.loa.config.yaml`.
-
-Agents MAY proactively run read-only CLI tools (e.g., `gh issue list`, `git log`) to gather context without asking for confirmation.
+Zones per CLAUDE.loa.md Three-Zone Model (`.claude/` system = never edit — use `.claude/overrides/` or `.loa.config.yaml`; `grimoires/loa/`, `.beads/` state = read/write). This skill's app zone (`src/`, `lib/`, `app/`): **Read-only**.
 </zone_constraints>
 
 <integrity_precheck>
+<!-- @skill-include: start integrity_precheck | hash:c6d25667 | DO NOT EDIT — generated from .claude/data/skill-includes/integrity_precheck.md -->
 ## Integrity Pre-Check (MANDATORY)
 
 Before ANY operation, verify System Zone integrity:
@@ -151,9 +156,11 @@ Before ANY operation, verify System Zone integrity:
 1. Check config: `yq eval '.integrity_enforcement' .loa.config.yaml`
 2. If `strict` and drift detected -> **HALT** and report
 3. If `warn` -> Log warning and proceed with caution
+<!-- @skill-include: end integrity_precheck -->
 </integrity_precheck>
 
 <factual_grounding>
+<!-- @skill-include: start factual_grounding | hash:edec7c58 | DO NOT EDIT — generated from .claude/data/skill-includes/factual_grounding.md -->
 ## Factual Grounding (MANDATORY)
 
 Before ANY synthesis, planning, or recommendation:
@@ -171,9 +178,11 @@ The SDD specifies "PostgreSQL 15 with pgvector extension" (sdd.md:L123)
 ```
 [ASSUMPTION] The database likely needs connection pooling
 ```
+<!-- @skill-include: end factual_grounding -->
 </factual_grounding>
 
 <context_discipline>
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
@@ -181,9 +190,11 @@ accumulated >5K / full file >3K / session total >15K → extract findings (≤10
 each, with file:line) to `grimoires/loa/NOTES.md`, then reason from the synthesis, not raw dumps.
 Session start: read NOTES.md "Session Continuity". Session end / pre-compaction: update it
 (decisions → Decision Log, discovered issues → Technical Debt).
+<!-- @skill-include: end context_discipline -->
 </context_discipline>
 
 <trajectory_logging>
+<!-- @skill-include: start trajectory_logging | hash:e809010f | DO NOT EDIT — generated from .claude/data/skill-includes/trajectory_logging.md -->
 ## Trajectory Logging
 
 Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`:
@@ -191,6 +202,7 @@ Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`
 ```json
 {"timestamp": "...", "agent": "...", "action": "...", "reasoning": "...", "grounding": {...}}
 ```
+<!-- @skill-include: end trajectory_logging -->
 </trajectory_logging>
 
 <kernel_framework>
@@ -324,73 +336,9 @@ This will produce:
 - `grimoires/loa/reality/component-inventory.md`
 - `grimoires/loa/consistency-report.md`
 
-### Error Recovery
+### Error Recovery & Timeout Handling
 
-If /ride fails or times out:
-
-1. **Capture error** in NOTES.md Decision Log:
-   ```markdown
-   | Date | Decision | Rationale | Source |
-   |------|----------|-----------|--------|
-   | YYYY-MM-DD | /ride failed during codebase grounding | [error message] | Phase -0.5 |
-   ```
-
-2. **Check config for auto-skip**:
-   ```bash
-   skip_on_error=$(yq eval '.plan_and_analyze.codebase_grounding.skip_on_ride_error // false' .loa.config.yaml)
-   ```
-   If `skip_on_error: true`, automatically skip to Phase -1 with warning.
-
-3. **Otherwise prompt user** with AskUserQuestion:
-   ```yaml
-   questions:
-     - question: "/ride analysis failed. How would you like to proceed?"
-       header: "Recovery"
-       options:
-         - label: "Retry /ride analysis"
-           description: "Re-run codebase analysis (recommended)"
-         - label: "Skip codebase grounding"
-           description: "Proceed without code-based requirements (not recommended)"
-         - label: "Abort"
-           description: "Cancel /plan-and-analyze entirely"
-       multiSelect: false
-   ```
-
-4. **Handle user response**:
-
-   **If "Retry"**:
-   - Re-run /ride with fresh attempt
-   - If fails again, return to step 3 (max 2 retries)
-
-   **If "Skip"**:
-   - Log warning to NOTES.md blockers:
-     ```markdown
-     - [ ] [BLOCKER] PRD created without codebase grounding - /ride failed: [error]
-     ```
-   - Proceed to Phase -1 without reality context
-   - Add warning banner to generated PRD:
-     ```markdown
-     > ⚠️ **WARNING**: This PRD was created without codebase grounding.
-     > Run `/ride` and `/plan-and-analyze --fresh` for accurate requirements.
-     ```
-
-   **If "Abort"**:
-   - Log abort decision to trajectory
-   - Exit cleanly with message: "Aborting /plan-and-analyze. Run /ride manually and retry."
-
-5. **Preserve partial results** if available:
-   - If /ride produced any output files before failing, keep them
-   - Use whatever reality context exists for Phase 0
-
-### Timeout Handling
-
-Default timeout: 20 minutes (configurable in `.loa.config.yaml`)
-
-```yaml
-plan_and_analyze:
-  codebase_grounding:
-    ride_timeout_minutes: 20
-```
+If /ride fails or times out during grounding: capture the error in NOTES.md Decision Log, honor `plan_and_analyze.codebase_grounding.skip_on_ride_error`, otherwise present the retry/skip/abort choice. Full choreography: → `resources/REFERENCE.md` §Codebase-grounding error recovery.
 
 ### Greenfield Fast Path
 
@@ -497,96 +445,7 @@ Present the combined codebase + documentation understanding specimen in `resourc
 
 ## Step 0.5: Vision Registry Loading (v1.42.0)
 
-**Purpose**: Surface relevant captured visions from previous bridge reviews to inform planning.
-
-### Check Configuration
-
-```bash
-vr_enabled=$(yq eval '.vision_registry.enabled // false' .loa.config.yaml 2>/dev/null || echo "false")
-```
-
-If `vision_registry.enabled` is `false` or absent: **skip this step entirely** — no mention to user, no code runs.
-
-### Derive Work Context Tags
-
-When enabled, derive tags from available context in priority order:
-
-1. **Sprint file paths** (if `grimoires/loa/sprint.md` exists): Extract `**File**: \`...\`` patterns and map through `vision_extract_tags()` path-to-tag rules
-2. **User request keywords**: Match against controlled vocabulary (`architecture`, `security`, `constraints`, `multi-model`, `testing`, `philosophy`, `orchestration`, `configuration`, `eventing`)
-3. **PRD section headers** (if `grimoires/loa/prd.md` exists): Map headers to tags (e.g., "Security" → `security`)
-
-Tags are deduplicated and sorted before matching.
-
-### Query Vision Registry
-
-```bash
-visions=$(.claude/scripts/vision-registry-query.sh \
-  --tags "$work_tags" \
-  --status "$(yq eval '.vision_registry.status_filter | join(",")' .loa.config.yaml 2>/dev/null || echo 'Captured,Exploring')" \
-  --min-overlap "$(yq eval '.vision_registry.min_tag_overlap // 2' .loa.config.yaml 2>/dev/null || echo '2')" \
-  --max-results "$(yq eval '.vision_registry.max_visions_per_session // 3' .loa.config.yaml 2>/dev/null || echo '3')" \
-  --include-text \
-  --json)
-```
-
-### Route by Mode
-
-**Shadow mode** (`vision_registry.shadow_mode: true`):
-
-```bash
-# Log silently — do NOT present to user
-.claude/scripts/vision-registry-query.sh \
-  --tags "$work_tags" \
-  --shadow \
-  --shadow-cycle "$(yq eval '.active_cycle' grimoires/loa/ledger.json 2>/dev/null)" \
-  --shadow-phase "plan-and-analyze" \
-  --json > /dev/null
-```
-
-- Results logged to `grimoires/loa/a2a/trajectory/vision-shadow-{date}.jsonl`
-- Shadow cycle counter incremented in `grimoires/loa/visions/.shadow-state.json`
-- If graduation ready (cycles >= threshold AND matches > 0), present graduation prompt (see Step 0.5b)
-
-**Active mode** (`vision_registry.shadow_mode: false`):
-
-Present matched visions to user using the template below, then process user decisions.
-
-### Vision Presentation Template (Active Mode)
-
-For each matched vision, present using the presentation template in `resources/templates/vision-registry-templates.md`.
-
-**IMPORTANT**: The relevance explanation is template-based (tag match + score), NOT LLM-generated. Do not fabricate a narrative about why the vision is relevant — state the matched tags and score.
-
-### Process User Decisions
-
-For each vision the user responds to:
-
-| Choice | Action |
-|--------|--------|
-| **Explore** | Call `vision_update_status(vision_id, "Exploring", visions_dir)`. Record reference via `vision_record_ref()`. Log choice to trajectory JSONL. |
-| **Defer** | Log choice to trajectory JSONL. No status change. |
-| **Skip** | Log choice to trajectory JSONL. No status change. |
-
-Log format (append to `grimoires/loa/a2a/trajectory/vision-decisions-{date}.jsonl`):
-```json
-{
-  "timestamp": "ISO8601",
-  "cycle": "cycle-NNN",
-  "phase": "plan-and-analyze",
-  "vision_id": "vision-NNN",
-  "decision": "explore|defer|skip",
-  "score": N,
-  "matched_tags": ["tag1", "tag2"]
-}
-```
-
-### Step 0.5b: Shadow Graduation Prompt
-
-When the query script returns `graduation.ready: true`, present the shadow-graduation prompt in `resources/templates/vision-registry-templates.md`.
-
-On "Enable active mode": Update config via `yq eval '.vision_registry.shadow_mode = false' -i .loa.config.yaml`
-
----
+Runs ONLY when `vision_registry.enabled: true` (default false — skip this step entirely, no mention to user, no code runs). Full procedure (context tags, registry query, active/shadow routing, decisions, graduation prompt): → `resources/vision-registry.md` §Step 0.5.
 
 ## Phase 0.5: Targeted Interview
 
@@ -734,65 +593,7 @@ Proceed directly to generation with a one-line notice: "Generating PRD based on 
 
 ## Step 7.5: Vision-Inspired Requirement Proposals (Experimental, v1.42.0)
 
-**Purpose**: When a user chose "Explore" for a vision in Step 0.5, synthesize it with the work context to propose additional requirements the user may not have considered.
-
-**Gate**: This step ONLY runs when ALL conditions are met:
-1. `vision_registry.enabled: true` in `.loa.config.yaml`
-2. `vision_registry.propose_requirements: true` in `.loa.config.yaml` (default: `false`)
-3. At least one vision was marked "Explore" during Step 0.5
-
-If any condition is false: **skip this step silently**.
-
-### Load Explored Visions
-
-For each vision the user chose "Explore" in Step 0.5:
-
-```bash
-entry_file="grimoires/loa/visions/entries/${vision_id}.md"
-```
-
-Read the full entry file including `## Insight`, `## Potential`, and `## Connection Points` sections.
-
-### Synthesize Proposals
-
-For each explored vision, synthesize with the work context gathered from Phases 1-7 to propose 1-3 requirements. Each proposal must:
-
-1. **Trace to source vision**: `[VISION-INSPIRED: vision-NNN]`
-2. **Connect to work context**: Explain how this vision relates to what the user is building
-3. **Be concrete and actionable**: Not vague — propose specific functional or non-functional requirements
-4. **Respect scope**: Do not propose requirements that contradict user's stated scope
-
-### Present Proposals
-
-Present using the vision-inspired proposals specimen in `resources/templates/vision-registry-templates.md`.
-
-### Process Decisions
-
-| Choice | Action |
-|--------|--------|
-| **Accept** | Include in PRD under "## Vision-Inspired Requirements" section. Call `vision_update_status(vision_id, "Proposed", visions_dir)`. Record reference. |
-| **Modify** | User edits the requirement text. Include modified version in PRD. Status → Proposed. Record reference. |
-| **Reject** | Do not include. Log rejection reason to trajectory JSONL. No status change. |
-
-Log all decisions to `grimoires/loa/a2a/trajectory/vision-proposals-{date}.jsonl`:
-```json
-{
-  "timestamp": "ISO8601",
-  "cycle": "cycle-NNN",
-  "vision_id": "vision-NNN",
-  "proposal_title": "short title",
-  "decision": "accept|modify|reject",
-  "rejection_reason": "optional — only for reject"
-}
-```
-
-### PRD Integration
-
-Accepted/modified proposals go in a dedicated PRD section — use the PRD-integration specimen in `resources/templates/vision-registry-templates.md`.
-
-This section is clearly separated from user-driven requirements and carries full provenance.
-
----
+Runs ONLY when `vision_registry.enabled: true` AND `vision_registry.propose_requirements: true` AND at least one vision was marked "Explore" in Step 0.5. Full procedure: → `resources/vision-registry.md` §Step 7.5. Disabled (default): skip silently.
 
 ## Phase 8: PRD Generation
 

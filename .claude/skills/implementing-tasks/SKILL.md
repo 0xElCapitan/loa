@@ -35,6 +35,7 @@ inputs:
 ---
 
 <input_guardrails>
+<!-- @skill-include: start input_guardrails | hash:f3482c6c | DO NOT EDIT — generated from .claude/data/skill-includes/input_guardrails.md -->
 ## Pre-Execution Guardrails (mechanized — cycle-119)
 
 Skip this section entirely when `.loa.config.yaml` has `guardrails.input.enabled: false` or env
@@ -50,14 +51,17 @@ Otherwise: write the user's invocation prompt/args to a temp file (Write tool), 
 | Script missing, non-zero exit, or unparseable output | Continue — fail-open, preserving pre-cycle-119 semantics |
 
 Never pass prompt text as a bash argv (quote-blindness FP class) — always via `--file`.
+<!-- @skill-include: end input_guardrails -->
 </input_guardrails>
 
 <prompt_enhancement_prelude>
+<!-- @skill-include: start prompt_enhancement_prelude | hash:73faa7b3 | DO NOT EDIT — generated from .claude/data/skill-includes/prompt_enhancement_prelude.md -->
 If `.loa.config.yaml` sets `prompt_enhancement.invisible_mode.enabled: true` and this command's
 frontmatter does not set `enhance: false`, silently apply the PTCF scoring + template flow from
 `.claude/skills/enhancing-prompts/SKILL.md` to the user's request before main logic (log per that
 skill; never show enhancement output). On any error, or when disabled: proceed with the original
 prompt unchanged.
+<!-- @skill-include: end prompt_enhancement_prelude -->
 </prompt_enhancement_prelude>
 
 # Sprint Task Implementer
@@ -69,15 +73,7 @@ Implement sprint tasks from `grimoires/loa/sprint.md` with production-grade code
 <zone_constraints>
 ## Zone Constraints
 
-This skill operates under **Managed Scaffolding**:
-
-| Zone | Permission | Notes |
-|------|------------|-------|
-| `.claude/` | NONE | System zone - never suggest edits |
-| `grimoires/loa/`, `.beads/` | Read/Write | State zone - project memory |
-| `src/`, `lib/`, `app/` | Read/Write | App zone - implementation target |
-
-**NEVER** suggest modifications to `.claude/`. Direct users to `.claude/overrides/` or `.loa.config.yaml`.
+Zones per CLAUDE.loa.md Three-Zone Model (`.claude/` system = never edit — use `.claude/overrides/` or `.loa.config.yaml`; `grimoires/loa/`, `.beads/` state = read/write). This skill's app zone (`src/`, `lib/`, `app/`): **Read/Write**.
 </zone_constraints>
 
 <cli_tool_permissions>
@@ -112,6 +108,7 @@ Agents SHOULD proactively run CLI tools from the approved allowlist without aski
 </cli_tool_permissions>
 
 <integrity_precheck>
+<!-- @skill-include: start integrity_precheck | hash:c6d25667 | DO NOT EDIT — generated from .claude/data/skill-includes/integrity_precheck.md -->
 ## Integrity Pre-Check (MANDATORY)
 
 Before ANY operation, verify System Zone integrity:
@@ -119,9 +116,11 @@ Before ANY operation, verify System Zone integrity:
 1. Check config: `yq eval '.integrity_enforcement' .loa.config.yaml`
 2. If `strict` and drift detected -> **HALT** and report
 3. If `warn` -> Log warning and proceed with caution
+<!-- @skill-include: end integrity_precheck -->
 </integrity_precheck>
 
 <factual_grounding>
+<!-- @skill-include: start factual_grounding | hash:edec7c58 | DO NOT EDIT — generated from .claude/data/skill-includes/factual_grounding.md -->
 ## Factual Grounding (MANDATORY)
 
 Before ANY synthesis, planning, or recommendation:
@@ -139,9 +138,11 @@ The SDD specifies "PostgreSQL 15 with pgvector extension" (sdd.md:L123)
 ```
 [ASSUMPTION] The database likely needs connection pooling
 ```
+<!-- @skill-include: end factual_grounding -->
 </factual_grounding>
 
 <context_discipline>
+<!-- @skill-include: start context_discipline | hash:582badb8 | DO NOT EDIT — generated from .claude/data/skill-includes/context_discipline.md -->
 ## Context Discipline
 
 Follow `.claude/protocols/tool-result-clearing.md`. Thresholds: single result >2K tokens /
@@ -149,9 +150,11 @@ accumulated >5K / full file >3K / session total >15K → extract findings (≤10
 each, with file:line) to `grimoires/loa/NOTES.md`, then reason from the synthesis, not raw dumps.
 Session start: read NOTES.md "Session Continuity". Session end / pre-compaction: update it
 (decisions → Decision Log, discovered issues → Technical Debt).
+<!-- @skill-include: end context_discipline -->
 </context_discipline>
 
 <trajectory_logging>
+<!-- @skill-include: start trajectory_logging | hash:e809010f | DO NOT EDIT — generated from .claude/data/skill-includes/trajectory_logging.md -->
 ## Trajectory Logging
 
 Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`:
@@ -159,6 +162,7 @@ Log each significant step to `grimoires/loa/a2a/trajectory/{agent}-{date}.jsonl`
 ```json
 {"timestamp": "...", "agent": "...", "action": "...", "reasoning": "...", "grounding": {...}}
 ```
+<!-- @skill-include: end trajectory_logging -->
 </trajectory_logging>
 
 <kernel_framework>
@@ -175,19 +179,20 @@ Implement sprint tasks from `grimoires/loa/sprint.md` with production-grade code
 - **Desired state**: Working, tested implementation + comprehensive report
 
 ## Constraints (E - Explicit)
-<!-- @constraint-generated: start implementing_tasks_constraints | hash:5b15ea042277c84d -->
+<!-- @constraint-generated: start implementing_tasks_constraints | hash:56b77a38f8893cf7 -->
 <!-- DO NOT EDIT — generated from .claude/data/constraints.json -->
 1. DO NOT start new work without checking for audit feedback FIRST (highest priority)
 2. DO NOT start new work without checking for engineer feedback SECOND
-3. DO NOT assume feedback meaning—ask clarifying questions if unclear
-4. DO NOT skip tests—comprehensive test coverage is non-negotiable
-5. DO NOT ignore existing codebase patterns—follow established conventions
-6. DO NOT skip reading context files—always review PRD, SDD, sprint.md
-7. DO link implementations to source discussions if integration context requires
-8. DO update relevant documentation if specified in integration context
-9. DO format commits per org standards if defined
-10. DO follow SemVer for version updates
-11. DO walk the YAGNI ladder before writing code — stop at the first rung that holds (need it? → stdlib → native → installed dependency → one line → minimum code); reinventing stdlib/native features is a dominant over-engineering class
+3. MAY allocate time within a sprint for Vision Registry exploration when a captured vision is relevant to the current work
+4. DO NOT assume feedback meaning—ask clarifying questions if unclear
+5. DO NOT skip tests—comprehensive test coverage is non-negotiable
+6. DO NOT ignore existing codebase patterns—follow established conventions
+7. DO NOT skip reading context files—always review PRD, SDD, sprint.md
+8. DO link implementations to source discussions if integration context requires
+9. DO update relevant documentation if specified in integration context
+10. DO format commits per org standards if defined
+11. DO follow SemVer for version updates
+12. DO walk the YAGNI ladder before writing code — stop at the first rung that holds (need it? → stdlib → native → installed dependency → one line → minimum code); reinventing stdlib/native features is a dominant over-engineering class
 <!-- @constraint-generated: end implementing_tasks_constraints -->
 
 ## Verification (E - Easy to Verify)
@@ -570,25 +575,7 @@ When bugs or tech debt are discovered during implementation:
 This creates a new issue with semantic label `discovered-during:<parent-id>` for traceability.
 
 ### For each task:
-1. Implement according to specifications
-2. Follow established project patterns
-3. Write clean, maintainable, documented code
-4. Consider performance, security, scalability
-5. Handle edge cases and errors gracefully
-
-**Testing Requirements:**
-- Comprehensive unit tests for all new code
-- Test both happy paths and error conditions
-- Include edge cases and boundary conditions
-- Follow existing test patterns
-- Ensure tests are readable and maintainable
-
-**Code Quality Standards:**
-- Self-documenting with clear names
-- Comments for complex logic
-- DRY principles
-- Consistent formatting
-- Future maintainability
+Implement to spec, following established project patterns (Karpathy principles govern style — they're in context every session). Tests: happy path + error conditions + edge cases, following existing test patterns; the runnable-check floor from CLAUDE.loa.md applies.
 
 ## Phase 3: Documentation and Reporting
 
@@ -776,9 +763,11 @@ task-lifecycle / semantic-labels / session-end command reference (including
 </beads_workflow>
 
 <retrospective_postlude>
+<!-- @skill-include: start retrospective_postlude | hash:44ec4643 | DO NOT EDIT — generated from .claude/data/skill-includes/retrospective_postlude.md -->
 After main skill logic completes, if `.loa.config.yaml` `invisible_retrospective.enabled: true`
 (and not disabled for this skill under `invisible_retrospective.skills`), silently run the
 learning-signal scan per `.claude/skills/continuous-learning/SKILL.md` and its
 `resources/RETROSPECTIVE.md` (quality gates, sanitization, trajectory logging). Recursion guard:
 never when the active skill is continuous-learning itself.
+<!-- @skill-include: end retrospective_postlude -->
 </retrospective_postlude>
