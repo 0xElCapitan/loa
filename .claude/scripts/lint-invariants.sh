@@ -305,7 +305,7 @@ check_hooks_json() {
 #   (b) every .claude/hooks/{safety,compliance}/*.sh must be wired in the
 #       template OR explicitly parked below
 # Parked = deliberately opt-in, never auto-wired.
-PARKED_HOOK_SCRIPTS="implement-gate.sh"
+PARKED_HOOK_SCRIPTS="stop-input-probe.sh"  # implement-gate.sh WIRED cycle-122 (was parked since cycle-114)
 
 check_hooks_wiring() {
   local template=".claude/hooks/settings.hooks.json"

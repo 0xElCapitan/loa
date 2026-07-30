@@ -47,3 +47,27 @@ Karpathy CLAUDE.loa.md section (beyond the two wording fixes) · Agent Teams sec
 - `check-loa.sh` integrity section red in the dev repo since the 2026-01-17 manifest (mount-time regeneration is the fix; deleted-file rows were removed, rationale in NOTES Decision Log).
 - `tests/integration/` has pre-existing failures identical on main (ledger-workflow 24, check-updates 8, gpt-review-skills 6, …) — outside CI's bats gate.
 - validate-constraints 1 WARN: `agent_teams_constraints` orphan marker (section untouched by design — RISKY).
+
+
+---
+
+## Appendix: Cycle-122 "Mechanical Floor Extensions" (stacked follow-up, run-20260729-6751a4d1)
+
+Operator decisions 2026-07-29 executed: items 3-6 green-lit; Karpathy + Read-before-Write delegated with conditions.
+
+| Item | Outcome |
+|------|---------|
+| implement-gate.sh | WIRED (both settings files; 14/14 suite; fail-ASK) — N1/N3 + A1/A4 rows consolidated registry-clean |
+| git tag fence (FR-MERGE-2) | Live; allowlist entry removed; listing/delete forms allowed; audited override |
+| stash-swallow fence (FR-1.2b) | Live incl. ANY /dev/null redirect (round-2 dissenter fix — the live-incident shape); stash-safety.md shrunk to interface+judgment |
+| System-Zone Bash fence (FR-SZ2) | Live; honors the bounded zone-guard marker; overrides/+cache/ excluded; traversal-guarded (round-2 dissenter fix) |
+| post-merge agent | claude-sonnet-5 + C-MERGE constraints in prompt + violation-stop clause |
+| post-compaction skill-context | Active-skill re-surfacing (run-mode/run-bridge/simstim), state-sets grounded in stop-guard gates (round-2 dissenter fix), 8/8 bats |
+| C-BRIDGE render | All 8 rules registry-rendered in run-bridge/SKILL.md (004/007/008 first time at point of use); CLAUDE.loa.md table -> routing paragraph |
+| Karpathy trim (delegated) | APPLIED after unanimous 3/3 parity gate (round 1 was 2/3 — two dropped obligations RESTORED); -333 B/turn; every pinned clause byte-preserved; judge journals in a2a/sprint-3/parity-audit/ |
+| Read-before-Write (delegated) | KEPT — condition unmeetable without fleet telemetry; flip-evidence recorded (NOTES Decision Log + swm-rbw-remeasure) |
+| bd-a3ks | Template heading aligned; fresh mounts no longer WARN |
+
+**Always-loaded after cycle-122: 24,465 B** (cycle-121 start: 30,309 B → cumulative **−19.3%**), with MORE enforcement than before (4 new/wired fences).
+
+Remaining deferred (unchanged verdicts): Agent-Teams surfacing (needs design discussion), grounding-ratio landing, /bug eligibility validator, run-mode residual split, RISKY/KEEP items.

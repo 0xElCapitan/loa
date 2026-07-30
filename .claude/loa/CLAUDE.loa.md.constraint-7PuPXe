@@ -1,4 +1,4 @@
-<!-- @loa-managed: true | version: 1.196.0 | hash: 9723740d13b31af3b4b760b7ca79c65701565299f01bb864b3dffc579ff702a7 -->
+<!-- @loa-managed: true | version: 1.196.0 | hash: d39d5fbddc5164dca45e545e3d42848a06249fa678bc1ce50ac3ec9a13e5c855 -->
 <!-- WARNING: This file is managed by the Loa Framework. Do not edit directly. -->
 
 # Loa Framework Instructions
@@ -91,8 +91,11 @@ Grimoire and state file locations configurable via `.loa.config.yaml`. Overrides
 ## Karpathy Principles (applies on every code-touching turn, not just /implement)
 
 Adapted from [Andrej Karpathy's LLM coding observations](https://x.com/karpathy/status/2015883857489522876).
-This is the canonical in-context statement — skills reference it, never restate it (cycle-119).
-Enforcement map: `.claude/protocols/karpathy-principles.md`. Mechanical agent hygiene: `.claude/protocols/agent-ergonomics.md`.
+The four principles apply to every code-touching turn in Loa. This section is
+the canonical in-context statement — skills reference it rather than restating
+it (cycle-119). Detailed protocol: `.claude/protocols/karpathy-principles.md`.
+Mechanical agent hygiene (wait-loops, cd discipline, batch-Read-before-edit,
+fan-out budgets): `.claude/protocols/agent-ergonomics.md`.
 
 ### 1. Think Before Coding
 
@@ -105,7 +108,14 @@ assumption instead of halting to ask.
 
 ### 2. Simplicity First
 
-Write the minimum code that solves the request — nothing speculative: no unasked features, no single-use abstractions, no unrequested "flexibility" or "configurability", no error handling for impossible scenarios. If 200 lines could be 50, rewrite simpler. The test: would a senior engineer call this overcomplicated?
+Write minimum code that solves the request — nothing speculative.
+- No features beyond what was asked
+- No abstractions for single-use code
+- No "flexibility" or "configurability" that wasn't requested
+- No error handling for impossible scenarios
+- If 200 lines could be 50, rewrite simpler
+
+The test: would a senior engineer call this overcomplicated?
 
 Before writing code, walk the ladder — stop at the first rung that holds:
 1. Does this need to be built at all? (YAGNI — speculative need: say so and skip)
@@ -142,7 +152,15 @@ is no advise-only level — the floor above is never softened.
 
 ### 3. Surgical Changes
 
-Touch only what the request requires: match existing style (even if you'd do it differently), never "improve" adjacent code, comments, or formatting, don't refactor the unbroken, remove only imports/variables YOUR change orphaned, and leave pre-existing dead code alone (mention it separately). Every changed line traces to the request — "while I'm here" changes go in the PR description, not the diff.
+Touch only what the request requires. When editing existing code:
+- Match existing style, even if you'd do it differently
+- Don't "improve" adjacent code, comments, or formatting
+- Don't refactor things that aren't broken
+- Only remove imports/variables that YOUR changes made unused
+- Leave pre-existing dead code alone (mention separately if noticed)
+
+Every changed line should trace directly to the user's request. No
+"while I'm here" changes — note them in the PR description instead.
 
 Mark deliberate simplifications in-code so they read as intent, not ignorance:
 `// loa:shortcut: <what>`. When the shortcut has a known ceiling, name both the
@@ -152,7 +170,15 @@ trigger rots silently — don't leave one.
 
 ### 4. Goal-Driven Execution
 
-Transform tasks into verifiable goals before starting — "add validation" → "write tests for invalid inputs, then make them pass"; "fix the bug" → "write a failing repro test first, then make it pass"; "refactor X" → "tests green before AND after (behavior preserved)". Multi-step work states the plan + per-step verification up front; vague criteria ("make it robust") become concrete checks ("returns 401 on invalid creds").
+Transform tasks into verifiable goals before starting:
+- "Add validation" → "write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "write a test that reproduces it, then make it pass"
+- "Refactor X" → "ensure tests pass before and after"
+
+For multi-step tasks, state the plan + per-step verification before
+implementing. Vague success criteria ("make it robust", "improve quality")
+get replaced with concrete checks ("returns 401 on invalid creds", "test
+file X passes").
 
 Non-trivial logic (a branch, loop, parser, money or security path) MUST leave at
 least one runnable check that fails if the logic breaks — satisfied by the
