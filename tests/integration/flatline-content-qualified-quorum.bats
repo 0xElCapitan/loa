@@ -128,19 +128,22 @@ reasoned_empty_review() {
 }
 
 @test "CQ-5: main embeds canonical verdict and skips scoring when it is not APPROVED" {
-    run rg -n 'if ! qualify_and_aggregate_reviews' "$ORCH"
+    # grep, not rg: ripgrep is not guaranteed on contributor machines or
+    # minimal CI images, and a missing binary makes this assert exit 127 —
+    # an environment failure wearing a contract failure's clothes.
+    run grep -qF 'if ! qualify_and_aggregate_reviews' "$ORCH"
     [ "$status" -eq 0 ]
 
-    run rg -n -- '--argjson verdict_quality "\$FLATLINE_VERDICT_QUALITY"' "$ORCH"
+    run grep -qF -- '--argjson verdict_quality "$FLATLINE_VERDICT_QUALITY"' "$ORCH"
     [ "$status" -eq 0 ]
 
-    run rg -n 'Phase 1 verdict quality is .* skipping Phase 2' "$ORCH"
+    run grep -qE 'Phase 1 verdict quality is .* skipping Phase 2' "$ORCH"
     [ "$status" -eq 0 ]
 
-    run rg -n 'skip_consensus=true' "$ORCH"
+    run grep -qF 'skip_consensus=true' "$ORCH"
     [ "$status" -eq 0 ]
 
-    run rg -n 'exit 6' "$ORCH"
+    run grep -qF 'exit 6' "$ORCH"
     [ "$status" -eq 0 ]
 }
 
